@@ -1,0 +1,34 @@
+language: java
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+install:
+  - mvn clean install --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip -B -V
+before_install:
+  - if [ ! -z "$GPG_SECRET_KEYS" ]; then echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import; fi
+  - if [ ! -z "$GPG_OWNERTRUST" ]; then echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust; fi
+before_deploy:
+  - mvn clean package -P release --settings .settings.xml -DperformRelease=true -DskipTests=true -B -U
+deploy:
+  -
+    provider: script
+    script: mvn deploy -P release --settings .settings.xml -DperformRelease=true -DskipTests=true -B -U
+    skip_cleanup: true
+    on:
+      repo: azam/ulidj
+      jdk: oraclejdk7
+  -
+    provider: releases
+    api_key: "$GITHUB_OAUTH_TOKEN"
+    file_glob: true
+    file:
+      - "target/ulidj-*.jar"
+      - "target/*.pom"
+      - "target/*.asc"
+      - "target/*.sha1"
+    skip_cleanup: true
+    overwrite: true
+    on:
+      repo: azam/ulidj
+      jdk: oraclejdk7
+      tags: true
