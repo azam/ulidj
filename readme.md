@@ -39,7 +39,7 @@ Add the following tag to `dependencies` tag in your `pom.xml` file.
 
 ```xml
 <dependency>
-  <groupId>io.azam</groupId>
+  <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
   <version>1.0.0</version>
 </dependency>
