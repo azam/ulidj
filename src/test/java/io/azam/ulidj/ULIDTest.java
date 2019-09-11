@@ -36,6 +36,10 @@ import org.junit.Test;
  */
 public class ULIDTest {
 	private static final byte[] ZERO_ENTROPY = new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	private static final byte[] FILLED_ENTROPY = new byte[] {
+			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF
+	};
 
 	private static class TestParam {
 		public final long timestamp;
@@ -70,6 +74,7 @@ public class ULIDTest {
 
 	private static final TestParam[] TEST_PARAMETERS = new TestParam[] { //
 			new TestParam(ULID.MIN_TIME, ZERO_ENTROPY, "00000000000000000000000000", false), //
+			new TestParam(ULID.MIN_TIME, FILLED_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
 			new TestParam(ULID.MAX_TIME, ZERO_ENTROPY, "7ZZZZZZZZZ0000000000000000", false), //
 			new TestParam(0x00000001L, ZERO_ENTROPY, "00000000010000000000000000", false), //
 			new TestParam(0x0000000fL, ZERO_ENTROPY, "000000000F0000000000000000", false), //
