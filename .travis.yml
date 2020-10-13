@@ -1,7 +1,10 @@
 language: java
 jdk:
-  - openjdk7
   - openjdk8
+  - openjdk9
+  - openjdk10
+  - openjdk11
+  - openjdk12
 install:
   - mvn clean install --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip -B -V
 before_install:
@@ -16,7 +19,6 @@ deploy:
     skip_cleanup: true
     on:
       repo: azam/ulidj
-      jdk: openjdk7
       jdk: openjdk8
   -
     provider: releases
