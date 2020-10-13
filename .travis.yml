@@ -1,7 +1,7 @@
 language: java
 jdk:
-  - oraclejdk8
-  - oraclejdk7
+  - openjdk7
+  - openjdk8
 install:
   - mvn clean install --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip -B -V
 before_install:
@@ -16,7 +16,7 @@ deploy:
     skip_cleanup: true
     on:
       repo: azam/ulidj
-      jdk: oraclejdk7
+      jdk: openjdk7
   -
     provider: releases
     api_key: "$GITHUB_OAUTH_TOKEN"
@@ -30,5 +30,5 @@ deploy:
     overwrite: true
     on:
       repo: azam/ulidj
-      jdk: oraclejdk7
+      jdk: openjdk7
       tags: true
