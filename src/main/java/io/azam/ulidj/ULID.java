@@ -214,7 +214,7 @@ public class ULID {
 		chars[11] = C[(byte) (((entropy[0] << 2) | ((entropy[1] & 0xff) >>> 6)) & 0x1f)];
 		chars[12] = C[(byte) (((entropy[1] & 0xff) >>> 1) & 0x1f)];
 		chars[13] = C[(byte) (((entropy[1] << 4) | ((entropy[2] & 0xff) >>> 4)) & 0x1f)];
-		chars[14] = C[(byte) (((entropy[2] << 5) | ((entropy[3] & 0xff) >>> 7)) & 0x1f)];
+		chars[14] = C[(byte) (((entropy[2] << 1) | ((entropy[3] & 0xff) >>> 7)) & 0x1f)];
 		chars[15] = C[(byte) (((entropy[3] & 0xff) >>> 2) & 0x1f)];
 		chars[16] = C[(byte) (((entropy[3] << 3) | ((entropy[4] & 0xff) >>> 5)) & 0x1f)];
 		chars[17] = C[(byte) (entropy[4] & 0x1f)];
@@ -222,7 +222,7 @@ public class ULID {
 		chars[19] = C[(byte) (((entropy[5] << 2) | ((entropy[6] & 0xff) >>> 6)) & 0x1f)];
 		chars[20] = C[(byte) (((entropy[6] & 0xff) >>> 1) & 0x1f)];
 		chars[21] = C[(byte) (((entropy[6] << 4) | ((entropy[7] & 0xff) >>> 4)) & 0x1f)];
-		chars[22] = C[(byte) (((entropy[7] << 5) | ((entropy[8] & 0xff) >>> 7)) & 0x1f)];
+		chars[22] = C[(byte) (((entropy[7] << 1) | ((entropy[8] & 0xff) >>> 7)) & 0x1f)];
 		chars[23] = C[(byte) (((entropy[8] & 0xff) >>> 2) & 0x1f)];
 		chars[24] = C[(byte) (((entropy[8] << 3) | ((entropy[9] & 0xff) >>> 5)) & 0x1f)];
 		chars[25] = C[(byte) (entropy[9] & 0x1f)];
