@@ -36,9 +36,9 @@ import org.junit.Test;
  */
 public class ULIDTest {
 	private static final byte[] ZERO_ENTROPY = new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-	private static final byte[] FILLED_ENTROPY = new byte[] {
-			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
-			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF
+	private static final byte[] FULL_ENTROPY = new byte[] { //
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
 	};
 
 	private static class TestParam {
@@ -74,8 +74,9 @@ public class ULIDTest {
 
 	private static final TestParam[] TEST_PARAMETERS = new TestParam[] { //
 			new TestParam(ULID.MIN_TIME, ZERO_ENTROPY, "00000000000000000000000000", false), //
-			new TestParam(ULID.MIN_TIME, FILLED_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
 			new TestParam(ULID.MAX_TIME, ZERO_ENTROPY, "7ZZZZZZZZZ0000000000000000", false), //
+			new TestParam(ULID.MIN_TIME, FULL_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
+			new TestParam(ULID.MAX_TIME, FULL_ENTROPY, "7ZZZZZZZZZZZZZZZZZZZZZZZZZ", false), //
 			new TestParam(0x00000001L, ZERO_ENTROPY, "00000000010000000000000000", false), //
 			new TestParam(0x0000000fL, ZERO_ENTROPY, "000000000F0000000000000000", false), //
 			new TestParam(0x00000010L, ZERO_ENTROPY, "000000000G0000000000000000", false), //
@@ -218,5 +219,137 @@ public class ULIDTest {
 				Assert.assertArrayEquals("ULID entropy is different", params.entropy, ULID.getEntropy(params.value));
 			}
 		}
+	}
+
+	/**
+	 * This test increments entropy and checks the ULID value correctness.
+	 * This takes approx 45mins on a Intel® Core™ i7-7820X CPU @ 3.60GHz × 16,
+	 * so only run this locally.
+	 */
+	// @Test
+	public void testGeneratorCorrectness() {
+		long start = System.currentTimeMillis();
+		String previousValue = null;
+		final byte[] endEntropy = new byte[] { //
+				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, //
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
+		};
+		for (byte[] entropy = new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }; !byteArrayEquals(endEntropy, entropy); incrementByteArrayValue(entropy)) {
+			String value = ULID.generate(ULID.MIN_TIME, entropy);
+			TestParam param = new TestParam(ULID.MIN_TIME, entropy, value, false);
+			// Skip first value (previousValue==null)
+			if (previousValue != null) {
+				assertEntropyIsIncremented(previousValue, value);
+			}
+			// Progress logging
+			if (entropy[7] == 0x0 && entropy[8] == 0x0 && entropy[9] == 0x0) {
+				System.out.println(value);
+			}
+			Assert.assertArrayEquals("ULID entropy is different for " + param.reproducer, entropy, ULID.getEntropy(value));
+			Assert.assertEquals("ULID timestamp is different for " + param.reproducer, ULID.MIN_TIME, ULID.getTimestamp(value));
+			previousValue = value;
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("testGeneratorCorrectness took " + (end - start) + " [ms]");
+	}
+
+	/**
+	 * Base32 characters mapping
+	 */
+	private static final char[] C = new char[] { //
+		0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, //
+		0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, //
+		0x47, 0x48, 0x4a, 0x4b, 0x4d, 0x4e, 0x50, 0x51, //
+		0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a };
+
+	public static void assertEntropyIsIncremented(String prev, String next) {
+		Assert.assertEquals(prev.length(), next.length());
+		boolean charMustbeSame = false;
+		for (int i = next.length() - 1; i >=0; i--) {
+			if (!charMustbeSame) {
+				// We assume only ASCII characters, so charAt is good enough here.
+				int nextCharIndex = indexOfElement(C, next.charAt(i));
+				int prevCharIndex = indexOfElement(C, prev.charAt(i));
+				Assert.assertTrue("Next ULID value contains invalid character", nextCharIndex >= 0);
+				Assert.assertEquals("Next base64 char is wrong", ((nextCharIndex + C.length - 1) % C.length) , prevCharIndex);
+				charMustbeSame = nextCharIndex < C.length && nextCharIndex > 0;
+			} else {
+				Assert.assertEquals(next.charAt(i), prev.charAt(i));
+			}
+		}
+	}
+
+	public static int indexOfElement(char[] arr, char e) {
+		if (arr != null && arr.length > 0) {
+			for (int i = 0; i < arr.length; i++) {
+				if (arr[i] == e) return i;
+			}
+		}
+		return -1;
+	}
+
+	public static boolean byteArrayEquals(byte[] l, byte[] r) {
+		if (l != null && r != null && l.length == r.length) {
+			for (int i = 0; i < l.length; i++) {
+				if (l[i] != r[i]) return false;
+			}
+			return true;
+		} else if (l == null && r == null) {
+			return true;
+		}
+		return false;
+	}
+
+	@Test
+	public void testIncrementByteArrayValue() {
+		Assert.assertArrayEquals(new byte[] {0x1}, incrementByteArrayValue(new byte[] {0x0}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0x80}, incrementByteArrayValue(new byte[] {0x7f}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0x81}, incrementByteArrayValue(new byte[] {(byte) 0x80}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0xff}, incrementByteArrayValue(new byte[] {(byte) 0xfe}));
+		Assert.assertArrayEquals(new byte[] {0x0, 0x1}, incrementByteArrayValue(new byte[] {0x0, 0x0}));
+		Assert.assertArrayEquals(new byte[] {0x0, (byte) 0x80}, incrementByteArrayValue(new byte[] {0x0, 0x7f}));
+		Assert.assertArrayEquals(new byte[] {0x0, (byte) 0x81}, incrementByteArrayValue(new byte[] {0x0, (byte) 0x80}));
+		Assert.assertArrayEquals(new byte[] {0x0, (byte) 0xff}, incrementByteArrayValue(new byte[] {0x0, (byte) 0xfe}));
+		Assert.assertArrayEquals(new byte[] {0x1, 0x0}, incrementByteArrayValue(new byte[] {0x0, (byte) 0xff}));
+		Assert.assertArrayEquals(new byte[] {0x1, 0x1}, incrementByteArrayValue(new byte[] {0x1, 0x0}));
+		Assert.assertArrayEquals(new byte[] {0x1, (byte) 0x80}, incrementByteArrayValue(new byte[] {0x1, 0x7f}));
+		Assert.assertArrayEquals(new byte[] {0x1, (byte) 0x81}, incrementByteArrayValue(new byte[] {0x1, (byte) 0x80}));
+		Assert.assertArrayEquals(new byte[] {0x1, (byte) 0xff}, incrementByteArrayValue(new byte[] {0x1, (byte) 0xfe}));
+		Assert.assertArrayEquals(new byte[] {0x2, 0x0}, incrementByteArrayValue(new byte[] {0x1, (byte) 0xff}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0xff, 0x1}, incrementByteArrayValue(new byte[] {(byte) 0xff, 0x0}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0xff, (byte) 0x80}, incrementByteArrayValue(new byte[] {(byte) 0xff, 0x7f}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0xff, (byte) 0x81}, incrementByteArrayValue(new byte[] {(byte) 0xff, (byte) 0x80}));
+		Assert.assertArrayEquals(new byte[] {(byte) 0xff, (byte) 0xff}, incrementByteArrayValue(new byte[] {(byte) 0xff, (byte) 0xfe}));
+	}
+
+	@Test(expected = ArrayIndexOutOfBoundsException.class)
+	public void testIncrementByteArrayValueOverflow() {
+		incrementByteArrayValue(new byte[] {(byte) 0xff});
+	}
+
+	@Test(expected = ArrayIndexOutOfBoundsException.class)
+	public void testIncrementByteArrayValueOverflow2() {
+		incrementByteArrayValue(new byte[] {(byte) 0xff, (byte) 0xff});
+	}
+
+	/**
+	 * Test only helper function to increment a byte array value by 1. Byte array is updated inline.
+	 * 
+	 * @param bytes Byte array to increment
+	 * @return Incremented byte array.
+	 */
+	public static byte[] incrementByteArrayValue(byte[] bytes) {
+		if (bytes != null && bytes.length > 0) {
+			for (int i = bytes.length - 1; i >=0; i--) {
+				if (bytes[i] == (byte) 0xff) {
+					bytes[i] = 0x0;
+				} else {
+					bytes[i] = (byte) (bytes[i] + 1);
+					return bytes;
+				}
+			}
+			throw new ArrayIndexOutOfBoundsException("Byte array value increment overflow due to insufficient array length.");
+		}
+		throw new ArrayIndexOutOfBoundsException("Byte array is null or empty");
 	}
 }
