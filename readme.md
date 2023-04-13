@@ -1,7 +1,8 @@
 # ulidj
 
 [![MIT licensed](https://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/azam/ulidj/master/license)
-[![Travis CI](https://api.travis-ci.org/azam/ulidj.svg?branch=master)](https://travis-ci.org/azam/ulidj)
+[![Maven Central](https://img.shields.io/maven-central/v/io.azam.ulidj/ulidj)](https://central.sonatype.com/artifact/io.azam.ulidj/ulidj)
+[![Build Status](https://github.com/azam/ulidj/actions/workflows/build.yml/badge.svg)](https://github.com/azam/ulidj/actions/workflows/build.yml)
 
 ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
 
