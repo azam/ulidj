@@ -34,3 +34,10 @@ jobs:
           MAVEN_GPG_KEYNAME: ${{secrets.MAVEN_GPG_KEYNAME}}
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
         run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V
+      - name: artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ulidj-*.pom
+            ulidj-*.jar
+            ulidj-*.asc
