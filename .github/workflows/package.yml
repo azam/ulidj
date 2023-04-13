@@ -1,14 +1,15 @@
-name: publish
+name: package
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - main
+      - develop
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: publish
+  package:
+    name: package
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,17 +28,10 @@ jobs:
         with:
           gpg_private_key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
           passphrase: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-      - name: publish
+      - name: package
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
           MAVEN_GPG_KEYNAME: ${{secrets.MAVEN_GPG_KEYNAME}}
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-        run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V
-      - name: artifacts
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            ulidj-*.pom
-            ulidj-*.jar
-            ulidj-*.asc
+        run: mvn package -P release --batch-mode --settings .settings.xml -DskipTests=true -DperformRelease=false -Dmaven.deploy.skip=true --update-snapshots -B -V

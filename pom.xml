@@ -93,7 +93,8 @@
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.22.0</version>
+        <!-- Sticking to this version as it is the latest that supports JDK8 -->
+        <version>2.16.0</version>
         <configuration>
           <configFile>${project.basedir}/eclipse-java-google-style.xml</configFile>
           <encoding>${project.build.sourceEncoding}</encoding>
@@ -166,6 +167,7 @@
                   <goal>sign</goal>
                 </goals>
                 <configuration>
+                  <keyname>${env.MAVEN_GPG_KEYNAME}</keyname>
                   <!-- Prevent gpg from using pinentry programs -->
                   <gpgArguments>
                     <arg>--pinentry-mode</arg>
