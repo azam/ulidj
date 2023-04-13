@@ -1,4 +1,4 @@
-name: publish-dry-run
+name: publish
 
 on:
   release:
@@ -7,9 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-dry-run:
-    name: publish-dry-run
-    uses: ./.github/workflows/publish-dry-run.yml
   publish:
     name: publish
     runs-on: ubuntu-latest

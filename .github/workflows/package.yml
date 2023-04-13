@@ -1,4 +1,4 @@
-name: publish-dry-run
+name: package
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-dry-run:
-    name: publish-dry-run
+  package:
+    name: package
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,10 +28,10 @@ jobs:
         with:
           gpg_private_key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
           passphrase: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-      - name: publish-dry-run
+      - name: package
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
           MAVEN_GPG_KEYNAME: ${{secrets.MAVEN_GPG_KEYNAME}}
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-        run: mvn deploy -P release --batch-mode --settings .settings.xml -DskipTests=true -DperformRelease=false -Dmaven.deploy.skip=true --update-snapshots -B -V
+        run: mvn package -P release --batch-mode --settings .settings.xml -DskipTests=true -DperformRelease=false -Dmaven.deploy.skip=true --update-snapshots -B -V
