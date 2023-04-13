@@ -1,7 +1,10 @@
 name: publish-dry-run
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+      - develop
   workflow_dispatch:
 
 jobs:

@@ -49,6 +49,3 @@ jobs:
           cache: maven
       - name: verify-${{matrix.name}}
         run: mvn verify --settings .settings.xml -Dgpg.skip -B -V
-  publish-dry-run:
-    name: publish-dry-run
-    uses: ./.github/workflows/publish-dry-run.yml

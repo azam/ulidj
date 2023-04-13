@@ -12,8 +12,6 @@ jobs:
     uses: ./.github/workflows/publish-dry-run.yml
   publish:
     name: publish
-    needs:
-      - publish-dry-run
     runs-on: ubuntu-latest
     permissions:
       contents: write
