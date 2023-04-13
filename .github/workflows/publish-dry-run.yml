@@ -1,6 +1,7 @@
 name: publish-dry-run
 
 on:
+  workflow_call:
   workflow_dispatch:
 
 jobs:
