@@ -36,13 +36,13 @@ SOFTWARE.
 
 ## Maven
 
-Add the following tag to `dependencies` tag in your `pom.xml` file.
+Add the following tag to `dependencies` tag in your `pom.xml` file. Change the version to the latest version accordingly. You can check the latest published version [here](https://central.sonatype.com/artifact/io.azam.ulidj/ulidj).
 
 ```xml
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
