@@ -27,11 +27,11 @@ jobs:
           java-version: 8
           distribution: temurin
           cache: maven
-          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
-          server-username: MAVEN_USERNAME # env variable for username in deploy
-          server-password: MAVEN_PASSWORD # env variable for token in deploy
-          gpg-private-key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}} # Value of the GPG private key to import
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+      - name: setup-gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
+          passphrase: ${{secrets.MAVEN_GPG_PASSPHRASE}}
       - name: publish
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
