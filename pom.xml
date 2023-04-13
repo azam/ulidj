@@ -167,6 +167,7 @@
                   <goal>sign</goal>
                 </goals>
                 <configuration>
+                  <keyname>${env.MAVEN_GPG_KEYNAME}</keyname>
                   <!-- Prevent gpg from using pinentry programs -->
                   <gpgArguments>
                     <arg>--pinentry-mode</arg>
