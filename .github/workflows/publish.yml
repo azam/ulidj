@@ -34,4 +34,4 @@ jobs:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-        run: mvn deploy -P release --batch-mode --settings .settings.xml -DskipTests=true -DperformRelease=false -Dmaven.deploy.skip=true --update-snapshots -B -V
+        run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V

@@ -39,18 +39,16 @@ jobs:
             version: 17
             distribution: temurin
     steps:
-      - name: checkout-${{matrix.distribution}}-${{matrix.version}}
+      - name: checkout-${{matrix.name}}
         uses: actions/checkout@v2
-      - name: setup-toolchain-${{matrix.distribution}}-${{matrix.version}}
+      - name: setup-toolchain-${{matrix.name}}
         uses: actions/setup-java@v2
         with:
           java-version: ${{matrix.version}}
           distribution: ${{matrix.distribution}}
           cache: maven
-      - name: build-${{matrix.distribution}}-${{matrix.version}}
-        run: mvn clean install --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip -B -V
-      - name: test-${{matrix.distribution}}-${{matrix.version}}
-        run: mvn clean install --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip -B -V
+      - name: verify-${{matrix.name}}
+        run: mvn verify --settings .settings.xml -Dgpg.skip -B -V
   publish-dry-run:
     name: publish-dry-run
     uses: ./.github/workflows/publish-dry-run.yml

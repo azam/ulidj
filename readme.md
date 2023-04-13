@@ -68,6 +68,13 @@ assert ts == 123456789000L;
 byte[] entropy = ULID.getEntropy(ulid);
 ```
 
+## Develop
+
+Please run the following before sending a PR:
+
+* Make sure tests are passing and source is properly formatted by running ```mvn verify```
+* You can format sources to match style with ```mvn formatter:format xml-format:xml-format```
+
 ## Prior Art
 
 - [Lewiscowles1986/jULID](https://github.com/Lewiscowles1986/jULID)
