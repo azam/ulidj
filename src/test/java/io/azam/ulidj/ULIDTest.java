@@ -1,18 +1,18 @@
 /**
  * MIT License
- * 
+ *
  * Copyright (c) 2016 Azamshul Azizy
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,13 +30,13 @@ import org.junit.Test;
 
 /**
  * Test class for {@link io.azam.ulidj.ULID}
- * 
+ *
  * @author azam
  * @since 0.0.1
  */
 public class ULIDTest {
 	private static final byte[] ZERO_ENTROPY = new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-	private static final byte[] FULL_ENTROPY = new byte[] { //
+	private static final byte[] FILLED_ENTROPY = new byte[] { //
 		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
 		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
 	};
@@ -74,9 +74,10 @@ public class ULIDTest {
 
 	private static final TestParam[] TEST_PARAMETERS = new TestParam[] { //
 			new TestParam(ULID.MIN_TIME, ZERO_ENTROPY, "00000000000000000000000000", false), //
+			new TestParam(ULID.MIN_TIME, FILLED_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
 			new TestParam(ULID.MAX_TIME, ZERO_ENTROPY, "7ZZZZZZZZZ0000000000000000", false), //
-			new TestParam(ULID.MIN_TIME, FULL_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
-			new TestParam(ULID.MAX_TIME, FULL_ENTROPY, "7ZZZZZZZZZZZZZZZZZZZZZZZZZ", false), //
+			new TestParam(ULID.MIN_TIME, FILLED_ENTROPY, "0000000000ZZZZZZZZZZZZZZZZ", false), //
+			new TestParam(ULID.MAX_TIME, FILLED_ENTROPY, "7ZZZZZZZZZZZZZZZZZZZZZZZZZ", false), //
 			new TestParam(0x00000001L, ZERO_ENTROPY, "00000000010000000000000000", false), //
 			new TestParam(0x0000000fL, ZERO_ENTROPY, "000000000F0000000000000000", false), //
 			new TestParam(0x00000010L, ZERO_ENTROPY, "000000000G0000000000000000", false), //
@@ -334,7 +335,7 @@ public class ULIDTest {
 
 	/**
 	 * Test only helper function to increment a byte array value by 1. Byte array is updated inline.
-	 * 
+	 *
 	 * @param bytes Byte array to increment
 	 * @return Incremented byte array.
 	 */
