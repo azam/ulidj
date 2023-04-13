@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  schedule:
+    - cron: '0 9 * * 3'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: test-${{matrix.distribution}}-${{matrix.version}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        name:
+          - jdk8
+          - jdk11
+        include:
+          - name: jdk8
+            version: 8
+            distribution: temurin
+          - name: jdk11
+            version: 11
+            distribution: temurin
+          - name: jdk16
+            version: 16
+            distribution: temurin
+          - name: jdk17
+            version: 17
+            distribution: temurin
+    steps:
+      - name: checkout-${{matrix.name}}
+        uses: actions/checkout@v2
+      - name: setup-toolchain-${{matrix.name}}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{matrix.version}}
+          distribution: ${{matrix.distribution}}
+          cache: maven
+      - name: verify-${{matrix.name}}
+        run: mvn verify --settings .settings.xml -Dgpg.skip -B -V
+  publish-dry-run:
+    name: publish-dry-run
+    uses: ./.github/workflows/publish-dry-run.yml

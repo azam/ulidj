@@ -1,0 +1,37 @@
+name: publish-dry-run
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  publish-dry-run:
+    name: publish-dry-run
+    uses: ./.github/workflows/publish-dry-run.yml
+  publish:
+    name: publish
+    needs:
+      - publish-dry-run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup-toolchain
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: maven
+      - name: setup-gpg
+        run: 'echo -n "${{secrets.MAVEN_GPG_PRIVATE_KEY}}" | base64 --decode | gpg --batch --import'
+      - name: publish
+        env:
+          MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
+          MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
+          MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
+        run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V

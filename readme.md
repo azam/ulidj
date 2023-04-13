@@ -1,7 +1,8 @@
 # ulidj
 
 [![MIT licensed](https://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/azam/ulidj/master/license)
-[![Travis CI](https://api.travis-ci.org/azam/ulidj.svg?branch=master)](https://travis-ci.org/azam/ulidj)
+[![Maven Central](https://img.shields.io/maven-central/v/io.azam.ulidj/ulidj)](https://central.sonatype.com/artifact/io.azam.ulidj/ulidj)
+[![Build Status](https://github.com/azam/ulidj/actions/workflows/build.yml/badge.svg)](https://github.com/azam/ulidj/actions/workflows/build.yml)
 
 ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
 
@@ -35,13 +36,13 @@ SOFTWARE.
 
 ## Maven
 
-Add the following tag to `dependencies` tag in your `pom.xml` file.
+Add the following tag to `dependencies` tag in your `pom.xml` file. Change the version to the latest version accordingly. You can check the latest published version [here](https://central.sonatype.com/artifact/io.azam.ulidj/ulidj).
 
 ```xml
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -66,6 +67,13 @@ long ts = ULID.getTimestamp(ulid);
 assert ts == 123456789000L;
 byte[] entropy = ULID.getEntropy(ulid);
 ```
+
+## Develop
+
+Please run the following before sending a PR:
+
+* Make sure tests are passing and source is properly formatted by running ```mvn verify```
+* You can format sources to match style with ```mvn formatter:format xml-format:xml-format```
 
 ## Prior Art
 
