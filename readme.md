@@ -6,7 +6,7 @@
 
 ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
 
-Refer [alizain/ulid](https://github.com/alizain/ulid) for a more detailed ULID specification.
+Refer [ulid/spec](https://github.com/ulid/spec) for a more detailed ULID specification.
 
 ## License
 
@@ -68,6 +68,15 @@ assert ts == 123456789000L;
 byte[] entropy = ULID.getEntropy(ulid);
 ```
 
+Monotonic ULID generation example:
+
+```java
+MonotonicULID ulid = new MonotonicULID();
+String ulid1 = ulid.next();
+String ulid2 = ulid.next();
+String ulid3 = ulid.next();
+```
+
 ## Develop
 
 Please run the following before sending a PR:
@@ -78,4 +87,4 @@ Please run the following before sending a PR:
 ## Prior Art
 
 - [Lewiscowles1986/jULID](https://github.com/Lewiscowles1986/jULID)
-- [alizain/ulid](https://github.com/alizain/ulid)
+- [ulid/spec](https://github.com/ulid/spec)
