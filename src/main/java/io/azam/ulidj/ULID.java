@@ -51,13 +51,18 @@ import java.util.Random;
  * @since 0.0.1
  *
  * @see <a href="http://www.crockford.com/wrmg/base32.html">Base32 Encoding</a>
- * @see <a href="https://github.com/alizain/ulid">ULID</a>
+ * @see <a href="https://github.com/ulid/spec">ULID</a>
  */
 public class ULID {
   /**
    * ULID string length.
    */
   public static final int ULID_LENGTH = 26;
+
+  /**
+   * ULID entropy byte length.
+   */
+  public static final int ENTROPY_LENGTH = 10;
 
   /**
    * Minimum allowed timestamp value.
@@ -76,7 +81,8 @@ public class ULID {
       0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, //
       0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, //
       0x47, 0x48, 0x4a, 0x4b, 0x4d, 0x4e, 0x50, 0x51, //
-      0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a};
+      0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a //
+  };
 
   /**
    * {@code char} to {@code byte} O(1) mapping with alternative chars mapping
@@ -182,7 +188,7 @@ public class ULID {
    * @return ULID string
    */
   public static String generate(long time, byte[] entropy) {
-    if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length < 10) {
+    if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length < ENTROPY_LENGTH) {
       throw new IllegalArgumentException(
           "Time is too long, or entropy is less than 10 bytes or null");
     }
