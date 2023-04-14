@@ -4,9 +4,15 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.azam.ulidj/ulidj)](https://central.sonatype.com/artifact/io.azam.ulidj/ulidj)
 [![Build Status](https://github.com/azam/ulidj/actions/workflows/build.yml/badge.svg)](https://github.com/azam/ulidj/actions/workflows/build.yml)
 
-ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
+ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java. Refer [ulid/spec](https://github.com/ulid/spec) for a more detailed ULID specification.
 
-Refer [ulid/spec](https://github.com/ulid/spec) for a more detailed ULID specification.
+## Features
+
+* Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit UUID compatible) objects
+* Parses ULID from `String` (Crockford's base32) or `byte[]` (128-bit UUID compatible) objects
+* Fast and simple static methods
+* Includes ULID monotonic generator
+* Zero runtime dependencies
 
 ## License
 
@@ -55,26 +61,39 @@ String ulid1 = ULID.random();
 String ulid2 = ULID.random(ThreadLocalRandom.current());
 String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
 byte[] entropy = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9 };
-String ulid4 = ULID.generate(System.currentTimeMillis(), entropy);
+String ulid4 = ULID.generate(System.currentTimeMillis(), entropy); // Generate ULID in string representation
+byte[] ulid5 = ULID.generateBinary(System.currentTimeMillis(), entropy); // Generate ULID in binary representation
 ```
 
 ULID parsing examples:
 
 ```java
+// ULID string parsing
 String ulid = "003JZ9J6G80123456789abcdef";
 assert ULID.isValid(ulid);
 long ts = ULID.getTimestamp(ulid);
 assert ts == 123456789000L;
 byte[] entropy = ULID.getEntropy(ulid);
+
+// ULID binary parsing
+byte[] ulidBinary =  new byte[] { //
+    // Timestamp part
+    (byte) 0x01, (byte) 0x33, (byte) 0x7C, (byte) 0x0D, (byte) 0xEF, (byte) 0x00, //
+    // Entropy part
+    (byte) 0x10, (byte) 0x20, (byte) 0x30, (byte) 0x40, (byte) 0x50, (byte) 0x60, (byte) 0x70, (byte) 0x80, (byte) 0x90, (byte) 0x10 //
+};
+assert ULID.isValidBinary(ulidBinary);
+long ts = ULID.getTimestampBinary(ulidBinary);
+assert ts == 1320636247808L;
+byte[] entropy = ULID.getEntropyBinary(ulidBinary);
 ```
 
 Monotonic ULID generation example:
 
 ```java
 MonotonicULID ulid = new MonotonicULID();
-String ulid1 = ulid.next();
-String ulid2 = ulid.next();
-String ulid3 = ulid.next();
+String ulidString = ulid.generate(); // Generate ULID in string representation
+byte[] ulidBinary = ulid.generateBinary(); // Generate ULID in binary representation
 ```
 
 ## Develop
