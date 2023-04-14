@@ -60,9 +60,9 @@ public class ULID {
   public static final int ULID_LENGTH = 26;
 
   /**
-   * ULID byte length.
+   * ULID binary length.
    */
-  public static final int ULID_BYTE_LENGTH = 16;
+  public static final int ULID_BINARY_LENGTH = 16;
 
   /**
    * ULID entropy byte length.
@@ -273,7 +273,7 @@ public class ULID {
           "Time is too long, or entropy is less than 10 bytes or null");
     }
 
-    byte[] bytes = new byte[ULID.ULID_BYTE_LENGTH];
+    byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
 
     // Long to big endian byte array up to 6 bytes
     long ts = time;
@@ -315,7 +315,7 @@ public class ULID {
    * @return true if ULID binary is valid
    */
   public static boolean isValidBinary(byte[] ulid) {
-    return ulid != null && ulid.length == ULID_BYTE_LENGTH;
+    return ulid != null && ulid.length == ULID_BINARY_LENGTH;
   }
 
   /**
@@ -433,7 +433,7 @@ public class ULID {
    * @return ULID binary
    */
   public static byte[] toBinary(CharSequence ulid) {
-    byte[] bytes = new byte[ULID_BYTE_LENGTH];
+    byte[] bytes = new byte[ULID_BINARY_LENGTH];
     // Timestamp
     bytes[0] = (byte) ((V[ulid.charAt(0)] << 5) //
         | V[ulid.charAt(1)]);

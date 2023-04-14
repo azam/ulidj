@@ -202,7 +202,7 @@ public class ULIDTest {
   @Test
   public void testGenerateBinaryFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      byte[] bytes = new byte[ULID.ULID_BYTE_LENGTH];
+      byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
       long ts = params.timestamp;
       for (int i = 5; i >= 0; i--) {
         bytes[i] = (byte) (ts & 0xff);
@@ -268,7 +268,7 @@ public class ULIDTest {
   @Test
   public void testToBinaryFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      byte[] bytes = new byte[ULID.ULID_BYTE_LENGTH];
+      byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
       long ts = params.timestamp;
       for (int i = 5; i >= 0; i--) {
         bytes[i] = (byte) (ts & 0xff);
@@ -282,7 +282,7 @@ public class ULIDTest {
   @Test
   public void testFromBinaryFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      byte[] bytes = new byte[ULID.ULID_BYTE_LENGTH];
+      byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
       long ts = params.timestamp;
       for (int i = 5; i >= 0; i--) {
         bytes[i] = (byte) (ts & 0xff);
