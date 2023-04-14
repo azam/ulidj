@@ -38,6 +38,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ulidj-*.pom
-            ulidj-*.jar
-            ulidj-*.asc
+            target/ulidj-*.pom
+            target/ulidj-*.jar
+            target/ulidj-*.asc
