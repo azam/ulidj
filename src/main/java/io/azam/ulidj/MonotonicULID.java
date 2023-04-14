@@ -108,4 +108,40 @@ public class MonotonicULID {
     }
     return ULID.generate(this.lastTimestamp, this.lastEntropy);
   }
+
+  /**
+   * Generate ULID binary monotonicly. If this method is called within the same millisecond, last
+   * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
+   * <br>
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80b-its/10-bytes)
+   *
+   * @return ULID binary
+   */
+  public synchronized byte[] generateBinary() {
+    long now = System.currentTimeMillis();
+    if (now == this.lastTimestamp) {
+      // Entropy is big-endian (network byte order) per ULID spec
+      // Increment last entropy by 1
+      boolean carry = true;
+      for (int i = ULID.ENTROPY_LENGTH - 1; i >= 0; i--) {
+        if (carry) {
+          byte work = this.lastEntropy[i];
+          work = (byte) (work + 0x01);
+          carry = this.lastEntropy[i] == (byte) 0xff && carry;
+          this.lastEntropy[i] = work;
+        }
+      }
+      // Last byte has carry over
+      if (carry) {
+        // Throw error if entropy overflows in same millisecond per ULID spec
+        throw new IllegalStateException("ULID entropy overflowed for same millisecond");
+      }
+    } else {
+      // Generate new entropy
+      this.lastTimestamp = now;
+      this.random.nextBytes(this.lastEntropy);
+    }
+    return ULID.generateBinary(this.lastTimestamp, this.lastEntropy);
+  }
 }

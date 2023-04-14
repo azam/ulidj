@@ -60,6 +60,11 @@ public class ULID {
   public static final int ULID_LENGTH = 26;
 
   /**
+   * ULID binary length.
+   */
+  public static final int ULID_BINARY_LENGTH = 16;
+
+  /**
    * ULID entropy byte length.
    */
   public static final int ENTROPY_LENGTH = 10;
@@ -70,7 +75,8 @@ public class ULID {
   public static final long MIN_TIME = 0x0L;
 
   /**
-   * Maximum allowed timestamp value.
+   * Maximum allowed timestamp value. Encoded value can encode up to 0x0003ffffffffffffL but ULID
+   * binary/byte representation states that timestamp will only be 48-bits.
    */
   public static final long MAX_TIME = 0x0000ffffffffffffL;
 
@@ -167,6 +173,18 @@ public class ULID {
   }
 
   /**
+   * Generate random ULID binary using {@link java.util.Random} instance.
+   *
+   * @return ULID binary
+   */
+  public static byte[] randomBinary() {
+    byte[] entropy = new byte[10];
+    Random random = new Random();
+    random.nextBytes(entropy);
+    return generateBinary(System.currentTimeMillis(), entropy);
+  }
+
+  /**
    * Generate random ULID string using provided {@link java.util.Random} instance.
    *
    * @param random {@link java.util.Random} instance
@@ -179,7 +197,19 @@ public class ULID {
   }
 
   /**
-   * Generate ULID from Unix epoch timestamp in millisecond and entropy bytes. Throws
+   * Generate random ULID binary using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @return ULID string
+   */
+  public static byte[] randomBinary(Random random) {
+    byte[] entropy = new byte[10];
+    random.nextBytes(entropy);
+    return generateBinary(System.currentTimeMillis(), entropy);
+  }
+
+  /**
+   * Generate ULID string from Unix epoch timestamp in millisecond and entropy bytes. Throws
    * {@link java.lang.IllegalArgumentException} if timestamp is less than {@value #MIN_TIME}, is
    * more than {@value #MAX_TIME}, or entropy bytes is null or less than 10 bytes.
    *
@@ -229,6 +259,36 @@ public class ULID {
   }
 
   /**
+   * Generate ULID binary from Unix epoch timestamp in millisecond and entropy bytes. Throws
+   * {@link java.lang.IllegalArgumentException} if timestamp is less than {@value #MIN_TIME}, is
+   * more than {@value #MAX_TIME}, or entropy bytes is null or less than 10 bytes.
+   *
+   * @param time Unix epoch timestamp in millisecond
+   * @param entropy Entropy bytes
+   * @return ULID string
+   */
+  public static byte[] generateBinary(long time, byte[] entropy) {
+    if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length < ENTROPY_LENGTH) {
+      throw new IllegalArgumentException(
+          "Time is too long, or entropy is less than 10 bytes or null");
+    }
+
+    byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
+
+    // Long to big endian byte array up to 6 bytes
+    long ts = time;
+    for (int i = 5; i >= 0; i--) {
+      bytes[i] = (byte) (ts & 0xff);
+      ts = ts >>> 8;
+    }
+
+    // Copy over bytes from entropy
+    System.arraycopy(entropy, 0, bytes, 6, 10);
+
+    return bytes;
+  }
+
+  /**
    * Checks ULID string validity.
    *
    * @param ulid ULID string
@@ -249,7 +309,17 @@ public class ULID {
   }
 
   /**
-   * Extract and return the timestamp part from ULID. Expects a valid ULID string. Call
+   * Checks ULID binary validity.
+   *
+   * @param ulid ULID binary
+   * @return true if ULID binary is valid
+   */
+  public static boolean isValidBinary(byte[] ulid) {
+    return ulid != null && ulid.length == ULID_BINARY_LENGTH;
+  }
+
+  /**
+   * Extract and return the timestamp part from ULID string. Expects a valid ULID string. Call
    * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
    * if you do not trust the origin of the ULID string.
    *
@@ -270,7 +340,25 @@ public class ULID {
   }
 
   /**
-   * Extract and return the entropy part from ULID. Expects a valid ULID string. Call
+   * Extract and return the timestamp part from ULID binary. Expects a valid ULID binary. Call
+   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.
+   *
+   * @param ulid ULID string
+   * @return Unix epoch timestamp in millisecond
+   */
+  public static long getTimestampBinary(byte[] ulid) {
+    long timestamp = (long) ulid[0];
+    timestamp = (timestamp << 8) | ulid[1] & 0xff;
+    timestamp = (timestamp << 8) | ulid[2] & 0xff;
+    timestamp = (timestamp << 8) | ulid[3] & 0xff;
+    timestamp = (timestamp << 8) | ulid[4] & 0xff;
+    timestamp = (timestamp << 8) | ulid[5] & 0xff;
+    return timestamp;
+  }
+
+  /**
+   * Extract and return the entropy part from ULID string. Expects a valid ULID string. Call
    * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
    * if you do not trust the origin of the ULID string.
    *
@@ -278,7 +366,7 @@ public class ULID {
    * @return Entropy bytes
    */
   public static byte[] getEntropy(CharSequence ulid) {
-    byte[] bytes = new byte[10];
+    byte[] bytes = new byte[ENTROPY_LENGTH];
     bytes[0] = (byte) ((V[ulid.charAt(10)] << 3) //
         | (V[ulid.charAt(11)] & 0xff) >>> 2);
     bytes[1] = (byte) ((V[ulid.charAt(11)] << 6) //
@@ -304,5 +392,148 @@ public class ULID {
     bytes[9] = (byte) ((V[ulid.charAt(24)] << 5) //
         | V[ulid.charAt(25)]);
     return bytes;
+  }
+
+  /**
+   * Extract and return the entropy part from ULID binary. Expects a valid ULID binary. Call
+   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.
+   *
+   * @param ulid ULID binary
+   * @return Entropy bytes
+   */
+  public static byte[] getEntropyBinary(byte[] ulid) {
+    byte[] bytes = new byte[ENTROPY_LENGTH];
+    System.arraycopy(ulid, 6, bytes, 0, 10);
+    return bytes;
+  }
+
+  /**
+   * Convert a valid ULID string to it's binary representation. Call
+   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.<br>
+   * <br>
+   * Binary layout:
+   *
+   * <pre>
+   * 0                   1                   2                   3
+   *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                      32_bit_uint_time_high                    |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |     16_bit_uint_time_low      |       16_bit_uint_random      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                       32_bit_uint_random                      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                       32_bit_uint_random                      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * </pre>
+   *
+   * @param ulid ULID string
+   * @return ULID binary
+   */
+  public static byte[] toBinary(CharSequence ulid) {
+    byte[] bytes = new byte[ULID_BINARY_LENGTH];
+    // Timestamp
+    bytes[0] = (byte) ((V[ulid.charAt(0)] << 5) //
+        | V[ulid.charAt(1)]);
+    bytes[1] = (byte) ((V[ulid.charAt(2)] << 3) //
+        | (V[ulid.charAt(3)] & 0xff) >>> 2);
+    bytes[2] = (byte) ((V[ulid.charAt(3)] << 6) //
+        | V[ulid.charAt(4)] << 1 //
+        | (V[ulid.charAt(5)] & 0xff) >>> 4);
+    bytes[3] = (byte) ((V[ulid.charAt(5)] << 4) //
+        | (V[ulid.charAt(6)] & 0xff) >>> 1);
+    bytes[4] = (byte) ((V[ulid.charAt(6)] << 7) //
+        | V[ulid.charAt(7)] << 2 //
+        | (V[ulid.charAt(8)] & 0xff) >>> 3);
+    bytes[5] = (byte) ((V[ulid.charAt(8)] << 5) //
+        | V[ulid.charAt(9)]);
+    // Entropy
+    bytes[6] = (byte) ((V[ulid.charAt(10)] << 3) //
+        | (V[ulid.charAt(11)] & 0xff) >>> 2);
+    bytes[7] = (byte) ((V[ulid.charAt(11)] << 6) //
+        | V[ulid.charAt(12)] << 1 //
+        | (V[ulid.charAt(13)] & 0xff) >>> 4);
+    bytes[8] = (byte) ((V[ulid.charAt(13)] << 4) //
+        | (V[ulid.charAt(14)] & 0xff) >>> 1);
+    bytes[9] = (byte) ((V[ulid.charAt(14)] << 7) //
+        | V[ulid.charAt(15)] << 2 //
+        | (V[ulid.charAt(16)] & 0xff) >>> 3);
+    bytes[10] = (byte) ((V[ulid.charAt(16)] << 5) //
+        | V[ulid.charAt(17)]);
+    bytes[11] = (byte) ((V[ulid.charAt(18)] << 3) //
+        | (V[ulid.charAt(19)] & 0xff) >>> 2);
+    bytes[12] = (byte) ((V[ulid.charAt(19)] << 6) //
+        | V[ulid.charAt(20)] << 1 //
+        | (V[ulid.charAt(21)] & 0xff) >>> 4);
+    bytes[13] = (byte) ((V[ulid.charAt(21)] << 4) //
+        | (V[ulid.charAt(22)] & 0xff) >>> 1);
+    bytes[14] = (byte) ((V[ulid.charAt(22)] << 7) //
+        | V[ulid.charAt(23)] << 2 //
+        | (V[ulid.charAt(24)] & 0xff) >>> 3);
+    bytes[15] = (byte) ((V[ulid.charAt(24)] << 5) //
+        | V[ulid.charAt(25)]);
+    return bytes;
+  }
+
+  /**
+   * Convert a valid ULID binary representation to it's string representation. Call
+   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.<br>
+   * <br>
+   * Binary layout:
+   *
+   * <pre>
+   * 0                   1                   2                   3
+   *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                      32_bit_uint_time_high                    |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |     16_bit_uint_time_low      |       16_bit_uint_random      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                       32_bit_uint_random                      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                       32_bit_uint_random                      |
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * </pre>
+   *
+   * @param binary ULID binary
+   * @return ULID string
+   */
+  public static String fromBinary(byte[] binary) {
+    char[] chars = new char[26];
+
+    // time
+    chars[0] = C[(byte) (((binary[0] & 0xff) >>> 5) & 0x1f)];
+    chars[1] = C[(byte) (binary[0] & 0x1f)];
+    chars[2] = C[(byte) ((binary[1] & 0xff) >>> 3)];
+    chars[3] = C[(byte) (((binary[1] << 2) | ((binary[2] & 0xff) >>> 6)) & 0x1f)];
+    chars[4] = C[(byte) (((binary[2] & 0xff) >>> 1) & 0x1f)];
+    chars[5] = C[(byte) (((binary[2] << 4) | ((binary[3] & 0xff) >>> 4)) & 0x1f)];
+    chars[6] = C[(byte) (((binary[3] << 1) | ((binary[4] & 0xff) >>> 7)) & 0x1f)];
+    chars[7] = C[(byte) (((binary[4] & 0xff) >>> 2) & 0x1f)];
+    chars[8] = C[(byte) (((binary[4] << 3) | ((binary[5] & 0xff) >>> 5)) & 0x1f)];
+    chars[9] = C[(byte) (binary[5] & 0x1f)];
+
+    // entropy
+    chars[10] = C[(byte) ((binary[6] & 0xff) >>> 3)];
+    chars[11] = C[(byte) (((binary[6] << 2) | ((binary[7] & 0xff) >>> 6)) & 0x1f)];
+    chars[12] = C[(byte) (((binary[7] & 0xff) >>> 1) & 0x1f)];
+    chars[13] = C[(byte) (((binary[7] << 4) | ((binary[8] & 0xff) >>> 4)) & 0x1f)];
+    chars[14] = C[(byte) (((binary[8] << 1) | ((binary[9] & 0xff) >>> 7)) & 0x1f)];
+    chars[15] = C[(byte) (((binary[9] & 0xff) >>> 2) & 0x1f)];
+    chars[16] = C[(byte) (((binary[9] << 3) | ((binary[10] & 0xff) >>> 5)) & 0x1f)];
+    chars[17] = C[(byte) (binary[10] & 0x1f)];
+    chars[18] = C[(byte) ((binary[11] & 0xff) >>> 3)];
+    chars[19] = C[(byte) (((binary[11] << 2) | ((binary[12] & 0xff) >>> 6)) & 0x1f)];
+    chars[20] = C[(byte) (((binary[12] & 0xff) >>> 1) & 0x1f)];
+    chars[21] = C[(byte) (((binary[12] << 4) | ((binary[13] & 0xff) >>> 4)) & 0x1f)];
+    chars[22] = C[(byte) (((binary[13] << 1) | ((binary[14] & 0xff) >>> 7)) & 0x1f)];
+    chars[23] = C[(byte) (((binary[14] & 0xff) >>> 2) & 0x1f)];
+    chars[24] = C[(byte) (((binary[14] << 3) | ((binary[15] & 0xff) >>> 5)) & 0x1f)];
+    chars[25] = C[(byte) (binary[15] & 0x1f)];
+
+    return new String(chars);
   }
 }
