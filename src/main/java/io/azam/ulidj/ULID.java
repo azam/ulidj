@@ -23,10 +23,8 @@ package io.azam.ulidj;
 import java.util.Random;
 
 /**
- * ULID string generator and parser class, using Crockford Base32 encoding. Only
- * upper case letters
- * are used for generation. Parsing allows upper and lower case letters, and i
- * and l will be treated
+ * ULID string generator and parser class, using Crockford Base32 encoding. Only upper case letters
+ * are used for generation. Parsing allows upper and lower case letters, and i and l will be treated
  * as 1 and o will be treated as 0. <br>
  * <br>
  * ULID generation examples:<br>
@@ -35,7 +33,7 @@ import java.util.Random;
  * String ulid1 = ULID.random();
  * String ulid2 = ULID.random(ThreadLocalRandom.current());
  * String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
- * byte[] entropy = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9 };
+ * byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
  * String ulid4 = ULID.generate(System.currentTimeMillis(), entropy);
  * </pre>
  *
@@ -83,7 +81,8 @@ public class ULID {
       0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, //
       0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, //
       0x47, 0x48, 0x4a, 0x4b, 0x4d, 0x4e, 0x50, 0x51, //
-      0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a };
+      0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a //
+  };
 
   /**
    * {@code char} to {@code byte} O(1) mapping with alternative chars mapping
@@ -180,13 +179,11 @@ public class ULID {
   }
 
   /**
-   * Generate ULID from Unix epoch timestamp in millisecond and entropy bytes.
-   * Throws
-   * {@link java.lang.IllegalArgumentException} if timestamp is less than
-   * {@value #MIN_TIME}, is
+   * Generate ULID from Unix epoch timestamp in millisecond and entropy bytes. Throws
+   * {@link java.lang.IllegalArgumentException} if timestamp is less than {@value #MIN_TIME}, is
    * more than {@value #MAX_TIME}, or entropy bytes is null or less than 10 bytes.
    *
-   * @param time    Unix epoch timestamp in millisecond
+   * @param time Unix epoch timestamp in millisecond
    * @param entropy Entropy bytes
    * @return ULID string
    */
@@ -252,10 +249,8 @@ public class ULID {
   }
 
   /**
-   * Extract and return the timestamp part from ULID. Expects a valid ULID string.
-   * Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before
-   * calling this method
+   * Extract and return the timestamp part from ULID. Expects a valid ULID string. Call
+   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
    * if you do not trust the origin of the ULID string.
    *
    * @param ulid ULID string
@@ -275,10 +270,8 @@ public class ULID {
   }
 
   /**
-   * Extract and return the entropy part from ULID. Expects a valid ULID string.
-   * Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before
-   * calling this method
+   * Extract and return the entropy part from ULID. Expects a valid ULID string. Call
+   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
    * if you do not trust the origin of the ULID string.
    *
    * @param ulid ULID string

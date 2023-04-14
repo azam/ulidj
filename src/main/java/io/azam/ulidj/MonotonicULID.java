@@ -24,15 +24,13 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 /**
- * Monotonic instance of ULID. ULID spec defines monotonicity behavior as if a
- * ULID is to be generated in the same millisecond, the entropy(random)
- * component is to be incremented by 1-bit in the least significant bit with
- * carryover.<br>
+ * Monotonic instance of ULID. ULID spec defines monotonicity behavior as if a ULID is to be
+ * generated in the same millisecond, the entropy(random) component is to be incremented by 1-bit in
+ * the least significant bit with carryover.<br>
  * <br>
- * In practice this behavior is however applicable to ULID's generated from the
- * same source (in Java, from the same instance), else an external
- * synchronization is needed. Hence, instance of this class will produce ULID in
- * monotonic order only if called from the same instance.<br>
+ * In practice this behavior is however applicable to ULID's generated from the same source (in
+ * Java, from the same instance), else an external synchronization is needed. Hence, instance of
+ * this class will produce ULID in monotonic order only if called from the same instance.<br>
  * <br>
  * Usage example:<br>
  * <br>
@@ -55,10 +53,8 @@ public class MonotonicULID {
   private byte[] lastEntropy;
 
   /**
-   * Generate a monotonic ULID generator instance, backed by
-   * {@link java.security.SecureRandom} instance.
-   *
-   * @return ULIDMonotonic instance
+   * Generate a monotonic ULID generator instance, backed by {@link java.security.SecureRandom}
+   * instance.
    */
   public MonotonicULID() {
     this(new SecureRandom());
@@ -68,7 +64,6 @@ public class MonotonicULID {
    * Generate a monotonic ULID generator instance.
    *
    * @param random {@link java.util.Random} instance
-   * @return ULIDMonotonic instance
    */
   public MonotonicULID(Random random) {
     if (random == null)
@@ -79,12 +74,11 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate ULID string monotonicly. If this method is called within the same
-   * millisecond, last entropy will be incremented by 1 and the ULID string of
-   * incremented value is returned.<br>
+   * Generate ULID string monotonicly. If this method is called within the same millisecond, last
+   * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
    * <br>
-   * This method will throw a {@link java.lang.IllegalStateException} exception
-   * if incremented value overflows entropy length (80b-its/10-bytes)
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80b-its/10-bytes)
    *
    * @return ULID string
    */
