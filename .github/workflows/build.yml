@@ -35,10 +35,6 @@ jobs:
           - name: temurin-jdk21
             version: 21
             distribution: temurin
-          # Latest version
-          - name: temurin-jdk22
-            version: 22
-            distribution: temurin
           # More distribution for latest LTS
           - name: oracle-jdk21
             version: 21
@@ -49,6 +45,10 @@ jobs:
           - name: zulu-jdk21
             version: 21
             distribution: zulu
+          # Latest versions
+          - name: temurin-jdk22
+            version: 22
+            distribution: temurin
     steps:
       - name: checkout-${{matrix.name}}
         uses: actions/checkout@v4
@@ -59,4 +59,7 @@ jobs:
           distribution: ${{matrix.distribution}}
           cache: maven
       - name: verify-${{matrix.name}}
+        if: ${{matrix.version<=17}}
         run: mvn verify --settings .settings.xml -Dgpg.skip -B -V
+      - name: verify-as-jdk8-${{matrix.name}}
+        run: mvn verify -Dmaven.compiler.source=8 -Dmaven.compiler.target=8 --settings .settings.xml -Dgpg.skip -B -V
