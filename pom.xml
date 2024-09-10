@@ -79,7 +79,8 @@
         <version>2.10.4</version>
         <configuration>
           <!-- Setting this to 7 removes unnamed modules found warnings -->
-          <source>7</source>
+          <!-- Defaults to ${maven.compiler.source} -->
+          <!-- <source>7</source> -->
         </configuration>
         <executions>
           <execution>
