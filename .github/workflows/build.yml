@@ -18,31 +18,42 @@ on:
 
 jobs:
   test:
-    name: test-${{matrix.distribution}}-${{matrix.version}}
+    name: test-${{matrix.name}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        name:
-          - jdk8
-          - jdk11
         include:
-          - name: jdk8
+          - name: temurin-jdk8
             version: 8
             distribution: temurin
-          - name: jdk11
+          - name: temurin-jdk11
             version: 11
             distribution: temurin
-          - name: jdk16
-            version: 16
-            distribution: temurin
-          - name: jdk17
+          - name: temurin-jdk17
             version: 17
             distribution: temurin
+          - name: temurin-jdk21
+            version: 21
+            distribution: temurin
+          # Latest version
+          - name: temurin-jdk22
+            version: 22
+            distribution: temurin
+          # More distribution for latest LTS
+          - name: oracle-jdk21
+            version: 21
+            distribution: oracle
+          - name: corretto-jdk21
+            version: 21
+            distribution: corretto
+          - name: zulu-jdk21
+            version: 21
+            distribution: zulu
     steps:
       - name: checkout-${{matrix.name}}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: setup-toolchain-${{matrix.name}}
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: ${{matrix.version}}
           distribution: ${{matrix.distribution}}
