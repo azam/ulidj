@@ -59,7 +59,18 @@ jobs:
           distribution: ${{matrix.distribution}}
           cache: maven
       - name: verify-${{matrix.name}}
+        # Java 1.7 is source compatible only up to JDK 17
         if: ${{matrix.version<=17}}
         run: mvn verify --settings .settings.xml -Dgpg.skip -B -V
       - name: verify-as-jdk8-${{matrix.name}}
+        if: ${{matrix.version>=8}}
         run: mvn verify -Dmaven.compiler.source=8 -Dmaven.compiler.target=8 --settings .settings.xml -Dgpg.skip -B -V
+      - name: verify-as-jdk11-${{matrix.name}}
+        if: ${{matrix.version>=11}}
+        run: mvn verify -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 --settings .settings.xml -Dgpg.skip -B -V
+      - name: verify-as-jdk17-${{matrix.name}}
+        if: ${{matrix.version>=17}}
+        run: mvn verify -Dmaven.compiler.source=17 -Dmaven.compiler.target=17 --settings .settings.xml -Dgpg.skip -B -V
+      - name: verify-as-jdk21-${{matrix.name}}
+        if: ${{matrix.version>=21}}
+        run: mvn verify -Dmaven.compiler.source=21 -Dmaven.compiler.target=21 --settings .settings.xml -Dgpg.skip -B -V
