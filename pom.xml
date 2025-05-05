@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.5-SNAPSHOT</version>
   <name>ulidj</name>
   <description>ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.</description>
   <url>https://github.com/azam/ulidj</url>
@@ -15,8 +15,9 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/azam/ulidj</url>
-    <developerConnection>azam</developerConnection>
+    <url>scm:git:git://github.com/azam/ulidj.git</url>
+    <connection>scm:git:git://github.com/azam/ulidj.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:azam/ulidj.git</developerConnection>
   </scm>
   <developers>
     <developer>
@@ -49,7 +50,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -58,12 +59,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.8.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -76,7 +77,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.2.0</version>
         <configuration>
           <!-- Setting this to 7 removes unnamed modules found warnings -->
           <!-- Defaults to ${maven.compiler.source} -->
@@ -90,6 +91,11 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-help-plugin</artifactId>
+        <version>3.2.0</version>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
