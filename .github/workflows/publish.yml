@@ -15,15 +15,15 @@ jobs:
       packages: write
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: setup-toolchain
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: 8
           distribution: temurin
           cache: maven
       - name: setup-gpg
-        uses: crazy-max/ghaction-import-gpg@v5
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
           passphrase: ${{secrets.MAVEN_GPG_PASSPHRASE}}
@@ -35,7 +35,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
         run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V
       - name: artifacts
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             target/ulidj-*.pom

@@ -49,7 +49,7 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
 </dependency>
 ```
 

@@ -1,0 +1,23 @@
+{
+    "name": "java-7-maven",
+    "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+    "features": {
+        "ghcr.io/devcontainers/features/java:1": {
+            "jdkDistro": "tem",
+            "version": "8.0.442",
+            "mavenVersion": "3.8.8",
+            "installMaven": true
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "github.vscode-github-actions"
+            ],
+            "settings": {
+                "telemetry.telemetryLevel": "off",
+                "redhat.telemetry.enabled": false
+            }
+        }
+    }
+}

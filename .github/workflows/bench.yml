@@ -1,0 +1,63 @@
+name: bench
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  schedule:
+    - cron: '0 9 * * 2'
+  workflow_dispatch:
+
+jobs:
+  bench:
+    name: bench-${{matrix.name}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Oldest LTS
+          - name: temurin-jdk8
+            version: 8
+            distribution: temurin
+          # Latest LTS
+          - name: temurin-jdk21
+            version: 21
+            distribution: temurin
+    steps:
+      - name: checkout-${{matrix.name}}
+        uses: actions/checkout@v4
+      - name: setup-toolchain-${{matrix.name}}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{matrix.version}}
+          distribution: ${{matrix.distribution}}
+          cache: maven
+      - name: bench-${{matrix.name}}
+        # Java 1.7 is source compatible only up to JDK 17
+        if: ${{matrix.version<=17}}
+        run: mvn clean jmh:benchmark -Djmh.rff=json -Djmh.rf=bench-${{matrix.name}}.json -B -V
+      - name: bench-summary-${{matrix.name}}
+        # Java 1.7 is source compatible only up to JDK 17
+        if: ${{matrix.version<=17}}
+        run: echo "## bench-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY \
+            && echo "```json\n" >> $GITHUB_STEP_SUMMARY \
+            && cat bench-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY \
+            && echo "\n```\n" >> $GITHUB_STEP_SUMMARY
+      - name: bench-as-jdk8-${{matrix.name}}
+        if: ${{matrix.version>=8}}
+        run: mvn clean jmh:benchmark -Djmh.rff=json -Djmh.rf=bench-as-jdk8-${{matrix.name}}.json -Dmaven.compiler.source=8 -Dmaven.compiler.target=8 -B -V
+      - name: bench-as-jdk8-summary-${{matrix.name}}
+        if: ${{matrix.version>=8}}
+        run: echo "## bench-as-jdk8-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY \
+            && echo "```json\n" >> $GITHUB_STEP_SUMMARY \
+            && cat bench-as-jdk8-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY \
+            && echo "\n```\n" >> $GITHUB_STEP_SUMMARY
+      - name: bench-as-jdk21-${{matrix.name}}
+        if: ${{matrix.version>=21}}
+        run: mvn clean jmh:benchmark -Djmh.rff=json -Djmh.rf=bench-as-jdk21-${{matrix.name}}.json -Dmaven.compiler.source=21 -Dmaven.compiler.target=21 -B -V
+      - name: bench-as-jdk21-summary-${{matrix.name}}
+        if: ${{matrix.version>=21}}
+        run: echo "## bench-as-jdk21-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY \
+            && echo "```json\n" >> $GITHUB_STEP_SUMMARY \
+            && cat bench-as-jdk21-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY \
+            && echo "\n```\n" >> $GITHUB_STEP_SUMMARY

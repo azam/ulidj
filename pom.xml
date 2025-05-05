@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <name>ulidj</name>
   <description>ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.</description>
   <url>https://github.com/azam/ulidj</url>
@@ -15,8 +15,9 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/azam/ulidj</url>
-    <developerConnection>azam</developerConnection>
+    <url>scm:git:git://github.com/azam/ulidj.git</url>
+    <connection>scm:git:git://github.com/azam/ulidj.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:azam/ulidj.git</developerConnection>
   </scm>
   <developers>
     <developer>
@@ -44,12 +45,34 @@
     <project.build.lineEnding>LF</project.build.lineEnding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <!-- Benchmark properties -->
+    <jmh.version>1.37</jmh.version>
+    <jmh.benchmarks>Benchmark</jmh.benchmarks>
+    <jmh.bm>AverageTime</jmh.bm>
+    <jmh.tu>ns</jmh.tu>
+    <jmh.r>2</jmh.r>
+    <jmh.f>3</jmh.f>
+    <jmh.wf>1</jmh.wf>
+    <jmh.i>5</jmh.i>
+    <jmh.wi>3</jmh.wi>
   </properties>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>${jmh.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>${jmh.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -58,12 +81,37 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.8.1</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.openjdk.jmh</groupId>
+              <artifactId>jmh-generator-annprocess</artifactId>
+              <version>${jmh.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <annotationProcessorPaths>
+                <path>
+                  <groupId>org.openjdk.jmh</groupId>
+                  <artifactId>jmh-generator-annprocess</artifactId>
+                  <version>${jmh.version}</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -73,13 +121,20 @@
           </execution>
         </executions>
       </plugin>
+      <!-- https://github.com/metlos/jmh-maven-plugin -->
+      <plugin>
+        <groupId>pw.krejci</groupId>
+        <artifactId>jmh-maven-plugin</artifactId>
+        <version>0.2.2</version>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.2.0</version>
         <configuration>
           <!-- Setting this to 7 removes unnamed modules found warnings -->
-          <source>7</source>
+          <!-- Defaults to ${maven.compiler.source} -->
+          <!-- <source>7</source> -->
         </configuration>
         <executions>
           <execution>
@@ -89,6 +144,11 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-help-plugin</artifactId>
+        <version>3.2.0</version>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
