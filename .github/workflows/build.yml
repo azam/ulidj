@@ -46,9 +46,6 @@ jobs:
           - name: temurin-jdk24
             version: 24
             distribution: temurin
-          - name: temurin-jdk25-ea
-            version: 25-ea
-            distribution: temurin
           # Latest LTS version for major JDKs
           - name: oracle-jdk21
             version: 21
