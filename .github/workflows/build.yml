@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         include:
+          # LTS versions
           - name: temurin-jdk8
             version: 8
             distribution: temurin
@@ -35,7 +36,20 @@ jobs:
           - name: temurin-jdk21
             version: 21
             distribution: temurin
-          # More distribution for latest LTS
+          # Latest versions since last LTS
+          - name: temurin-jdk22
+            version: 22
+            distribution: temurin
+          - name: temurin-jdk23
+            version: 23
+            distribution: temurin
+          - name: temurin-jdk24
+            version: 24
+            distribution: temurin
+          - name: temurin-jdk25-ea
+            version: 25-ea
+            distribution: temurin
+          # Latest LTS version for major JDKs
           - name: oracle-jdk21
             version: 21
             distribution: oracle
@@ -45,10 +59,6 @@ jobs:
           - name: zulu-jdk21
             version: 21
             distribution: zulu
-          # Latest versions
-          - name: temurin-jdk22
-            version: 22
-            distribution: temurin
     steps:
       - name: checkout-${{matrix.name}}
         uses: actions/checkout@v4
