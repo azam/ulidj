@@ -82,6 +82,7 @@
           <!-- Setting this to 7 removes unnamed modules found warnings -->
           <!-- Defaults to ${maven.compiler.source} -->
           <!-- <source>7</source> -->
+          <useStandardDocletOptions>false</useStandardDocletOptions>
         </configuration>
         <executions>
           <execution>
