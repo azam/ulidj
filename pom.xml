@@ -51,6 +51,7 @@
     <jmh.bm>AverageTime</jmh.bm>
     <jmh.tu>ns</jmh.tu>
     <jmh.r>2</jmh.r>
+    <jmh.w>2</jmh.w>
     <jmh.f>3</jmh.f>
     <jmh.wf>1</jmh.wf>
     <jmh.i>5</jmh.i>
