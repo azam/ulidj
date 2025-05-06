@@ -9,8 +9,8 @@ ULID (Universally Unique Lexicographically Sortable Identifier) generator and pa
 
 ## Features
 
-* Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit UUID compatible) objects
-* Parses ULID from `String` (Crockford's base32) or `byte[]` (128-bit UUID compatible) objects
+* Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
+* Parses ULID from `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
 * Fast and simple static methods
 * Includes ULID monotonic generator
 * Zero runtime dependencies
@@ -49,7 +49,7 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
 </dependency>
 ```
 
