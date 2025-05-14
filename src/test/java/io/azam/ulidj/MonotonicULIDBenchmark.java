@@ -52,7 +52,7 @@ public class MonotonicULIDBenchmark {
   }
 
   @Benchmark
-  public void generateBinaryThreadRandom(Blackhole blackhole, MonotonicULIDState state) {
+  public void generateBinaryThreadLocalRandom(Blackhole blackhole, MonotonicULIDState state) {
     blackhole.consume(state.threadLocalRandom.generateBinary());
   }
 }

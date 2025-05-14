@@ -16,13 +16,23 @@ jobs:
       matrix:
         include:
           # Oldest LTS
-          - name: temurin-jdk11
+          - name: temurin-jdk11-target-jdk11
             version: 11
             distribution: temurin
+            target: 11
           # Latest LTS
-          - name: temurin-jdk21
+          - name: temurin-jdk21-target-jdk11
             version: 21
             distribution: temurin
+            target: 11
+          - name: temurin-jdk21-target-jdk17
+            version: 21
+            distribution: temurin
+            target: 17
+          - name: temurin-jdk21-target-jdk21
+            version: 21
+            distribution: temurin
+            target: 21
     steps:
       - name: checkout-${{matrix.name}}
         uses: actions/checkout@v4
@@ -33,40 +43,12 @@ jobs:
           distribution: ${{matrix.distribution}}
           cache: maven
       - name: bench-${{matrix.name}}
-        run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-${{matrix.name}}.json -B -V
+        if: ${{matrix.target >= matrix.version}}
+        run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-as-jdk11-${{matrix.name}}.json -Dmaven.compiler.source=${{matrix.target}} -Dmaven.compiler.target=${{matrix.target}} -B -V
       - name: bench-summary-${{matrix.name}}
+        if: ${{matrix.target >= matrix.version}}
         run: |
           echo -e "## bench-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
           echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
           cat ./bench-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
-          echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
-      - name: bench-as-jdk11-${{matrix.name}}
-        if: ${{matrix.version>=11}}
-        run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-as-jdk11-${{matrix.name}}.json -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 -B -V
-      - name: bench-as-jdk11-summary-${{matrix.name}}
-        if: ${{matrix.version>=11}}
-        run: |
-          echo -e "## bench-as-jdk11-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
-          echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
-          cat ./bench-as-jdk11-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
-          echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
-      - name: bench-as-jdk17-${{matrix.name}}
-        if: ${{matrix.version>=17}}
-        run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-as-jdk17-${{matrix.name}}.json -Dmaven.compiler.source=17 -Dmaven.compiler.target=17 -B -V
-      - name: bench-as-jdk17-summary-${{matrix.name}}
-        if: ${{matrix.version>=17}}
-        run: |
-          echo -e "## bench-as-jdk17-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
-          echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
-          cat ./bench-as-jdk17-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
-          echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
-      - name: bench-as-jdk21-${{matrix.name}}
-        if: ${{matrix.version>=21}}
-        run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-as-jdk21-${{matrix.name}}.json -Dmaven.compiler.source=21 -Dmaven.compiler.target=21 -B -V
-      - name: bench-as-jdk21-summary-${{matrix.name}}
-        if: ${{matrix.version>=21}}
-        run: |
-          echo -e "## bench-as-jdk21-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
-          echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
-          cat ./bench-as-jdk21-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
           echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
