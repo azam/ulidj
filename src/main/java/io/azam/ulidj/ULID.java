@@ -162,6 +162,16 @@ public class ULID {
   };
 
   /**
+   * This allows lazy initialization of the default {@link java.util.Random} instance.
+   */
+  private static class LazyDefaults {
+    /**
+     * Default {@link java.util.Random} instance.
+     */
+    static final Random random = new SecureRandom();
+  }
+
+  /**
    * This class should not be instantiated.
    */
   private ULID() {}
@@ -173,8 +183,7 @@ public class ULID {
    */
   public static String random() {
     byte[] entropy = new byte[10];
-    Random random = new SecureRandom();
-    random.nextBytes(entropy);
+    LazyDefaults.random.nextBytes(entropy);
     return generate(System.currentTimeMillis(), entropy);
   }
 
@@ -185,8 +194,7 @@ public class ULID {
    */
   public static byte[] randomBinary() {
     byte[] entropy = new byte[10];
-    Random random = new SecureRandom();
-    random.nextBytes(entropy);
+    LazyDefaults.random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
   }
 
@@ -305,7 +313,7 @@ public class ULID {
       return false;
     }
     for (int i = 0; i < ULID_LENGTH; i++) {
-      /** We only care for chars between 0x00 and 0xff. */
+      // We only care for chars between 0x00 and 0xff.
       char c = ulid.charAt(i);
       if (c < 0 || c > V.length || V[c] == (byte) 0xff) {
         return false;

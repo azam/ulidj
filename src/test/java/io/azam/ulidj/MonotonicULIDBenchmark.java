@@ -9,17 +9,20 @@ import org.openjdk.jmh.infra.Blackhole;
 
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MonotonicULIDBenchmark {
   @State(Scope.Thread)
   public static class MonotonicULIDState {
     public MonotonicULID random;
     public MonotonicULID secureRandom;
+    public MonotonicULID threadLocalRandom;
 
     @Setup(Level.Trial)
     public void doSetup() {
       random = new MonotonicULID(new Random());
       secureRandom = new MonotonicULID(new SecureRandom());
+      threadLocalRandom = new MonotonicULID(ThreadLocalRandom.current());
     }
   }
 
@@ -41,5 +44,15 @@ public class MonotonicULIDBenchmark {
   @Benchmark
   public void generateBinarySecureRandom(Blackhole blackhole, MonotonicULIDState state) {
     blackhole.consume(state.secureRandom.generateBinary());
+  }
+
+  @Benchmark
+  public void generateThreadLocalRandom(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.threadLocalRandom.generate());
+  }
+
+  @Benchmark
+  public void generateBinaryThreadRandom(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.threadLocalRandom.generateBinary());
   }
 }

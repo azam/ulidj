@@ -53,11 +53,21 @@ public class MonotonicULID {
   private byte[] lastEntropy;
 
   /**
+   * This allows lazy initialization of the default {@link java.util.Random} instance.
+   */
+  private static class LazyDefaults {
+    /**
+     * Default {@link java.util.Random} instance.
+     */
+    static final Random random = new SecureRandom();
+  }
+
+  /**
    * Generate a monotonic ULID generator instance, backed by {@link java.security.SecureRandom}
    * instance.
    */
   public MonotonicULID() {
-    this(new SecureRandom());
+    this(LazyDefaults.random);
   }
 
   /**
