@@ -1,6 +1,7 @@
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.infra.Blackhole;
@@ -10,7 +11,7 @@ public class ULIDBenchmark {
 
   @Benchmark
   public void random(Blackhole blackhole) {
-    blackhole.consume(ULID.random());
+    blackhole.consume(ULID.random(new Random()));
   }
 
   @Benchmark

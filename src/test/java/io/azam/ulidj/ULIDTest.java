@@ -22,8 +22,8 @@ package io.azam.ulidj;
 
 import java.util.Random;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for {@link io.azam.ulidj.ULID}
@@ -130,18 +130,17 @@ public class ULIDTest {
   @Test
   public void testRandom() {
     String value = ULID.random();
-    Assert.assertNotNull("Generated ULID must not be null", value);
-    Assert.assertEquals("Generated ULID length must be 26", 26, value.length());
-    Assert.assertTrue(
-        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]",
-        value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
+    Assertions.assertNotNull(value, "Generated ULID must not be null");
+    Assertions.assertEquals(26, value.length(), "Generated ULID length must be 26");
+    Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
   }
 
   @Test
   public void testRandomBinary() {
     byte[] value = ULID.randomBinary();
-    Assert.assertNotNull("Generated ULID binary must not be null", value);
-    Assert.assertEquals("Generated ULID binary length must be 16", 16, value.length);
+    Assertions.assertNotNull(value, "Generated ULID binary must not be null");
+    Assertions.assertEquals(16, value.length, "Generated ULID binary length must be 16");
   }
 
   @Test
@@ -151,18 +150,16 @@ public class ULIDTest {
     random.nextBytes(entropy);
     long now = System.currentTimeMillis();
     String value = ULID.generate(now, entropy);
-    Assert.assertNotNull("Generated ULID must not be null", value);
-    Assert.assertEquals(
-        "Generated ULID length must be 26, but returned " + value.length() + " instead", 26,
-        value.length());
-    Assert.assertTrue(
+    Assertions.assertNotNull(value, "Generated ULID must not be null");
+    Assertions.assertEquals(26, value.length(),
+        "Generated ULID length must be 26, but returned " + value.length() + " instead");
+    Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
         "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ], but returned "
-            + value + " instead",
-        value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
-    Assert.assertEquals("Generated ULID timestamp must equal given timestamp", now,
-        ULID.getTimestamp(value));
-    Assert.assertArrayEquals("Generated ULID entropy must equal given entropy", entropy,
-        ULID.getEntropy(value));
+            + value + " instead");
+    Assertions.assertEquals(now, ULID.getTimestamp(value),
+        "Generated ULID timestamp must equal given timestamp");
+    Assertions.assertArrayEquals(entropy, ULID.getEntropy(value),
+        "Generated ULID entropy must equal given entropy");
   }
 
   @Test
@@ -172,30 +169,28 @@ public class ULIDTest {
     random.nextBytes(entropy);
     long now = System.currentTimeMillis();
     byte[] value = ULID.generateBinary(now, entropy);
-    Assert.assertNotNull("Generated ULID binary must not be null", value);
-    Assert.assertEquals(
-        "Generated ULID binary length must be 16, but returned " + value.length + " instead", 16,
-        value.length);
-    Assert.assertEquals("Generated ULID binary timestamp must equal given timestamp", now,
-        ULID.getTimestampBinary(value));
-    Assert.assertArrayEquals("Generated ULID binary entropy must equal given entropy", entropy,
-        ULID.getEntropyBinary(value));
+    Assertions.assertNotNull(value, "Generated ULID binary must not be null");
+    Assertions.assertEquals(16, value.length,
+        "Generated ULID binary length must be 16, but returned " + value.length + " instead");
+    Assertions.assertEquals(now, ULID.getTimestampBinary(value),
+        "Generated ULID binary timestamp must equal given timestamp");
+    Assertions.assertArrayEquals(entropy, ULID.getEntropyBinary(value),
+        "Generated ULID binary entropy must equal given entropy");
   }
 
   @Test
   public void testGenerateFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
       String value = ULID.generate(params.timestamp, params.entropy);
-      Assert.assertEquals("Generated ULID must be equal to \"" + params.value + "\" for "
-          + params.reproducer + " , but returned \"" + value + "\" instead", params.value, value);
-      Assert.assertNotNull("Generated ULID must not be null", value);
-      Assert.assertEquals(
-          "Generated ULID length must be 26, but returned " + value.length() + " instead", 26,
-          value.length());
-      Assert.assertTrue(
+      Assertions.assertEquals(params.value, value,
+          "Generated ULID must be equal to \"" + params.value + "\" for " + params.reproducer
+              + " , but returned \"" + value + "\" instead");
+      Assertions.assertNotNull(value, "Generated ULID must not be null");
+      Assertions.assertEquals(26, value.length(),
+          "Generated ULID length must be 26, but returned " + value.length() + " instead");
+      Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
           "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ], but returned "
-              + value + " instead",
-          value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
+              + value + " instead");
     }
   }
 
@@ -209,8 +204,8 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      Assert.assertArrayEquals("ULID binary is different", bytes,
-          ULID.generateBinary(params.timestamp, params.entropy));
+      Assertions.assertArrayEquals(bytes, ULID.generateBinary(params.timestamp, params.entropy),
+          "ULID binary is different");
     }
   }
 
@@ -227,41 +222,41 @@ public class ULIDTest {
         "0000000000000000000000000#", //
     };
     for (String ulid : invalidUlids) {
-      Assert.assertFalse("ULID \"" + ulid + "\" should be invalid", ULID.isValid(ulid));
+      Assertions.assertFalse(ULID.isValid(ulid), "ULID \"" + ulid + "\" should be invalid");
     }
   }
 
   @Test
   public void testIsValidFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      Assert.assertTrue("ULID string is valid", ULID.isValid(params.value));
+      Assertions.assertTrue(ULID.isValid(params.value), "ULID string is valid");
     }
   }
 
   @Test
   public void testGetTimestampFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      Assert.assertEquals("ULID timestamp is different", params.timestamp,
-          ULID.getTimestamp(params.value));
+      Assertions.assertEquals(params.timestamp, ULID.getTimestamp(params.value),
+          "ULID timestamp is different");
     }
   }
 
   @Test
   public void testGetTimestamp() {
-    Assert.assertEquals("getTimestamp allows getting timestamp that overflows MAX_TIME",
-        0x0003ffffffffffffL, ULID.getTimestamp("ZZZZZZZZZZ0000000000000000"));
+    Assertions.assertEquals(0x0003ffffffffffffL, ULID.getTimestamp("ZZZZZZZZZZ0000000000000000"),
+        "getTimestamp allows getting timestamp that overflows MAX_TIME");
     long now = System.currentTimeMillis();
     long ts = 0x0000ffffffffffffL;
-    Assert.assertTrue(now < ts);
+    Assertions.assertTrue(now < ts);
     String ulid = ULID.generate(ts, ZERO_ENTROPY);
-    Assert.assertEquals(ts, ULID.getTimestamp(ulid));
+    Assertions.assertEquals(ts, ULID.getTimestamp(ulid));
   }
 
   @Test
   public void testGetEntropyFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      Assert.assertArrayEquals("ULID entropy is different", params.entropy,
-          ULID.getEntropy(params.value));
+      Assertions.assertArrayEquals(params.entropy, ULID.getEntropy(params.value),
+          "ULID entropy is different");
     }
   }
 
@@ -275,7 +270,7 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      Assert.assertArrayEquals("ULID binary is different", bytes, ULID.toBinary(params.value));
+      Assertions.assertArrayEquals(bytes, ULID.toBinary(params.value), "ULID binary is different");
     }
   }
 
@@ -289,7 +284,7 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      Assert.assertEquals("ULID string is different", params.value, ULID.fromBinary(bytes));
+      Assertions.assertEquals(params.value, ULID.fromBinary(bytes), "ULID string is different");
     }
   }
 
@@ -317,10 +312,10 @@ public class ULIDTest {
       if (entropy[7] == 0x0 && entropy[8] == 0x0 && entropy[9] == 0x0) {
         System.out.println(value);
       }
-      Assert.assertArrayEquals("ULID entropy is different for " + param.reproducer, entropy,
-          ULID.getEntropy(value));
-      Assert.assertEquals("ULID timestamp is different for " + param.reproducer, ULID.MIN_TIME,
-          ULID.getTimestamp(value));
+      Assertions.assertArrayEquals(entropy, ULID.getEntropy(value),
+          "ULID entropy is different for " + param.reproducer);
+      Assertions.assertEquals(ULID.MIN_TIME, ULID.getTimestamp(value),
+          "ULID timestamp is different for " + param.reproducer);
       previousValue = value;
     }
     long end = System.currentTimeMillis();
@@ -338,19 +333,19 @@ public class ULIDTest {
   };
 
   public static void assertEntropyIsIncremented(String prev, String next) {
-    Assert.assertEquals(prev.length(), next.length());
+    Assertions.assertEquals(prev.length(), next.length());
     boolean charMustbeSame = false;
     for (int i = next.length() - 1; i >= 0; i--) {
       if (!charMustbeSame) {
         // We assume only ASCII characters, so charAt is good enough here.
         int nextCharIndex = indexOfElement(C, next.charAt(i));
         int prevCharIndex = indexOfElement(C, prev.charAt(i));
-        Assert.assertTrue("Next ULID value contains invalid character", nextCharIndex >= 0);
-        Assert.assertEquals("Next base64 char is wrong",
-            ((nextCharIndex + C.length - 1) % C.length), prevCharIndex);
+        Assertions.assertTrue(nextCharIndex >= 0, "Next ULID value contains invalid character");
+        Assertions.assertEquals(((nextCharIndex + C.length - 1) % C.length), prevCharIndex,
+            "Next base64 char is wrong");
         charMustbeSame = nextCharIndex < C.length && nextCharIndex > 0;
       } else {
-        Assert.assertEquals(next.charAt(i), prev.charAt(i));
+        Assertions.assertEquals(next.charAt(i), prev.charAt(i));
       }
     }
   }

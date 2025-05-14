@@ -7,6 +7,10 @@
 
 ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java. Refer [ulid/spec](https://github.com/ulid/spec) for a more detailed ULID specification.
 
+Version 2.x targets JDK 11, and peruse newer functions such as `java.time.Clock` and module declarations.
+
+Version 1.x targets JDK 1.7, and is functionally equals to version 2.x without the extended support for `java.time.Clock` and module declarations.
+
 ## Features
 
 * Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
@@ -49,7 +53,7 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.0.6</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 

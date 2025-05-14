@@ -20,6 +20,7 @@
  */
 package io.azam.ulidj;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -161,13 +162,18 @@ public class ULID {
   };
 
   /**
+   * This class should not be instantiated.
+   */
+  private ULID() {}
+
+  /**
    * Generate random ULID string using {@link java.util.Random} instance.
    *
    * @return ULID string
    */
   public static String random() {
     byte[] entropy = new byte[10];
-    Random random = new Random();
+    Random random = new SecureRandom();
     random.nextBytes(entropy);
     return generate(System.currentTimeMillis(), entropy);
   }
@@ -179,7 +185,7 @@ public class ULID {
    */
   public static byte[] randomBinary() {
     byte[] entropy = new byte[10];
-    Random random = new Random();
+    Random random = new SecureRandom();
     random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
   }

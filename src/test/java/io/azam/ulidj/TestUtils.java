@@ -20,41 +20,41 @@
  */
 package io.azam.ulidj;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestUtils {
   @Test
   public void testIncrementBytes() {
-    Assert.assertArrayEquals(new byte[] { //
+    Assertions.assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01 //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 //
     }));
-    Assert.assertArrayEquals(new byte[] { //
+    Assertions.assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xff //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xfe //
     }));
-    Assert.assertArrayEquals(new byte[] { //
+    Assertions.assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00 //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xff //
     }));
-    Assert.assertArrayEquals(new byte[] { //
+    Assertions.assertArrayEquals(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }, incrementBytes(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xfe //
     }));
-    Assert.assertArrayEquals(null, incrementBytes(new byte[] { //
+    Assertions.assertArrayEquals(null, incrementBytes(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));

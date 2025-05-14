@@ -1,11 +1,11 @@
 {
-    "name": "java-7-maven",
-    "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+    "name": "java-11-maven",
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
     "features": {
         "ghcr.io/devcontainers/features/java:1": {
             "jdkDistro": "tem",
-            "version": "8.0.442",
-            "mavenVersion": "3.8.8",
+            "version": "11.0.26",
+            "mavenVersion": "3.9.9",
             "installMaven": true
         }
     },

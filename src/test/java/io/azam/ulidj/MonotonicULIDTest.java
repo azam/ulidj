@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
@@ -39,30 +39,32 @@ import org.junit.Test;
 public class MonotonicULIDTest {
   @Test
   public void testConstructor() {
-    Assert.assertNotNull(new MonotonicULID());
-    Assert.assertNotNull(new MonotonicULID(new Random()));
-    Assert.assertNotNull(new MonotonicULID(new SecureRandom()));
+    Assertions.assertNotNull(new MonotonicULID());
+    Assertions.assertNotNull(new MonotonicULID(new Random()));
+    Assertions.assertNotNull(new MonotonicULID(new SecureRandom()));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testConstructorNullRandom() {
-    new MonotonicULID(null);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      new MonotonicULID(null);
+    });
   }
 
   @Test
   public void testGenerate() {
     MonotonicULID ulid = new MonotonicULID();
     String value = ulid.generate();
-    Assert.assertNotNull(value);
-    Assert.assertTrue(ULID.isValid(value));
+    Assertions.assertNotNull(value);
+    Assertions.assertTrue(ULID.isValid(value));
   }
 
   @Test
   public void testGenerateBinary() {
     MonotonicULID ulid = new MonotonicULID();
     byte[] value = ulid.generateBinary();
-    Assert.assertNotNull(value);
-    Assert.assertTrue(ULID.isValidBinary(value));
+    Assertions.assertNotNull(value);
+    Assertions.assertTrue(ULID.isValidBinary(value));
   }
 
   @Test
@@ -81,8 +83,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (String value : values) {
-        Assert.assertNotNull(value);
-        Assert.assertTrue(ULID.isValid(value));
+        Assertions.assertNotNull(value);
+        Assertions.assertTrue(ULID.isValid(value));
         long ts = ULID.getTimestamp(value);
         byte[] entropy = ULID.getEntropy(value);
         if (!groups.containsKey(ts)) {
@@ -103,7 +105,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assert.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            Assertions.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -127,8 +129,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (byte[] value : values) {
-        Assert.assertNotNull(value);
-        Assert.assertTrue(ULID.isValidBinary(value));
+        Assertions.assertNotNull(value);
+        Assertions.assertTrue(ULID.isValidBinary(value));
         long ts = ULID.getTimestampBinary(value);
         byte[] entropy = ULID.getEntropyBinary(value);
         if (!groups.containsKey(ts)) {
@@ -149,7 +151,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assert.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            Assertions.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -157,7 +159,7 @@ public class MonotonicULIDTest {
     }
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testGenerateOverflow() {
     // Using a random generator that always return 0xff... so that next increment on
     // the same timestamp will throw exception
@@ -165,13 +167,16 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    List<String> values = new ArrayList<String>();
-    for (int i = 0; i < 1000000; i++) {
-      values.add(ulid.generate());
-    }
+
+    Assertions.assertThrows(IllegalStateException.class, () -> {
+      List<String> values = new ArrayList<String>();
+      for (int i = 0; i < 1000000; i++) {
+        values.add(ulid.generate());
+      }
+    });
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testGenerateBinaryOverflow() {
     // Using a random generator that always return 0xff... so that next increment on
     // the same timestamp will throw exception
@@ -179,10 +184,12 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    List<byte[]> values = new ArrayList<byte[]>();
-    for (int i = 0; i < 1000000; i++) {
-      values.add(ulid.generateBinary());
-    }
+    Assertions.assertThrows(IllegalStateException.class, () -> {
+      List<byte[]> values = new ArrayList<byte[]>();
+      for (int i = 0; i < 1000000; i++) {
+        values.add(ulid.generateBinary());
+      }
+    });
   }
 
 }
