@@ -43,10 +43,10 @@ jobs:
           distribution: ${{matrix.distribution}}
           cache: maven
       - name: bench-${{matrix.name}}
-        if: ${{matrix.target >= matrix.version}}
+        if: ${{matrix.version >= matrix.target}}
         run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-as-jdk11-${{matrix.name}}.json -Dmaven.compiler.source=${{matrix.target}} -Dmaven.compiler.target=${{matrix.target}} -B -V
       - name: bench-summary-${{matrix.name}}
-        if: ${{matrix.target >= matrix.version}}
+        if: ${{matrix.version >= matrix.target}}
         run: |
           echo -e "## bench-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
           echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
