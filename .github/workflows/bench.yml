@@ -3,7 +3,12 @@ name: bench
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - 'main'
+      - 'main-v1'
+      - 'develop'
+      - 'develop-v1'
   schedule:
     - cron: '0 9 * * 2'
   workflow_dispatch:
@@ -45,10 +50,19 @@ jobs:
       - name: bench-${{matrix.name}}
         if: ${{matrix.version >= matrix.target}}
         run: mvn clean jmh:benchmark -Djmh.rf=json -Djmh.rff=./bench-${{matrix.name}}.json -Dmaven.compiler.source=${{matrix.target}} -Dmaven.compiler.target=${{matrix.target}} -B -V
-      - name: bench-summary-${{matrix.name}}
+      - name: bench-step-summary-${{matrix.name}}
         if: ${{matrix.version >= matrix.target}}
         run: |
           echo -e "## bench-${{matrix.name}}\n\n" >> $GITHUB_STEP_SUMMARY
           echo -e "\`\`\`json\n" >> $GITHUB_STEP_SUMMARY
           cat ./bench-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
           echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
+      - name: bench-summary-${{matrix.name}}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{github.ref_name}}-bench-${{matrix.name}}
+          tool: 'jmh'
+          output-file-path: ./bench-${{matrix.name}}.json
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          auto-push: true
+          summary-always: true
