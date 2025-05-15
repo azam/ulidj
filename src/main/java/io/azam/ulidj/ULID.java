@@ -228,7 +228,7 @@ public class ULID {
    * Generate random ULID string using provided {@link java.time.Clock} instance, with default
    * {@link java.util.Random} instance.
    *
-   * @param clock {@limk java.time.Clock} instance
+   * @param clock {@link java.time.Clock} instance
    * @return ULID string
    */
   public static String random(Clock clock) {
@@ -241,7 +241,7 @@ public class ULID {
    * Generate random ULID binary using provided {@link java.time.Clock} instance, with default
    * {@link java.util.Random} instance.
    *
-   * @param clock {@limk java.time.Clock} instance
+   * @param clock {@link java.time.Clock} instance
    * @return ULID string
    */
   public static byte[] randomBinary(Clock clock) {
@@ -254,7 +254,7 @@ public class ULID {
    * Generate random ULID string using provided {@link java.util.Random} instance.
    *
    * @param random {@link java.util.Random} instance
-   * @param clock {@limk java.time.Clock} instance
+   * @param clock {@link java.time.Clock} instance
    * @return ULID string
    */
   public static String random(Random random, Clock clock) {
@@ -267,7 +267,7 @@ public class ULID {
    * Generate random ULID binary using provided {@link java.util.Random} instance.
    *
    * @param random {@link java.util.Random} instance
-   * @param clock {@limk java.time.Clock} instance
+   * @param clock {@link java.time.Clock} instance
    * @return ULID string
    */
   public static byte[] randomBinary(Random random, Clock clock) {
