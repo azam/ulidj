@@ -15,16 +15,17 @@ Version 1.x targets JDK 1.7, and is functionally equals to version 2.x without t
 
 * Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
 * Parses ULID from `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
-* Fast and simple static methods
+* Fast and simple static methods for non-monotonic ULID (monotonic ULID is stateful)
 * Includes ULID monotonic generator
 * Zero runtime dependencies
+* Customizable by providing your own `java.util.Random` instance for entropy and `java.time.Clock` instance for timestamp generation.
 
 ## License
 
 ```
 MIT License
 
-Copyright (c) 2016 Azamshul Azizy
+Copyright (c) 2016-2025 Azamshul Azizy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

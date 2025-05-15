@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -23,6 +23,7 @@ package io.azam.ulidj;
 import java.util.Random;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -292,7 +293,8 @@ public class ULIDTest {
    * This test increments entropy and checks the ULID value correctness. This takes approx 45mins on
    * a Intel® Core™ i7-7820X CPU @ 3.60GHz × 16, so only run this locally.
    */
-  // @Test
+  @Disabled("Very expensive test")
+  @Test
   public void testGeneratorCorrectness() {
     long start = System.currentTimeMillis();
     String previousValue = null;

@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,6 +21,7 @@
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 
 /**
@@ -162,7 +163,8 @@ public class ULID {
   };
 
   /**
-   * This allows lazy initialization of the default {@link java.util.Random} instance.
+   * This allows lazy initialization of the default {@link java.util.Random} instance, backed by
+   * {@link java.security.SecureRandom} instance.
    */
   private static class LazyDefaults {
     /**
@@ -220,6 +222,58 @@ public class ULID {
     byte[] entropy = new byte[10];
     random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.time.Clock} instance, with default
+   * {@link java.util.Random} instance.
+   *
+   * @param clock {@limk java.time.Clock} instance
+   * @return ULID string
+   */
+  public static String random(Clock clock) {
+    byte[] entropy = new byte[10];
+    LazyDefaults.random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.time.Clock} instance, with default
+   * {@link java.util.Random} instance.
+   *
+   * @param clock {@limk java.time.Clock} instance
+   * @return ULID string
+   */
+  public static byte[] randomBinary(Clock clock) {
+    byte[] entropy = new byte[10];
+    LazyDefaults.random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@limk java.time.Clock} instance
+   * @return ULID string
+   */
+  public static String random(Random random, Clock clock) {
+    byte[] entropy = new byte[10];
+    random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@limk java.time.Clock} instance
+   * @return ULID string
+   */
+  public static byte[] randomBinary(Random random, Clock clock) {
+    byte[] entropy = new byte[10];
+    random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
   }
 
   /**

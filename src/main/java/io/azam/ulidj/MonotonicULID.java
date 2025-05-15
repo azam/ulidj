@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,6 +21,7 @@
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 
 /**
@@ -49,11 +50,13 @@ import java.util.Random;
  */
 public class MonotonicULID {
   private final Random random;
+  private final byte[] lastEntropy;
+  private final Clock clock;
   private long lastTimestamp;
-  private byte[] lastEntropy;
 
   /**
-   * This allows lazy initialization of the default {@link java.util.Random} instance.
+   * This allows lazy initialization of the default {@link java.util.Random} instance, backed by
+   * {@link java.security.SecureRandom} instance.
    */
   private static class LazyDefaults {
     /**
@@ -67,7 +70,7 @@ public class MonotonicULID {
    * instance.
    */
   public MonotonicULID() {
-    this(LazyDefaults.random);
+    this(LazyDefaults.random, null);
   }
 
   /**
@@ -76,9 +79,27 @@ public class MonotonicULID {
    * @param random {@link java.util.Random} instance
    */
   public MonotonicULID(Random random) {
-    if (random == null)
-      throw new IllegalArgumentException("java.util.Random instance must not be null");
-    this.random = random;
+    this(random, null);
+  }
+
+  /**
+   * Generate a monotonic ULID generator instance.
+   *
+   * @param clock {@link java.time.Clock} instance
+   */
+  public MonotonicULID(Clock clock) {
+    this(null, clock);
+  }
+
+  /**
+   * Generate a monotonic ULID generator instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@link java.time.Clock} instance
+   */
+  public MonotonicULID(Random random, Clock clock) {
+    this.random = random == null ? LazyDefaults.random : random;
+    this.clock = clock;
     this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];
     this.lastTimestamp = -1L;
   }
@@ -93,7 +114,7 @@ public class MonotonicULID {
    * @return ULID string
    */
   public synchronized String generate() {
-    long now = System.currentTimeMillis();
+    long now = this.clock == null ? System.currentTimeMillis() : this.clock.millis();
     if (now == this.lastTimestamp) {
       // Entropy is big-endian (network byte order) per ULID spec
       // Increment last entropy by 1
@@ -129,7 +150,7 @@ public class MonotonicULID {
    * @return ULID binary
    */
   public synchronized byte[] generateBinary() {
-    long now = System.currentTimeMillis();
+    long now = this.clock == null ? System.currentTimeMillis() : this.clock.millis();
     if (now == this.lastTimestamp) {
       // Entropy is big-endian (network byte order) per ULID spec
       // Increment last entropy by 1

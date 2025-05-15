@@ -1,6 +1,27 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2016-2025 Azamshul Azizy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -25,12 +46,14 @@ public class ULIDBenchmark {
     public Random random;
     public SecureRandom secureRandom;
     public ThreadLocalRandom threadLocalRandom;
+    public Clock systemUTC;
 
     @Setup(Level.Trial)
     public void doSetup() {
-      random = new Random();
-      secureRandom = new SecureRandom();
-      threadLocalRandom = ThreadLocalRandom.current();
+      this.random = new Random();
+      this.secureRandom = new SecureRandom();
+      this.threadLocalRandom = ThreadLocalRandom.current();
+      this.systemUTC = Clock.systemUTC();
     }
   }
 
@@ -92,6 +115,26 @@ public class ULIDBenchmark {
   @Benchmark
   public void randomBinaryNewSecureRandom(Blackhole blackhole, ULIDState state) {
     blackhole.consume(ULID.randomBinary(new SecureRandom()));
+  }
+
+  @Benchmark
+  public void randomSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.random(state.systemUTC));
+  }
+
+  @Benchmark
+  public void randomBinarySystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomBinary(state.systemUTC));
+  }
+
+  @Benchmark
+  public void randomNewSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.random(Clock.systemUTC()));
+  }
+
+  @Benchmark
+  public void randomBinaryNewSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomBinary(Clock.systemUTC()));
   }
 
   @Benchmark

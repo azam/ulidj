@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,6 +21,7 @@
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +43,10 @@ public class MonotonicULIDTest {
     Assertions.assertNotNull(new MonotonicULID());
     Assertions.assertNotNull(new MonotonicULID(new Random()));
     Assertions.assertNotNull(new MonotonicULID(new SecureRandom()));
-  }
-
-  @Test
-  public void testConstructorNullRandom() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> {
-      new MonotonicULID(null);
-    });
+    Assertions.assertNotNull(new MonotonicULID(Clock.systemUTC()));
+    Assertions.assertNotNull(new MonotonicULID(new Random(), Clock.systemUTC()));
+    Assertions.assertNotNull(new MonotonicULID(null, Clock.systemUTC()));
+    Assertions.assertNotNull(new MonotonicULID(new Random(), null));
   }
 
   @Test
