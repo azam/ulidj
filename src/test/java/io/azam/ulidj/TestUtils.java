@@ -81,4 +81,18 @@ public class TestUtils {
 
     return value;
   }
+
+  public static String bytesToInitializer(byte[] bytes) {
+    if (bytes == null)
+      return "null";
+    StringBuilder sb = new StringBuilder();
+    sb.append("new byte[] {");
+    for (int i = 0; i < bytes.length; i++) {
+      sb.append(String.format("(byte) 0x%02x", bytes[i]));
+      if (i < bytes.length - 1)
+        sb.append(",");
+    }
+    sb.append(" }");
+    return sb.toString();
+  }
 }

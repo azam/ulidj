@@ -20,6 +20,10 @@
  */
 package io.azam.ulidj;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.jupiter.api.Assertions;
@@ -33,14 +37,18 @@ import org.junit.jupiter.api.Test;
  * @since 0.0.1
  */
 public class ULIDTest {
-  private static final byte[] ZERO_ENTROPY = new byte[] { //
+  public static final byte[] ZERO_ENTROPY = new byte[] { //
       (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
       (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 //
   };
-  private static final byte[] FILLED_ENTROPY = new byte[] { //
+  public static final byte[] FILLED_ENTROPY = new byte[] { //
       (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
       (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
   };
+  public static final long TEST_TIMESTAMP = 946652400000L; // 2000-01-01T00:00:00Z
+  public static final Clock TEST_CLOCK =
+      Clock.fixed(Instant.ofEpochMilli(TEST_TIMESTAMP), ZoneOffset.UTC);
+  public static final Random TEST_RANDOM = new FixedRandom(FILLED_ENTROPY);
 
   private static class TestParam {
     public final long timestamp;
@@ -53,20 +61,8 @@ public class ULIDTest {
       this.entropy = entropy;
       this.value = value;
       StringBuilder sb = new StringBuilder();
-      sb.append("ULID.generate(").append(Long.toString(timestamp)).append("L,");
-      if (entropy != null) {
-        sb.append("new byte[]{");
-        for (int i = 0; i < entropy.length; i++) {
-          sb.append("0x").append(Integer.toHexString((entropy[i] & 0xFF) + 0x100).substring(1));
-          if (i + 1 < entropy.length) {
-            sb.append(",");
-          }
-        }
-        sb.append("}");
-      } else {
-        sb.append("null");
-      }
-      sb.append(")");
+      sb.append("ULID.generate(").append(Long.toString(timestamp)).append("L,")
+          .append(TestUtils.bytesToInitializer(entropy)).append(")");
       this.reproducer = sb.toString();
     }
   }
@@ -138,10 +134,132 @@ public class ULIDTest {
   }
 
   @Test
+  public void testRandomExternalRandom() {
+    String value = ULID.random(TEST_RANDOM);
+    Assertions.assertNotNull(value, "Generated ULID must not be null");
+    Assertions.assertEquals(26, value.length(), "Generated ULID length must be 26");
+    Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "Generated ULID must use provided random instance");
+  }
+
+  @Test
+  public void testRandomExternalClock() {
+    String value = ULID.random(TEST_CLOCK);
+    Assertions.assertNotNull(value, "Generated ULID must not be null");
+    Assertions.assertEquals(26, value.length(), "Generated ULID length must be 26");
+    Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "Generated ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomExternalRandomAndClock() {
+    String value = ULID.random(TEST_RANDOM, TEST_CLOCK);
+    Assertions.assertNotNull(value, "Generated ULID must not be null");
+    Assertions.assertEquals(26, value.length(), "Generated ULID length must be 26");
+    Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "Generated ULID must use provided random instance");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "Generated ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomInvalid() {
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      String value = ULID.random(random);
+    }, "Null random instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      String value = ULID.random(clock);
+    }, "Null clock instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      String value = ULID.random(TEST_RANDOM, clock);
+    }, "Null clock instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      String value = ULID.random(random, TEST_CLOCK);
+    }, "Null random instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      Clock clock = null;
+      String value = ULID.random(random, clock);
+    }, "Null random and clock instance should throw NullPointerException");
+  }
+
+  @Test
   public void testRandomBinary() {
     byte[] value = ULID.randomBinary();
-    Assertions.assertNotNull(value, "Generated ULID binary must not be null");
-    Assertions.assertEquals(16, value.length, "Generated ULID binary length must be 16");
+    Assertions.assertNotNull(value, "Generated binary ULID must not be null");
+    Assertions.assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    Assertions.assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+  }
+
+  @Test
+  public void testRandomBinaryExternalRandom() {
+    byte[] value = ULID.randomBinary(TEST_RANDOM);
+    Assertions.assertNotNull(value, "Generated binary ULID must not be null");
+    Assertions.assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    Assertions.assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Generated binary ULID must use provided random instance");
+  }
+
+  @Test
+  public void testRandomBinaryExternalClock() {
+    byte[] value = ULID.randomBinary(TEST_CLOCK);
+    Assertions.assertNotNull(value, "Generated binary ULID must not be null");
+    Assertions.assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    Assertions.assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Generated binary ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomBinaryExternalRandomAndClock() {
+    byte[] value = ULID.randomBinary(TEST_RANDOM, TEST_CLOCK);
+    Assertions.assertNotNull(value, "Generated binary ULID must not be null");
+    Assertions.assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    Assertions.assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Generated binary ULID must use provided random instance");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Generated binary ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomBinaryInvalid() {
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      byte[] value = ULID.randomBinary(random);
+    }, "Null random instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      byte[] value = ULID.randomBinary(clock);
+    }, "Null clock instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      byte[] value = ULID.randomBinary(TEST_RANDOM, clock);
+    }, "Null clock instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      byte[] value = ULID.randomBinary(random, TEST_CLOCK);
+    }, "Null random instance should throw NullPointerException");
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      Clock clock = null;
+      byte[] value = ULID.randomBinary(random, clock);
+    }, "Null random and clock instance should throw NullPointerException");
   }
 
   @Test
@@ -149,18 +267,38 @@ public class ULIDTest {
     byte[] entropy = new byte[10];
     Random random = new Random();
     random.nextBytes(entropy);
-    long now = System.currentTimeMillis();
-    String value = ULID.generate(now, entropy);
+    String value = ULID.generate(TEST_TIMESTAMP, entropy);
     Assertions.assertNotNull(value, "Generated ULID must not be null");
     Assertions.assertEquals(26, value.length(),
         "Generated ULID length must be 26, but returned " + value.length() + " instead");
     Assertions.assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
         "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ], but returned "
             + value + " instead");
-    Assertions.assertEquals(now, ULID.getTimestamp(value),
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
         "Generated ULID timestamp must equal given timestamp");
     Assertions.assertArrayEquals(entropy, ULID.getEntropy(value),
         "Generated ULID entropy must equal given entropy");
+  }
+
+  @Test
+  public void testGenerateInvalid() {
+    Random random = new Random();
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      String value = ULID.generate(ULID.MIN_TIME - 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME(" + ULID.MIN_TIME
+        + ")");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      String value = ULID.generate(ULID.MAX_TIME + 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      String value = ULID.generate(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must not be null");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0x77);
+      String value = ULID.generate(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH
+        + ")");
   }
 
   @Test
@@ -168,15 +306,40 @@ public class ULIDTest {
     byte[] entropy = new byte[10];
     Random random = new Random();
     random.nextBytes(entropy);
-    long now = System.currentTimeMillis();
-    byte[] value = ULID.generateBinary(now, entropy);
+    byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
     Assertions.assertNotNull(value, "Generated ULID binary must not be null");
     Assertions.assertEquals(16, value.length,
         "Generated ULID binary length must be 16, but returned " + value.length + " instead");
-    Assertions.assertEquals(now, ULID.getTimestampBinary(value),
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
         "Generated ULID binary timestamp must equal given timestamp");
     Assertions.assertArrayEquals(entropy, ULID.getEntropyBinary(value),
         "Generated ULID binary entropy must equal given entropy");
+  }
+
+  @Test
+  public void testGenerateBinaryInvalid() {
+    Random random = new Random();
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] value = ULID.generateBinary(ULID.MIN_TIME - 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME(" + ULID.MIN_TIME
+        + ")");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] value = ULID.generateBinary(ULID.MAX_TIME + 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must not be null");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0xff);
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be of ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0xff);
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH
+        + ")");
   }
 
   @Test
@@ -219,7 +382,9 @@ public class ULIDTest {
         "000000000000000000000000000", //
         "-0000000000000000000000000", //
         "0000000000000000000000000U", //
-        "0000000000000000000000000/u3042", //
+        "U0000000000000000000000000", //
+        "0000000000000U000000000000", //
+        "000000000000000000000000\u30420", //
         "0000000000000000000000000#", //
     };
     for (String ulid : invalidUlids) {
@@ -231,6 +396,38 @@ public class ULIDTest {
   public void testIsValidFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
       Assertions.assertTrue(ULID.isValid(params.value), "ULID string is valid");
+    }
+  }
+
+  @Test
+  public void testIsValidBinary() {
+    byte[] ulid = new byte[16];
+    Arrays.fill(ulid, (byte) 0x00);
+    Assertions.assertTrue(ULID.isValidBinary(ulid),
+        "Any byte array of 16 bytes is a valid binary ULID");
+    Arrays.fill(ulid, (byte) 0xff);
+    Assertions.assertTrue(ULID.isValidBinary(ulid),
+        "Any byte array of 16 bytes is a valid binary ULID");
+    Random random = new Random();
+    random.nextBytes(ulid);
+    Assertions.assertTrue(ULID.isValidBinary(ulid),
+        "Any byte array of 16 bytes is a valid binary ULID");
+  }
+
+  @Test
+  public void testIsValidBinaryNegative() {
+    byte[][] invalidUlids = new byte[][] { //
+        null, //
+        new byte[] {}, //
+        new byte[] {(byte) 0xff}, //
+        new byte[] { //
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
+        } //
+    };
+    for (byte[] ulid : invalidUlids) {
+      Assertions.assertFalse(ULID.isValidBinary(ulid),
+          "Binary ULID \"" + TestUtils.bytesToInitializer(ulid) + "\" should be invalid");
     }
   }
 

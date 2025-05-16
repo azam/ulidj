@@ -31,6 +31,11 @@ import java.util.Random;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static io.azam.ulidj.ULIDTest.FILLED_ENTROPY;
+import static io.azam.ulidj.ULIDTest.TEST_CLOCK;
+import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
+import static io.azam.ulidj.ULIDTest.TEST_TIMESTAMP;
+
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
  *
@@ -40,29 +45,96 @@ import org.junit.jupiter.api.Test;
 public class MonotonicULIDTest {
   @Test
   public void testConstructor() {
-    Assertions.assertNotNull(new MonotonicULID());
-    Assertions.assertNotNull(new MonotonicULID(new Random()));
-    Assertions.assertNotNull(new MonotonicULID(new SecureRandom()));
-    Assertions.assertNotNull(new MonotonicULID(Clock.systemUTC()));
-    Assertions.assertNotNull(new MonotonicULID(new Random(), Clock.systemUTC()));
-    Assertions.assertNotNull(new MonotonicULID(null, Clock.systemUTC()));
-    Assertions.assertNotNull(new MonotonicULID(new Random(), null));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID());
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random()));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new SecureRandom()));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(TEST_RANDOM));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(Clock.systemUTC()));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(TEST_CLOCK));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random(), Clock.systemUTC()));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(null, Clock.systemUTC()));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random(), null));
+    Assertions.assertDoesNotThrow(() -> new MonotonicULID(null, null));
   }
 
   @Test
   public void testGenerate() {
     MonotonicULID ulid = new MonotonicULID();
     String value = ulid.generate();
-    Assertions.assertNotNull(value);
-    Assertions.assertTrue(ULID.isValid(value));
+    Assertions.assertNotNull(value, "ULID value should not be null");
+    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
+  }
+
+  @Test
+  public void testGenerateExternalRandom() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
+    String value = ulid.generate();
+    Assertions.assertNotNull(value, "ULID value should not be null");
+    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "ULID entropy should be filled with the provided random");
+  }
+
+  @Test
+  public void testGenerateExternalClock() {
+    MonotonicULID ulid = new MonotonicULID(TEST_CLOCK);
+    String value = ulid.generate();
+    Assertions.assertNotNull(value, "ULID value should not be null");
+    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "ULID timestamp should be filled with the provided clock");
+  }
+
+  @Test
+  public void testGenerateExternalRandomAndClock() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM, TEST_CLOCK);
+    String value = ulid.generate();
+    Assertions.assertNotNull(value, "ULID value should not be null");
+    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "ULID entropy should be filled with the provided random");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "ULID timestamp should be filled with the provided clock");
   }
 
   @Test
   public void testGenerateBinary() {
     MonotonicULID ulid = new MonotonicULID();
     byte[] value = ulid.generateBinary();
-    Assertions.assertNotNull(value);
-    Assertions.assertTrue(ULID.isValidBinary(value));
+    Assertions.assertNotNull(value, "Binary ULID value should not be null");
+    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+  }
+
+  @Test
+  public void testGenerateBinaryExternalRandom() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
+    byte[] value = ulid.generateBinary();
+    Assertions.assertNotNull(value, "Binary ULID value should not be null");
+    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Binary ULID entropy should be filled with the provided random");
+  }
+
+  @Test
+  public void testGenerateBinaryExternalClock() {
+    MonotonicULID ulid = new MonotonicULID(TEST_CLOCK);
+    byte[] value = ulid.generateBinary();
+    Assertions.assertNotNull(value, "Binary ULID value should not be null");
+    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Binary ULID timestamp should be filled with the provided clock");
+  }
+
+  @Test
+  public void testGenerateBinaryExternalRandomAndClock() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM, TEST_CLOCK);
+    byte[] value = ulid.generateBinary();
+    Assertions.assertNotNull(value, "Binary ULID value should not be null");
+    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Binary ULID entropy should be filled with the provided random");
+    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Binary ULID timestamp should be filled with the provided clock");
   }
 
   @Test
@@ -165,7 +237,6 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-
     Assertions.assertThrows(IllegalStateException.class, () -> {
       List<String> values = new ArrayList<String>();
       for (int i = 0; i < 1000000; i++) {
@@ -189,5 +260,4 @@ public class MonotonicULIDTest {
       }
     });
   }
-
 }

@@ -230,6 +230,7 @@ public class ULID {
    *
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
+   * @since 2.0.0
    */
   public static String random(Clock clock) {
     byte[] entropy = new byte[10];
@@ -243,6 +244,7 @@ public class ULID {
    *
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
+   * @since 2.0.0
    */
   public static byte[] randomBinary(Clock clock) {
     byte[] entropy = new byte[10];
@@ -256,6 +258,7 @@ public class ULID {
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
+   * @since 2.0.0
    */
   public static String random(Random random, Clock clock) {
     byte[] entropy = new byte[10];
@@ -269,6 +272,7 @@ public class ULID {
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
+   * @since 2.0.0
    */
   public static byte[] randomBinary(Random random, Clock clock) {
     byte[] entropy = new byte[10];
@@ -369,7 +373,7 @@ public class ULID {
     for (int i = 0; i < ULID_LENGTH; i++) {
       // We only care for chars between 0x00 and 0xff.
       char c = ulid.charAt(i);
-      if (c < 0 || c > V.length || V[c] == (byte) 0xff) {
+      if (c > V.length || V[c] == (byte) 0xff) {
         return false;
       }
     }

@@ -86,6 +86,7 @@ public class MonotonicULID {
    * Generate a monotonic ULID generator instance.
    *
    * @param clock {@link java.time.Clock} instance
+   * @since 2.0.0
    */
   public MonotonicULID(Clock clock) {
     this(null, clock);
@@ -96,6 +97,7 @@ public class MonotonicULID {
    *
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
+   * @since 2.0.0
    */
   public MonotonicULID(Random random, Clock clock) {
     this.random = random == null ? LazyDefaults.random : random;
@@ -123,7 +125,7 @@ public class MonotonicULID {
         if (carry) {
           byte work = this.lastEntropy[i];
           work = (byte) (work + 0x01);
-          carry = this.lastEntropy[i] == (byte) 0xff && carry;
+          carry = this.lastEntropy[i] == (byte) 0xff;
           this.lastEntropy[i] = work;
         }
       }
@@ -159,7 +161,7 @@ public class MonotonicULID {
         if (carry) {
           byte work = this.lastEntropy[i];
           work = (byte) (work + 0x01);
-          carry = this.lastEntropy[i] == (byte) 0xff && carry;
+          carry = this.lastEntropy[i] == (byte) 0xff;
           this.lastEntropy[i] = work;
         }
       }
