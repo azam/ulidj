@@ -44,3 +44,4 @@ buildNumber.properties
 .project
 .settings/
 .vscode/
+.idea/

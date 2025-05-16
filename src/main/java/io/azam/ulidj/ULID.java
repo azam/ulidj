@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,6 +20,8 @@
  */
 package io.azam.ulidj;
 
+import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 
 /**
@@ -161,14 +163,29 @@ public class ULID {
   };
 
   /**
+   * This allows lazy initialization of the default {@link java.util.Random} instance, backed by
+   * {@link java.security.SecureRandom} instance.
+   */
+  private static class LazyDefaults {
+    /**
+     * Default {@link java.util.Random} instance.
+     */
+    static final Random random = new SecureRandom();
+  }
+
+  /**
+   * This class should not be instantiated.
+   */
+  private ULID() {}
+
+  /**
    * Generate random ULID string using {@link java.util.Random} instance.
    *
    * @return ULID string
    */
   public static String random() {
     byte[] entropy = new byte[10];
-    Random random = new Random();
-    random.nextBytes(entropy);
+    LazyDefaults.random.nextBytes(entropy);
     return generate(System.currentTimeMillis(), entropy);
   }
 
@@ -179,8 +196,7 @@ public class ULID {
    */
   public static byte[] randomBinary() {
     byte[] entropy = new byte[10];
-    Random random = new Random();
-    random.nextBytes(entropy);
+    LazyDefaults.random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
   }
 
@@ -206,6 +222,62 @@ public class ULID {
     byte[] entropy = new byte[10];
     random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.time.Clock} instance, with default
+   * {@link java.util.Random} instance.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @since 2.0.0
+   */
+  public static String random(Clock clock) {
+    byte[] entropy = new byte[10];
+    LazyDefaults.random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.time.Clock} instance, with default
+   * {@link java.util.Random} instance.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @since 2.0.0
+   */
+  public static byte[] randomBinary(Clock clock) {
+    byte[] entropy = new byte[10];
+    LazyDefaults.random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @since 2.0.0
+   */
+  public static String random(Random random, Clock clock) {
+    byte[] entropy = new byte[10];
+    random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @since 2.0.0
+   */
+  public static byte[] randomBinary(Random random, Clock clock) {
+    byte[] entropy = new byte[10];
+    random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
   }
 
   /**
@@ -299,9 +371,9 @@ public class ULID {
       return false;
     }
     for (int i = 0; i < ULID_LENGTH; i++) {
-      /** We only care for chars between 0x00 and 0xff. */
+      // We only care for chars between 0x00 and 0xff.
       char c = ulid.charAt(i);
-      if (c < 0 || c > V.length || V[c] == (byte) 0xff) {
+      if (c > V.length || V[c] == (byte) 0xff) {
         return false;
       }
     }
