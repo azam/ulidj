@@ -18,7 +18,7 @@ Version 1.x targets JDK 1.7, and is functionally equals to version 2.x without t
 * Fast and simple static methods for non-monotonic ULID (monotonic ULID is stateful)
 * Includes ULID monotonic generator
 * Zero runtime dependencies
-* Customizable by providing your own `java.util.Random` instance for entropy and `java.time.Clock` instance for timestamp generation.
+* Customizable by providing your own `java.util.Random` instance for entropy and `java.time.Clock` instance for timestamp generation
 
 ## License
 
@@ -63,9 +63,17 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 ULID generation examples:
 
 ```java
+// Random ULID generation
 String ulid1 = ULID.random();
 String ulid2 = ULID.random(ThreadLocalRandom.current());
 String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
+
+// Random binary ULID generation
+String ulid1Binary = ULID.randomBinary();
+String ulid2Binary = ULID.randomBinary(ThreadLocalRandom.current());
+String ulid3Binary = ULID.randomBinary(SecureRandom.newInstance("SHA1PRNG"));
+
+// Custom ULID generation
 byte[] entropy = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9 };
 String ulid4 = ULID.generate(System.currentTimeMillis(), entropy); // Generate ULID in string representation
 byte[] ulid5 = ULID.generateBinary(System.currentTimeMillis(), entropy); // Generate ULID in binary representation
@@ -77,9 +85,9 @@ ULID parsing examples:
 // ULID string parsing
 String ulid = "003JZ9J6G80123456789abcdef";
 assert ULID.isValid(ulid);
-long ts = ULID.getTimestamp(ulid);
+long ts = ULID.getTimestamp(ulid); // Get UTC timestamp in milliseconds
 assert ts == 123456789000L;
-byte[] entropy = ULID.getEntropy(ulid);
+byte[] entropy = ULID.getEntropy(ulid); // Get entropy part
 
 // ULID binary parsing
 byte[] ulidBinary =  new byte[] { //
@@ -89,17 +97,23 @@ byte[] ulidBinary =  new byte[] { //
     (byte) 0x10, (byte) 0x20, (byte) 0x30, (byte) 0x40, (byte) 0x50, (byte) 0x60, (byte) 0x70, (byte) 0x80, (byte) 0x90, (byte) 0x10 //
 };
 assert ULID.isValidBinary(ulidBinary);
-long ts = ULID.getTimestampBinary(ulidBinary);
+long ts = ULID.getTimestampBinary(ulidBinary); // Get UTC timestamp in milliseconds
 assert ts == 1320636247808L;
-byte[] entropy = ULID.getEntropyBinary(ulidBinary);
+byte[] entropy = ULID.getEntropyBinary(ulidBinary); // Get entropy part
 ```
 
 Monotonic ULID generation example:
 
 ```java
+// Monotonic ULID geneation
 MonotonicULID ulid = new MonotonicULID();
 String ulidString = ulid.generate(); // Generate ULID in string representation
 byte[] ulidBinary = ulid.generateBinary(); // Generate ULID in binary representation
+
+// Monotonic ULID geneation with custom random generator
+MonotonicULID ulidSecure = new MonotonicULID(SecureRandom.newInstance("SHA1PRNG"));
+String ulidSecureString = ulid.generate(); // Generate ULID in string representation
+byte[] ulidSecureBinary = ulid.generateBinary(); // Generate ULID in binary representation
 ```
 
 ## Develop
