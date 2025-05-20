@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2016-2025 Azamshul Azizy
@@ -20,8 +20,10 @@
  */
 package io.azam.ulidj;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -49,13 +51,42 @@ import java.util.Random;
  * byte[] entropy = ULID.getEntropy(ulid);
  * </pre>
  *
+ * ULID string representation:<br>
+ *
+ * <pre>
+ *  01AN4Z07BY      79KA1307SR9X4MV3
+ *
+ * |----------|    |----------------|
+ *  Timestamp          Randomness
+ *    48bits             80bits
+ * </pre>
+ *
+ * ULID binary representation:<br>
+ *
+ * <pre>
+ * 0                   1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                      32_bit_uint_time_high                    |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |     16_bit_uint_time_low      |       16_bit_uint_random      |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                       32_bit_uint_random                      |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                       32_bit_uint_random                      |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * </pre>
+ *
  * @author azam
  * @since 0.0.1
  *
- * @see <a href="http://www.crockford.com/wrmg/base32.html">Base32 Encoding</a>
+ * @see <a href="https://github.com/azam">ulidj</a>
  * @see <a href="https://github.com/ulid/spec">ULID</a>
+ * @see <a href="https://www.crockford.com/wrmg/base32.html">Base32 Encoding</a>
  */
-public class ULID {
+public final class ULID implements Serializable, Comparable<ULID> {
+  private static final long serialVersionUID = 200L;
+
   /**
    * ULID string length.
    */
@@ -173,13 +204,183 @@ public class ULID {
     static final Random random = new SecureRandom();
   }
 
-  /**
-   * This class should not be instantiated.
-   */
-  private ULID() {}
+  private final byte[] binary;
 
   /**
-   * Generate random ULID string using {@link java.util.Random} instance.
+   * Constructs an immutable random ULID instance using default {@link java.util.Random} instance
+   * backed by {@link java.security.SecureRandom}.
+   *
+   * @since 2.0.0
+   */
+  public ULID() {
+    this.binary = randomBinary();
+  }
+
+  /**
+   * Constructs an immutable random ULID instance using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @since 2.0.0
+   */
+  public ULID(Random random) {
+    this.binary = randomBinary(random);
+  }
+
+  /**
+   * Constructs an immutable random ULID instance using default {@link java.util.Random} backed by
+   * {@link java.security.SecureRandom}.instance with provided {@link java.time.Clock} instance as
+   * timestamp provider.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @since 2.0.0
+   */
+  public ULID(Clock clock) {
+    this.binary = randomBinary(clock);
+  }
+
+  /**
+   * Constructs an immutable random ULID instance using provided {@link java.util.Random} instance
+   * with provided {@link java.time.Clock} instance as timestamp provider.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@link java.time.Clock} instance
+   * @since 2.0.0
+   */
+  public ULID(Random random, Clock clock) {
+    this.binary = randomBinary(random, clock);
+  }
+
+  /**
+   * Constructs an immutable ULID instance using provided ULID string.
+   *
+   * @param value ULID string
+   * @throws IllegalArgumentException if the ULID binary byte array is not valid
+   * @since 2.0.0
+   */
+  public ULID(CharSequence value) {
+    if (isValid(value)) {
+      this.binary = toBinary(value);
+    } else {
+      throw new IllegalArgumentException("Invalid ULID string");
+    }
+  }
+
+  /**
+   * Constructs an immutable ULID instance using provided ULID binary byte array.
+   *
+   * @param value ULID binary
+   * @throws IllegalArgumentException if the ULID binary byte array is not valid
+   * @since 2.0.0
+   */
+  public ULID(byte[] value) {
+    if (isValidBinary(value)) {
+      this.binary = new byte[ULID_BINARY_LENGTH];
+      System.arraycopy(value, 0, this.binary, 0, ULID_BINARY_LENGTH);
+    } else {
+      throw new IllegalArgumentException("Invalid ULID binary");
+    }
+  }
+
+  /**
+   * Constructs an immutable ULID instance using provided timestamp and entropy.
+   *
+   * @param time Unix epoch timestamp in millisecond
+   * @param entropy Entropy bytes
+   * @throws IllegalArgumentException if time or entropy is not valid
+   * @since 2.0.0
+   */
+  public ULID(long time, byte[] entropy) {
+    if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length != ENTROPY_LENGTH) {
+      throw new IllegalArgumentException(
+          "Time is out of ULID specification, or entropy not 10 bytes");
+    }
+    this.binary = generateBinary(time, entropy);
+  }
+
+  /**
+   * Extract and return the timestamp part of this ULID instance.
+   *
+   * @return Unix epoch timestamp in millisecond
+   * @since 2.0.0
+   */
+  public long getTimestamp() {
+    return getTimestampBinary(this.binary);
+  }
+
+  /**
+   * Extract and return the entropy part of this ULID instance.
+   *
+   * @return Entropy bytes
+   * @since 2.0.0
+   */
+  public byte[] getEntropy() {
+    return getEntropyBinary(this.binary);
+  }
+
+  /**
+   * Convert this ULID instance to its ULID binary representation.
+   *
+   * @return ULID binary
+   * @since 2.0.0
+   */
+  public byte[] toBinary() {
+    byte[] value = new byte[ULID_BINARY_LENGTH];
+    System.arraycopy(this.binary, 0, value, 0, ULID_BINARY_LENGTH);
+    return value;
+  }
+
+  /**
+   * Convert this ULID instance to its ULID string representation.
+   *
+   * @return ULID string
+   * @since 2.0.0
+   */
+  @Override
+  public String toString() {
+    return fromBinary(this.binary);
+  }
+
+  /**
+   * Compares this ULID instance with the specified ULID instance.
+   *
+   * @param obj the ULID instance to compare with
+   * @return -1, 0 or 1 as this ULID instance is less than, equal to, or greater than obj
+   * @since 2.0.0
+   */
+  @Override
+  public int compareTo(ULID obj) {
+    return Arrays.compareUnsigned(this.binary, obj.binary);
+  }
+
+  /**
+   * Compares this object to the specified object. The result is true if and only if the argument is
+   * not null, is a ULID instance and has the same timestamp and entropy.
+   *
+   * @param obj the ULID instance to compare with
+   * @return true if the objects are the same; false otherwise
+   * @since 2.0.0
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if ((null == obj) || (obj.getClass() != ULID.class))
+      return false;
+    return Arrays.equals(this.binary, ((ULID) obj).binary);
+  }
+
+  /**
+   * Returns a hash code for this ULID instance.
+   *
+   * @return A hash code value for this ULID instance
+   * @since 2.0.0
+   */
+  @Override
+  public int hashCode() {
+    return 67 * Arrays.hashCode(this.binary);
+  }
+
+  /**
+   * Generate random ULID string using default {@link java.util.Random} instance backed by
+   * {@link java.security.SecureRandom}.
    *
    * @return ULID string
    */
@@ -190,7 +391,8 @@ public class ULID {
   }
 
   /**
-   * Generate random ULID binary using {@link java.util.Random} instance.
+   * Generate random ULID binary using default {@link java.util.Random} instance backed by
+   * {@link java.security.SecureRandom}.
    *
    * @return ULID binary
    */
@@ -198,6 +400,17 @@ public class ULID {
     byte[] entropy = new byte[ENTROPY_LENGTH];
     LazyDefaults.random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
+  }
+
+  /**
+   * Generate random ULID instance using default {@link java.util.Random} instance backed by
+   * {@link java.security.SecureRandom}.
+   *
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID randomULID() {
+    return new ULID();
   }
 
   /**
@@ -225,8 +438,20 @@ public class ULID {
   }
 
   /**
-   * Generate random ULID string using provided {@link java.time.Clock} instance, with default
-   * {@link java.util.Random} instance.
+   * Generate random ULID instance using provided {@link java.util.Random} instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID randomULID(Random random) {
+    return new ULID(random);
+  }
+
+  /**
+   * Generate random ULID string using default {@link java.util.Random} backed by
+   * {@link java.security.SecureRandom}.instance with provided {@link java.time.Clock} instance as
+   * timestamp provider.
    *
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
@@ -239,8 +464,9 @@ public class ULID {
   }
 
   /**
-   * Generate random ULID binary using provided {@link java.time.Clock} instance, with default
-   * {@link java.util.Random} instance.
+   * Generate random ULID binary using default {@link java.util.Random} backed by
+   * {@link java.security.SecureRandom}.instance with provided {@link java.time.Clock} instance as
+   * timestamp provider.
    *
    * @param clock {@link java.time.Clock} instance
    * @return ULID string
@@ -253,7 +479,21 @@ public class ULID {
   }
 
   /**
-   * Generate random ULID string using provided {@link java.util.Random} instance.
+   * Generate random ULID instance using default {@link java.util.Random} backed by
+   * {@link java.security.SecureRandom}.instance with provided {@link java.time.Clock} instance as
+   * timestamp provider.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID randomULID(Clock clock) {
+    return new ULID(clock);
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.util.Random} instance with provided
+   * {@link java.time.Clock} instance as timestamp provider.
    *
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
@@ -267,7 +507,8 @@ public class ULID {
   }
 
   /**
-   * Generate random ULID binary using provided {@link java.util.Random} instance.
+   * Generate random ULID binary using provided {@link java.util.Random} instance with provided
+   * {@link java.time.Clock} instance as timestamp provider.
    *
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
@@ -278,6 +519,19 @@ public class ULID {
     byte[] entropy = new byte[ENTROPY_LENGTH];
     random.nextBytes(entropy);
     return generateBinary(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID instance using provided {@link java.util.Random} instance with provided
+   * {@link java.time.Clock} instance as timestamp provider.
+   *
+   * @param random {@link java.util.Random} instance
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID randomULID(Random random, Clock clock) {
+    return new ULID(random, clock);
   }
 
   /**
@@ -481,25 +735,9 @@ public class ULID {
   }
 
   /**
-   * Convert a valid ULID string to it's binary representation. Call
+   * Convert a valid ULID string representation to its binary representation. Call
    * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.<br>
-   * <br>
-   * Binary layout:
-   *
-   * <pre>
-   * 0                   1                   2                   3
-   *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                      32_bit_uint_time_high                    |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |     16_bit_uint_time_low      |       16_bit_uint_random      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                       32_bit_uint_random                      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                       32_bit_uint_random                      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * </pre>
+   * if you do not trust the origin of the ULID string.
    *
    * @param ulid ULID string
    * @return ULID binary
@@ -550,25 +788,9 @@ public class ULID {
   }
 
   /**
-   * Convert a valid ULID binary representation to it's string representation. Call
+   * Convert a valid ULID binary representation to its string representation. Call
    * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.<br>
-   * <br>
-   * Binary layout:
-   *
-   * <pre>
-   * 0                   1                   2                   3
-   *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                      32_bit_uint_time_high                    |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |     16_bit_uint_time_low      |       16_bit_uint_random      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                       32_bit_uint_random                      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |                       32_bit_uint_random                      |
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * </pre>
+   * if you do not trust the origin of the ULID string.
    *
    * @param binary ULID binary
    * @return ULID string
@@ -607,5 +829,31 @@ public class ULID {
     chars[25] = C[(byte) (binary[15] & 0x1f)];
 
     return new String(chars);
+  }
+
+  /**
+   * Convert a valid ULID string representation to a ULID instance. Call
+   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.
+   *
+   * @param value ULID string
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID toULID(CharSequence value) {
+    return new ULID(value);
+  }
+
+  /**
+   * Convert a valid ULID binary representation to a ULID instance. Call
+   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
+   * if you do not trust the origin of the ULID string.
+   *
+   * @param value ULID binary
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public static ULID toULID(byte[] value) {
+    return new ULID(value);
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2016-2025 Azamshul Azizy
@@ -17,6 +17,16 @@
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+/**
+ * ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
+ *
+ * @author azam
+ * @since 0.0.1
+ *
+ * @see <a href="https://github.com/azam">ulidj</a>
+ * @see <a href="https://github.com/ulid/spec">ULID</a>
+ * @see <a href="https://www.crockford.com/wrmg/base32.html">Base32 Encoding</a>
  */
 module ulidj {
     exports io.azam.ulidj;

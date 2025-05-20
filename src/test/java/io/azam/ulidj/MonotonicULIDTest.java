@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2016-2025 Azamshul Azizy
@@ -76,6 +76,20 @@ public class MonotonicULIDTest {
     byte[] value = ulid.generateBinary();
     Assertions.assertNotNull(value, "Binary ULID value should not be null");
     Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+  }
+
+  @Test
+  public void testGenerateULID() {
+    MonotonicULID ulid = new MonotonicULID();
+    ULID value = ulid.generateULID();
+    Assertions.assertNotNull(value);
+    Assertions.assertEquals(ULID.class, value.getClass());
+    Assertions.assertNotNull(value.toString(), "ULID instance string value should not be null");
+    Assertions.assertTrue(ULID.isValid(value.toString()),
+        "ULID instance string value must be valid");
+    Assertions.assertNotNull(value.toBinary(), "ULID instance binary value should not be null");
+    Assertions.assertTrue(ULID.isValidBinary(value.toBinary()),
+        "ULID instance binary value must be valid");
   }
 
   @Test

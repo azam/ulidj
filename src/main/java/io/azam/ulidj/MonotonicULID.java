@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2016-2025 Azamshul Azizy
@@ -38,9 +38,11 @@ import java.util.Random;
  *
  * <pre>
  * MonotonicULID ulid = new MonotonicULID();
- * String ulid1 = ulid.next();
- * String ulid2 = ulid.next();
- * String ulid3 = ulid.next();
+ * String ulid1 = ulid.generate();
+ * String ulid2 = ulid.generate();
+ * String ulid3 = ulid.generate();
+ * byte[] ulid4 = ulid.generateBinary();
+ * ULID ulid5 = ulid.generateULID();
  * </pre>
  *
  * @see <a href="https://github.com/ulid/spec">ULID</a>
@@ -66,15 +68,15 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate a monotonic ULID generator instance, backed by {@link java.security.SecureRandom}
-   * instance.
+   * Generate a monotonic ULID generator instance using default {@link java.util.Random} instance
+   * backed by {@link java.security.SecureRandom}.
    */
   public MonotonicULID() {
     this(LazyDefaults.random, null);
   }
 
   /**
-   * Generate a monotonic ULID generator instance.
+   * Generate a monotonic ULID generator instance using provided {@link java.util.Random} instance.
    *
    * @param random {@link java.util.Random} instance
    */
@@ -83,7 +85,9 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate a monotonic ULID generator instance.
+   * Generate a monotonic ULID generator instance using default {@link java.util.Random} backed by
+   * {@link java.security.SecureRandom}.instance with provided {@link java.time.Clock} instance as
+   * timestamp provider.
    *
    * @param clock {@link java.time.Clock} instance
    * @since 2.0.0
@@ -93,7 +97,8 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate a monotonic ULID generator instance.
+   * Generate a monotonic ULID generator instance using provided {@link java.util.Random} instance
+   * with provided {@link java.time.Clock} instance as timestamp provider.
    *
    * @param random {@link java.util.Random} instance
    * @param clock {@link java.time.Clock} instance
@@ -107,11 +112,11 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate ULID string monotonicly. If this method is called within the same millisecond, last
+   * Generate ULID string monotonically. If this method is called within the same millisecond, last
    * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
-   * overflows entropy length (80b-its/10-bytes)
+   * overflows entropy length (80-bits/10-bytes)
    *
    * @return ULID string
    */
@@ -151,11 +156,11 @@ public class MonotonicULID {
   }
 
   /**
-   * Generate ULID binary monotonicly. If this method is called within the same millisecond, last
+   * Generate ULID binary monotonically. If this method is called within the same millisecond, last
    * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
-   * overflows entropy length (80b-its/10-bytes)
+   * overflows entropy length (80-bits/10-bytes)
    *
    * @return ULID binary
    */
@@ -192,5 +197,19 @@ public class MonotonicULID {
       this.random.nextBytes(this.lastEntropy);
     }
     return ULID.generateBinary(this.lastTimestamp, this.lastEntropy);
+  }
+
+  /**
+   * Generate ULID instance monotonically. If this method is called within the same millisecond,
+   * last entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
+   * <br>
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes)
+   *
+   * @return ULID instance
+   * @since 2.0.0
+   */
+  public synchronized ULID generateULID() {
+    return new ULID(generateBinary());
   }
 }
