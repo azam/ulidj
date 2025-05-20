@@ -184,7 +184,7 @@ public class ULID {
    * @return ULID string
    */
   public static String random() {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     LazyDefaults.random.nextBytes(entropy);
     return generate(System.currentTimeMillis(), entropy);
   }
@@ -195,7 +195,7 @@ public class ULID {
    * @return ULID binary
    */
   public static byte[] randomBinary() {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     LazyDefaults.random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
   }
@@ -207,7 +207,7 @@ public class ULID {
    * @return ULID string
    */
   public static String random(Random random) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     random.nextBytes(entropy);
     return generate(System.currentTimeMillis(), entropy);
   }
@@ -219,7 +219,7 @@ public class ULID {
    * @return ULID string
    */
   public static byte[] randomBinary(Random random) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     random.nextBytes(entropy);
     return generateBinary(System.currentTimeMillis(), entropy);
   }
@@ -233,7 +233,7 @@ public class ULID {
    * @since 2.0.0
    */
   public static String random(Clock clock) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     LazyDefaults.random.nextBytes(entropy);
     return generate(clock.millis(), entropy);
   }
@@ -247,7 +247,7 @@ public class ULID {
    * @since 2.0.0
    */
   public static byte[] randomBinary(Clock clock) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     LazyDefaults.random.nextBytes(entropy);
     return generateBinary(clock.millis(), entropy);
   }
@@ -261,7 +261,7 @@ public class ULID {
    * @since 2.0.0
    */
   public static String random(Random random, Clock clock) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     random.nextBytes(entropy);
     return generate(clock.millis(), entropy);
   }
@@ -275,7 +275,7 @@ public class ULID {
    * @since 2.0.0
    */
   public static byte[] randomBinary(Random random, Clock clock) {
-    byte[] entropy = new byte[10];
+    byte[] entropy = new byte[ENTROPY_LENGTH];
     random.nextBytes(entropy);
     return generateBinary(clock.millis(), entropy);
   }
@@ -292,7 +292,7 @@ public class ULID {
   public static String generate(long time, byte[] entropy) {
     if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length < ENTROPY_LENGTH) {
       throw new IllegalArgumentException(
-          "Time is too long, or entropy is less than 10 bytes or null");
+          "Time is out of ULID specification, or entropy is less than 10 bytes or null");
     }
 
     char[] chars = new char[26];
@@ -342,7 +342,7 @@ public class ULID {
   public static byte[] generateBinary(long time, byte[] entropy) {
     if (time < MIN_TIME || time > MAX_TIME || entropy == null || entropy.length < ENTROPY_LENGTH) {
       throw new IllegalArgumentException(
-          "Time is too long, or entropy is less than 10 bytes or null");
+          "Time is out of ULID specification, or entropy is less than 10 bytes or null");
     }
 
     byte[] bytes = new byte[ULID.ULID_BINARY_LENGTH];
@@ -420,7 +420,7 @@ public class ULID {
    * @return Unix epoch timestamp in millisecond
    */
   public static long getTimestampBinary(byte[] ulid) {
-    long timestamp = (long) ulid[0];
+    long timestamp = (long) ulid[0] & 0xff;
     timestamp = (timestamp << 8) | ulid[1] & 0xff;
     timestamp = (timestamp << 8) | ulid[2] & 0xff;
     timestamp = (timestamp << 8) | ulid[3] & 0xff;

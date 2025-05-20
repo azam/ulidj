@@ -19,6 +19,7 @@ Version 1.x targets JDK 1.7, and is functionally equals to version 2.x without t
 * Includes ULID monotonic generator
 * Zero runtime dependencies
 * Customizable by providing your own `java.util.Random` instance for entropy and `java.time.Clock` instance for timestamp generation
+* Full test coverage, performant, battle-tested, and production-ready
 
 ## License
 

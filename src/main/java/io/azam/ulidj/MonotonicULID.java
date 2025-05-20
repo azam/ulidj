@@ -103,7 +103,7 @@ public class MonotonicULID {
     this.random = random == null ? LazyDefaults.random : random;
     this.clock = clock;
     this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];
-    this.lastTimestamp = -1L;
+    this.lastTimestamp = 0L;
   }
 
   /**
@@ -117,7 +117,13 @@ public class MonotonicULID {
    */
   public synchronized String generate() {
     long now = this.clock == null ? System.currentTimeMillis() : this.clock.millis();
-    if (now == this.lastTimestamp) {
+    if (now < ULID.MIN_TIME || now > ULID.MAX_TIME) {
+      throw new IllegalStateException("Time is out of ULID specification");
+    }
+    if (now <= this.lastTimestamp) {
+      // Save a copy of last entropy in case of entropy overflow
+      byte[] previousEntropy = new byte[ULID.ENTROPY_LENGTH];
+      System.arraycopy(this.lastEntropy, 0, previousEntropy, 0, ULID.ENTROPY_LENGTH);
       // Entropy is big-endian (network byte order) per ULID spec
       // Increment last entropy by 1
       boolean carry = true;
@@ -131,6 +137,8 @@ public class MonotonicULID {
       }
       // Last byte has carry over
       if (carry) {
+        // Revert last entropy to previous value
+        System.arraycopy(previousEntropy, 0, this.lastEntropy, 0, ULID.ENTROPY_LENGTH);
         // Throw error if entropy overflows in same millisecond per ULID spec
         throw new IllegalStateException("ULID entropy overflowed for same millisecond");
       }
@@ -153,7 +161,13 @@ public class MonotonicULID {
    */
   public synchronized byte[] generateBinary() {
     long now = this.clock == null ? System.currentTimeMillis() : this.clock.millis();
-    if (now == this.lastTimestamp) {
+    if (now < ULID.MIN_TIME || now > ULID.MAX_TIME) {
+      throw new IllegalStateException("Time is out of ULID specification");
+    }
+    if (now <= this.lastTimestamp) {
+      // Save a copy of last entropy in case of entropy overflow
+      byte[] previousEntropy = new byte[ULID.ENTROPY_LENGTH];
+      System.arraycopy(this.lastEntropy, 0, previousEntropy, 0, ULID.ENTROPY_LENGTH);
       // Entropy is big-endian (network byte order) per ULID spec
       // Increment last entropy by 1
       boolean carry = true;
@@ -167,6 +181,8 @@ public class MonotonicULID {
       }
       // Last byte has carry over
       if (carry) {
+        // Revert last entropy to previous value
+        System.arraycopy(previousEntropy, 0, this.lastEntropy, 0, ULID.ENTROPY_LENGTH);
         // Throw error if entropy overflows in same millisecond per ULID spec
         throw new IllegalStateException("ULID entropy overflowed for same millisecond");
       }

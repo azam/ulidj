@@ -95,4 +95,61 @@ public class TestUtils {
     sb.append(" }");
     return sb.toString();
   }
+
+  /**
+   * Base32 characters mapping
+   */
+  private static final char[] C = new char[] { //
+      0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, //
+      0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, //
+      0x47, 0x48, 0x4a, 0x4b, 0x4d, 0x4e, 0x50, 0x51, //
+      0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5a //
+  };
+
+  public static void assertEntropyIsIncremented(String prev, String next) {
+    Assertions.assertEquals(prev.length(), next.length());
+    boolean charMustBeSame = false;
+    for (int i = next.length() - 1; i >= 0; i--) {
+      if (!charMustBeSame) {
+        // We assume only ASCII characters, so charAt is good enough here.
+        int nextCharIndex = indexOfElement(C, next.charAt(i));
+        int prevCharIndex = indexOfElement(C, prev.charAt(i));
+        Assertions.assertTrue(nextCharIndex >= 0, "Next ULID value contains invalid character");
+        Assertions.assertEquals(((nextCharIndex + C.length - 1) % C.length), prevCharIndex,
+            "Next base64 char is wrong");
+        charMustBeSame = nextCharIndex < C.length && nextCharIndex > 0;
+      } else {
+        Assertions.assertEquals(next.charAt(i), prev.charAt(i));
+      }
+    }
+  }
+
+  public static void assertEntropyIsIncremented(byte[] prev, byte[] next) {
+    Assertions.assertEquals(prev.length, next.length);
+    Assertions.assertArrayEquals(TestUtils.incrementBytes(ULID.getEntropyBinary(prev)),
+        ULID.getEntropyBinary(next));
+  }
+
+  public static int indexOfElement(char[] arr, char e) {
+    if (arr != null && arr.length > 0) {
+      for (int i = 0; i < arr.length; i++) {
+        if (arr[i] == e)
+          return i;
+      }
+    }
+    return -1;
+  }
+
+  public static boolean byteArrayEquals(byte[] l, byte[] r) {
+    if (l != null && r != null && l.length == r.length) {
+      for (int i = 0; i < l.length; i++) {
+        if (l[i] != r[i])
+          return false;
+      }
+      return true;
+    } else if (l == null && r == null) {
+      return true;
+    }
+    return false;
+  }
 }
