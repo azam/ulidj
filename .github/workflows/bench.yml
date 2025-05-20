@@ -61,3 +61,4 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           auto-push: true
           summary-always: true
+          benchmark-data-dir-path: 'benchmark'
