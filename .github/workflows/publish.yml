@@ -17,9 +17,17 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: setup-toolchain
+        if: ${{ !startsWith(github.event.release.tag_name, '1.') }}
         uses: actions/setup-java@v4
         with:
           java-version: 11
+          distribution: temurin
+          cache: maven
+      - name: setup-toolchain-v1
+        if: ${{ startsWith(github.event.release.tag_name, '1.') }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
           distribution: temurin
           cache: maven
       - name: setup-gpg
