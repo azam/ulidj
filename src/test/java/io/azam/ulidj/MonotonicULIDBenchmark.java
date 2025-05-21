@@ -81,11 +81,11 @@ public class MonotonicULIDBenchmark {
 
   @Benchmark
   public void generateRandomSystemUTC(Blackhole blackhole, MonotonicULIDState state) {
-    blackhole.consume(state.random.generate());
+    blackhole.consume(state.systemUTC.generate());
   }
 
   @Benchmark
   public void generateBinaryRandomSystemUTC(Blackhole blackhole, MonotonicULIDState state) {
-    blackhole.consume(state.random.generateBinary());
+    blackhole.consume(state.systemUTC.generateBinary());
   }
 }
