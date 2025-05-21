@@ -142,17 +142,4 @@ public class TestUtils {
     }
     return -1;
   }
-
-  public static boolean byteArrayEquals(byte[] l, byte[] r) {
-    if (l != null && r != null && l.length == r.length) {
-      for (int i = 0; i < l.length; i++) {
-        if (l[i] != r[i])
-          return false;
-      }
-      return true;
-    } else if (l == null && r == null) {
-      return true;
-    }
-    return false;
-  }
 }

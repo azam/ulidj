@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.azam.ulidj.TestUtils.assertEntropyIsIncremented;
-import static io.azam.ulidj.TestUtils.byteArrayEquals;
 import static io.azam.ulidj.TestUtils.incrementBytes;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -899,7 +898,7 @@ public class ULIDTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     };
-    for (byte[] entropy = new byte[10]; !byteArrayEquals(endEntropy, entropy); entropy =
+    for (byte[] entropy = new byte[10]; !Arrays.equals(endEntropy, entropy); entropy =
         TestUtils.incrementBytes(entropy)) {
       String value = ULID.generate(ULID.MIN_TIME, entropy);
       TestParam param = new TestParam(ULID.MIN_TIME, entropy, value);
