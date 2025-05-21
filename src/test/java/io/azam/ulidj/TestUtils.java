@@ -20,41 +20,44 @@
  */
 package io.azam.ulidj;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestUtils {
   @Test
   public void testIncrementBytes() {
-    Assertions.assertArrayEquals(new byte[] { //
+    assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01 //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 //
     }));
-    Assertions.assertArrayEquals(new byte[] { //
+    assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xff //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xfe //
     }));
-    Assertions.assertArrayEquals(new byte[] { //
+    assertArrayEquals(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00 //
     }, incrementBytes(new byte[] { //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, //
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xff //
     }));
-    Assertions.assertArrayEquals(new byte[] { //
+    assertArrayEquals(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }, incrementBytes(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xfe //
     }));
-    Assertions.assertArrayEquals(null, incrementBytes(new byte[] { //
+    assertArrayEquals(null, incrementBytes(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
@@ -107,26 +110,26 @@ public class TestUtils {
   };
 
   public static void assertEntropyIsIncremented(String prev, String next) {
-    Assertions.assertEquals(prev.length(), next.length());
+    assertEquals(prev.length(), next.length());
     boolean charMustBeSame = false;
     for (int i = next.length() - 1; i >= 0; i--) {
       if (!charMustBeSame) {
         // We assume only ASCII characters, so charAt is good enough here.
         int nextCharIndex = indexOfElement(C, next.charAt(i));
         int prevCharIndex = indexOfElement(C, prev.charAt(i));
-        Assertions.assertTrue(nextCharIndex >= 0, "Next ULID value contains invalid character");
-        Assertions.assertEquals(((nextCharIndex + C.length - 1) % C.length), prevCharIndex,
+        assertTrue(nextCharIndex >= 0, "Next ULID value contains invalid character");
+        assertEquals(((nextCharIndex + C.length - 1) % C.length), prevCharIndex,
             "Next base64 char is wrong");
         charMustBeSame = nextCharIndex < C.length && nextCharIndex > 0;
       } else {
-        Assertions.assertEquals(next.charAt(i), prev.charAt(i));
+        assertEquals(next.charAt(i), prev.charAt(i));
       }
     }
   }
 
   public static void assertEntropyIsIncremented(byte[] prev, byte[] next) {
-    Assertions.assertEquals(prev.length, next.length);
-    Assertions.assertArrayEquals(TestUtils.incrementBytes(ULID.getEntropyBinary(prev)),
+    assertEquals(prev.length, next.length);
+    assertArrayEquals(TestUtils.incrementBytes(ULID.getEntropyBinary(prev)),
         ULID.getEntropyBinary(next));
   }
 

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static io.azam.ulidj.TestUtils.assertEntropyIsIncremented;
@@ -40,6 +39,12 @@ import static io.azam.ulidj.ULIDTest.TEST_CLOCK;
 import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
 import static io.azam.ulidj.ULIDTest.TEST_TIMESTAMP;
 import static io.azam.ulidj.ULIDTest.ZERO_ENTROPY;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
@@ -50,55 +55,53 @@ import static io.azam.ulidj.ULIDTest.ZERO_ENTROPY;
 public class MonotonicULIDTest {
   @Test
   public void testConstructor() {
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID());
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random()));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new SecureRandom()));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(TEST_RANDOM));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(Clock.systemUTC()));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(TEST_CLOCK));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random(), Clock.systemUTC()));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(null, Clock.systemUTC()));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(new Random(), null));
-    Assertions.assertDoesNotThrow(() -> new MonotonicULID(null, null));
+    assertDoesNotThrow(() -> new MonotonicULID());
+    assertDoesNotThrow(() -> new MonotonicULID(new Random()));
+    assertDoesNotThrow(() -> new MonotonicULID(new SecureRandom()));
+    assertDoesNotThrow(() -> new MonotonicULID(TEST_RANDOM));
+    assertDoesNotThrow(() -> new MonotonicULID(Clock.systemUTC()));
+    assertDoesNotThrow(() -> new MonotonicULID(TEST_CLOCK));
+    assertDoesNotThrow(() -> new MonotonicULID(new Random(), Clock.systemUTC()));
+    assertDoesNotThrow(() -> new MonotonicULID(null, Clock.systemUTC()));
+    assertDoesNotThrow(() -> new MonotonicULID(new Random(), null));
+    assertDoesNotThrow(() -> new MonotonicULID(null, null));
   }
 
   @Test
   public void testGenerate() {
     MonotonicULID ulid = new MonotonicULID();
     String value = ulid.generate();
-    Assertions.assertNotNull(value, "ULID value should not be null");
-    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
+    assertNotNull(value, "ULID value should not be null");
+    assertTrue(ULID.isValid(value), "ULID value must be valid");
   }
 
   @Test
   public void testGenerateBinary() {
     MonotonicULID ulid = new MonotonicULID();
     byte[] value = ulid.generateBinary();
-    Assertions.assertNotNull(value, "Binary ULID value should not be null");
-    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    assertNotNull(value, "Binary ULID value should not be null");
+    assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
   }
 
   @Test
   public void testGenerateULID() {
     MonotonicULID ulid = new MonotonicULID();
     ULID value = ulid.generateULID();
-    Assertions.assertNotNull(value);
-    Assertions.assertEquals(ULID.class, value.getClass());
-    Assertions.assertNotNull(value.toString(), "ULID instance string value should not be null");
-    Assertions.assertTrue(ULID.isValid(value.toString()),
-        "ULID instance string value must be valid");
-    Assertions.assertNotNull(value.toBinary(), "ULID instance binary value should not be null");
-    Assertions.assertTrue(ULID.isValidBinary(value.toBinary()),
-        "ULID instance binary value must be valid");
+    assertNotNull(value);
+    assertEquals(ULID.class, value.getClass());
+    assertNotNull(value.toString(), "ULID instance string value should not be null");
+    assertTrue(ULID.isValid(value.toString()), "ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "ULID instance binary value should not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()), "ULID instance binary value must be valid");
   }
 
   @Test
   public void testGenerateExternalRandom() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
     String value = ulid.generate();
-    Assertions.assertNotNull(value, "ULID value should not be null");
-    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+    assertNotNull(value, "ULID value should not be null");
+    assertTrue(ULID.isValid(value), "ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
         "ULID entropy should be filled with the provided random");
   }
 
@@ -106,9 +109,9 @@ public class MonotonicULIDTest {
   public void testGenerateBinaryExternalRandom() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
     byte[] value = ulid.generateBinary();
-    Assertions.assertNotNull(value, "Binary ULID value should not be null");
-    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+    assertNotNull(value, "Binary ULID value should not be null");
+    assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
         "Binary ULID entropy should be filled with the provided random");
   }
 
@@ -116,9 +119,9 @@ public class MonotonicULIDTest {
   public void testGenerateExternalClock() {
     MonotonicULID ulid = new MonotonicULID(TEST_CLOCK);
     String value = ulid.generate();
-    Assertions.assertNotNull(value, "ULID value should not be null");
-    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+    assertNotNull(value, "ULID value should not be null");
+    assertTrue(ULID.isValid(value), "ULID value must be valid");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
         "ULID timestamp should be filled with the provided clock");
   }
 
@@ -126,9 +129,9 @@ public class MonotonicULIDTest {
   public void testGenerateBinaryExternalClock() {
     MonotonicULID ulid = new MonotonicULID(TEST_CLOCK);
     byte[] value = ulid.generateBinary();
-    Assertions.assertNotNull(value, "Binary ULID value should not be null");
-    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+    assertNotNull(value, "Binary ULID value should not be null");
+    assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
         "Binary ULID timestamp should be filled with the provided clock");
   }
 
@@ -136,11 +139,11 @@ public class MonotonicULIDTest {
   public void testGenerateExternalRandomAndClock() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM, TEST_CLOCK);
     String value = ulid.generate();
-    Assertions.assertNotNull(value, "ULID value should not be null");
-    Assertions.assertTrue(ULID.isValid(value), "ULID value must be valid");
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+    assertNotNull(value, "ULID value should not be null");
+    assertTrue(ULID.isValid(value), "ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
         "ULID entropy should be filled with the provided random");
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
         "ULID timestamp should be filled with the provided clock");
   }
 
@@ -148,11 +151,11 @@ public class MonotonicULIDTest {
   public void testGenerateBinaryExternalRandomAndClock() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM, TEST_CLOCK);
     byte[] value = ulid.generateBinary();
-    Assertions.assertNotNull(value, "Binary ULID value should not be null");
-    Assertions.assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+    assertNotNull(value, "Binary ULID value should not be null");
+    assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
         "Binary ULID entropy should be filled with the provided random");
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
         "Binary ULID timestamp should be filled with the provided clock");
   }
 
@@ -163,22 +166,22 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
     // Same timestamp as base, entropy should be incremented
     String ulid2 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid2));
+    assertTrue(ULID.isValid(ulid2));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid2));
     assertEntropyIsIncremented(ulid1, ulid2);
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
     // Base timestamp + 1ms, entropy should reset
     String ulid3 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid3));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid3));
+    assertTrue(ULID.isValid(ulid3));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid3));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid3));
   }
 
   @Test
@@ -188,22 +191,22 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
     // Same timestamp as base, entropy should be incremented
     byte[] ulid2 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid2));
+    assertTrue(ULID.isValidBinary(ulid2));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid2));
     assertEntropyIsIncremented(ulid1, ulid2);
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
     // Base timestamp + 1ms, entropy should reset
     byte[] ulid3 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid3));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid3));
+    assertTrue(ULID.isValidBinary(ulid3));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid3));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid3));
   }
 
   @Test
@@ -213,15 +216,15 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(FILLED_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(ulid1));
     // Entropy overflow, should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Entropy is filled, so the next generation in the same timestamp should fail");
     // Entropy overflow, should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Subsequent generations should also fail");
   }
@@ -233,15 +236,15 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(FILLED_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
-    Assertions.assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(ulid1));
     // Entropy overflow, should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Entropy is filled, so the next generation in the same timestamp should fail");
     // Entropy overflow, should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Subsequent generations should also fail");
   }
@@ -253,19 +256,19 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(ULID.MIN_TIME, ULID.getTimestamp(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(ULID.MIN_TIME, ULID.getTimestamp(ulid1));
     // Default last timestamp is ULID.MIN_TIME with last entropy of ULID.ZERO_ENTROPY
     // so this is should be incremented
-    Assertions.assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY), ULID.getEntropy(ulid1));
+    assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY), ULID.getEntropy(ulid1));
     // Reveerse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
-    Assertions.assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
+    assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
     // Timestamp is out of range (lesser than ULID.MIN_TIME), should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Timestamp is lesser than ULID.MIN_TIME, so the next generation should fail");
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Subsequent generations should also fail");
   }
@@ -277,20 +280,19 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(ULID.MIN_TIME, ULID.getTimestampBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(ULID.MIN_TIME, ULID.getTimestampBinary(ulid1));
     // Default last timestamp is ULID.MIN_TIME with last entropy of ULID.ZERO_ENTROPY
     // so this is should be incremented
-    Assertions.assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY),
-        ULID.getEntropyBinary(ulid1));
+    assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY), ULID.getEntropyBinary(ulid1));
     // Reveerse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
-    Assertions.assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
+    assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
     // Timestamp is out of range (lesser than ULID.MIN_TIME), should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Timestamp is lesser than ULID.MIN_TIME, so the next generation should fail");
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Subsequent generations should also fail");
   }
@@ -302,17 +304,17 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(ULID.MAX_TIME, ULID.getTimestamp(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(ULID.MAX_TIME, ULID.getTimestamp(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(ULID.MAX_TIME + 1, clock.instant().toEpochMilli());
+    assertEquals(ULID.MAX_TIME + 1, clock.instant().toEpochMilli());
     // Timestamp is out of range (greater than ULID.MAX_TIME), should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Timestamp is greater than ULID.MAX_TIME, so the next generation should fail");
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       String ulid2 = ulid.generate();
     }, "Subsequent generations should also fail");
   }
@@ -324,17 +326,17 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(ULID.MAX_TIME, ULID.getTimestampBinary(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(ULID.MAX_TIME, ULID.getTimestampBinary(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(ULID.MAX_TIME + 1, clock.instant().toEpochMilli());
+    assertEquals(ULID.MAX_TIME + 1, clock.instant().toEpochMilli());
     // Timestamp is out of range (greater than ULID.MAX_TIME), should throw exception
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Timestamp is greater than ULID.MAX_TIME, so the next generation should fail");
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       byte[] ulid2 = ulid.generateBinary();
     }, "Subsequent generations should also fail");
   }
@@ -346,23 +348,23 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
     // Reverse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
-    Assertions.assertEquals(TEST_TIMESTAMP - 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP - 1, clock.instant().toEpochMilli());
     // Timestamp is lesser than MonotonicULID.lastTimestamp,
     // should use MonotonicULID.lastTimestamp and increment entropy
     String ulid2 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid2));
+    assertTrue(ULID.isValid(ulid2));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid2));
     assertEntropyIsIncremented(ulid1, ulid2);
     // Timestamp is still lesser than MonotonicULID.lastTimestamp,
     // should use MonotonicULID.lastTimestamp and increment entropy
     String ulid3 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid3));
+    assertTrue(ULID.isValid(ulid3));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid3));
     assertEntropyIsIncremented(ulid2, ulid3);
   }
 
@@ -373,23 +375,23 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
     // Reverse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
-    Assertions.assertEquals(TEST_TIMESTAMP - 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP - 1, clock.instant().toEpochMilli());
     // Timestamp is lesser than MonotonicULID.lastTimestamp,
     // should use MonotonicULID.lastTimestamp and increment entropy
     byte[] ulid2 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid2));
+    assertTrue(ULID.isValidBinary(ulid2));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid2));
     assertEntropyIsIncremented(ulid1, ulid2);
     // Timestamp is still lesser than MonotonicULID.lastTimestamp,
     // should use MonotonicULID.lastTimestamp and increment entropy
     byte[] ulid3 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid3));
+    assertTrue(ULID.isValidBinary(ulid3));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid3));
     assertEntropyIsIncremented(ulid2, ulid3);
   }
 
@@ -400,23 +402,23 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     String ulid1 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
+    assertTrue(ULID.isValid(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid1));
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
     // Timestamp is greater than MonotonicULID.lastTimestamp,
     // should use generate new entropy
     String ulid2 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid2));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid2));
+    assertTrue(ULID.isValid(ulid2));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid2));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropy(ulid2));
     // Timestamp is same MonotonicULID.lastTimestamp,
     // should increment entropy
     String ulid3 = ulid.generate();
-    Assertions.assertTrue(ULID.isValid(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid3));
+    assertTrue(ULID.isValid(ulid3));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestamp(ulid3));
     assertEntropyIsIncremented(ulid2, ulid3);
   }
 
@@ -427,23 +429,23 @@ public class MonotonicULIDTest {
     MonotonicULID ulid = new MonotonicULID(new FixedRandom(ZERO_ENTROPY), clock);
     // Base
     byte[] ulid1 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid1));
-    Assertions.assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
+    assertTrue(ULID.isValidBinary(ulid1));
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(ulid1));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid1));
     // Fast forward clock 1ms to the future
     clock.tick(Duration.ofMillis(1));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
+    assertEquals(TEST_TIMESTAMP + 1, clock.instant().toEpochMilli());
     // Timestamp is greater than MonotonicULID.lastTimestamp,
     // should use generate new entropy
     byte[] ulid2 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid2));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid2));
-    Assertions.assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid2));
+    assertTrue(ULID.isValidBinary(ulid2));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid2));
+    assertArrayEquals(ZERO_ENTROPY, ULID.getEntropyBinary(ulid2));
     // Timestamp is same MonotonicULID.lastTimestamp,
     // should increment entropy
     byte[] ulid3 = ulid.generateBinary();
-    Assertions.assertTrue(ULID.isValidBinary(ulid3));
-    Assertions.assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid3));
+    assertTrue(ULID.isValidBinary(ulid3));
+    assertEquals(TEST_TIMESTAMP + 1, ULID.getTimestampBinary(ulid3));
     assertEntropyIsIncremented(ulid2, ulid3);
   }
 
@@ -463,8 +465,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (String value : values) {
-        Assertions.assertNotNull(value);
-        Assertions.assertTrue(ULID.isValid(value));
+        assertNotNull(value);
+        assertTrue(ULID.isValid(value));
         long ts = ULID.getTimestamp(value);
         byte[] entropy = ULID.getEntropy(value);
         if (!groups.containsKey(ts)) {
@@ -485,7 +487,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assertions.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(TestUtils.incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -509,8 +511,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (byte[] value : values) {
-        Assertions.assertNotNull(value);
-        Assertions.assertTrue(ULID.isValidBinary(value));
+        assertNotNull(value);
+        assertTrue(ULID.isValidBinary(value));
         long ts = ULID.getTimestampBinary(value);
         byte[] entropy = ULID.getEntropyBinary(value);
         if (!groups.containsKey(ts)) {
@@ -531,7 +533,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assertions.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(TestUtils.incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -547,7 +549,7 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       List<String> values = new ArrayList<String>();
       for (int i = 0; i < 1000000; i++) {
         values.add(ulid.generate());
@@ -563,7 +565,7 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    Assertions.assertThrows(IllegalStateException.class, () -> {
+    assertThrows(IllegalStateException.class, () -> {
       List<byte[]> values = new ArrayList<byte[]>();
       for (int i = 0; i < 1000000; i++) {
         values.add(ulid.generateBinary());
