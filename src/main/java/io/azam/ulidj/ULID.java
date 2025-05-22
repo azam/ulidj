@@ -341,15 +341,29 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Compares this ULID instance with the specified ULID instance.
+   * Compares ULID instance lexicographically.<br>
    *
-   * @param obj the ULID instance to compare with
-   * @return -1, 0 or 1 as this ULID instance is less than, equal to, or greater than obj
+   * If the two ULID instances share a common prefix, then the lexicographic comparison is the
+   * result of comparing the rest of the value of the two ULID instances.<br>
+   *
+   * A null ULID instance reference is considered lexicographically less than a non-null ULID
+   * instance reference.<br>
+   *
+   * Two null ULID instances references are considered equal.<br>
+   *
+   * The comparison is consistent with equals, where the ULID instances are equal if and only if
+   * they are lexicographically equal.
+   *
+   * @param obj the ULID instance to compare
+   * @return the value 0 if the ULID instance are equal and contain the same value; a value less
+   *         than 0 if this ULID instance is lexicographically less than the ULID instance; and a
+   *         value greater than 0 if this ULID instance is lexicographically greater than the ULID
+   *         instance
    * @since 2.0.0
    */
   @Override
   public int compareTo(ULID obj) {
-    return Arrays.compareUnsigned(this.binary, obj.binary);
+    return compare(this, obj);
   }
 
   /**
@@ -376,6 +390,34 @@ public final class ULID implements Serializable, Comparable<ULID> {
   @Override
   public int hashCode() {
     return 67 * Arrays.hashCode(this.binary);
+  }
+
+  /**
+   * Compares two ULID instances lexicographically.<br>
+   *
+   * If the two ULID instances share a common prefix, then the lexicographic comparison is the
+   * result of comparing the rest of the value of the two ULID instances.<br>
+   *
+   * A null ULID instance reference is considered lexicographically less than a non-null ULID
+   * instance reference.<br>
+   *
+   * The comparison is consistent with equals, where the ULID instances are equal if and only if
+   * they are lexicographically equal.
+   *
+   * @param a the first ULID instance to compare
+   * @param b the second ULID instance to compare
+   * @return the value 0 if the first and second ULID instance are equal and contain the same value;
+   *         a value less than 0 if the first ULID instance is lexicographically less than the
+   *         second ULID instance; and a value greater than 0 if the first ULID instance is
+   *         lexicographically greater than the second ULID instance
+   * @since 2.0.0
+   */
+  public static int compare(ULID a, ULID b) {
+    if (a == b)
+      return 0;
+    if (a == null || b == null)
+      return a == null ? -1 : 1;
+    return Arrays.compareUnsigned(a.binary, b.binary);
   }
 
   /**

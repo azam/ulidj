@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.azam.ulidj.TestUtils.assertEntropyIsIncremented;
+import static io.azam.ulidj.TestUtils.bytesToInitializer;
 import static io.azam.ulidj.TestUtils.incrementBytes;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,7 +72,7 @@ public class ULIDTest {
       this.value = value;
       StringBuilder sb = new StringBuilder();
       sb.append("ULID.generate(").append(Long.toString(timestamp)).append("L,")
-          .append(TestUtils.bytesToInitializer(entropy)).append(")");
+          .append(bytesToInitializer(entropy)).append(")");
       this.reproducer = sb.toString();
     }
   }
@@ -492,7 +493,7 @@ public class ULIDTest {
     };
     for (byte[] ulid : invalidUlids) {
       assertFalse(ULID.isValidBinary(ulid),
-          "Binary ULID \"" + TestUtils.bytesToInitializer(ulid) + "\" should be invalid");
+          "Binary ULID \"" + bytesToInitializer(ulid) + "\" should be invalid");
     }
   }
 
@@ -793,7 +794,63 @@ public class ULIDTest {
   }
 
   @Test
+  public void testCompare() {
+    // nulls
+    assertEquals(0, ULID.compare(null, null));
+    assertEquals(1, ULID.compare(new ULID(ULID.MIN_TIME, ZERO_ENTROPY), null));
+    assertEquals(-1, ULID.compare(null, new ULID(ULID.MIN_TIME, ZERO_ENTROPY)));
+    // l == r
+    assertEquals(0,
+        ULID.compare(new ULID(ULID.MIN_TIME, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, ZERO_ENTROPY)));
+    assertEquals(0, ULID.compare(new ULID(ULID.MIN_TIME, FILLED_ENTROPY),
+        new ULID(ULID.MIN_TIME, FILLED_ENTROPY)));
+    assertEquals(0,
+        ULID.compare(new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(ULID.MAX_TIME, ZERO_ENTROPY)));
+    assertEquals(0, ULID.compare(new ULID(ULID.MAX_TIME, FILLED_ENTROPY),
+        new ULID(ULID.MAX_TIME, FILLED_ENTROPY)));
+    byte[] zeroMSBFull = Arrays.copyOf(ZERO_ENTROPY, ULID.ENTROPY_LENGTH);
+    zeroMSBFull[0] = (byte) 0xff;
+    byte[] zeroLSBFull = Arrays.copyOf(ZERO_ENTROPY, ULID.ENTROPY_LENGTH);
+    zeroLSBFull[9] = (byte) 0xff;
+    byte[] filledMSBZero = Arrays.copyOf(FILLED_ENTROPY, ULID.ENTROPY_LENGTH);
+    filledMSBZero[0] = (byte) 0x00;
+    byte[] filledLSBZero = Arrays.copyOf(FILLED_ENTROPY, ULID.ENTROPY_LENGTH);
+    filledLSBZero[9] = (byte) 0x00;
+    // testValues[i][0] greater than testValues[i][1]
+    ULID[][] testValues = new ULID[][] { //
+        // entropy is greater
+        {new ULID(TEST_TIMESTAMP, FILLED_ENTROPY), new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP, incrementBytes((ZERO_ENTROPY))),
+            new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP, zeroMSBFull), new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP, zeroLSBFull), new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP, zeroMSBFull), new ULID(TEST_TIMESTAMP, zeroLSBFull)},
+        {new ULID(TEST_TIMESTAMP, FILLED_ENTROPY), new ULID(TEST_TIMESTAMP, filledMSBZero)},
+        {new ULID(TEST_TIMESTAMP, FILLED_ENTROPY), new ULID(TEST_TIMESTAMP, filledLSBZero)},
+        {new ULID(TEST_TIMESTAMP, filledLSBZero), new ULID(TEST_TIMESTAMP, filledMSBZero)},
+        // timestamp is greater
+        {new ULID(TEST_TIMESTAMP, ZERO_ENTROPY), new ULID(TEST_TIMESTAMP - 1, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP + 1, ZERO_ENTROPY), new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(TEST_TIMESTAMP, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, ZERO_ENTROPY)},
+        {new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)},
+        {new ULID(ULID.MIN_TIME + 1, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, ZERO_ENTROPY)},
+        {new ULID(ULID.MIN_TIME + 1, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, FILLED_ENTROPY)},
+        {new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(ULID.MAX_TIME - 1, ZERO_ENTROPY)},
+        {new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(ULID.MAX_TIME - 1, FILLED_ENTROPY)},
+        {new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, ZERO_ENTROPY)},
+        {new ULID(ULID.MAX_TIME, ZERO_ENTROPY), new ULID(ULID.MIN_TIME, FILLED_ENTROPY)},};
+    for (ULID[] testValue : testValues) {
+      assertTrue(ULID.compare(testValue[0], testValue[1]) > 0,
+          "ULID " + testValue[0] + " should be greater than " + testValue[1]);
+      assertTrue(ULID.compare(testValue[1], testValue[0]) < 0,
+          "ULID " + testValue[1] + " should be lesser than " + testValue[0]);
+    }
+  }
+
+  @Test
   public void testULIDCompareTo() {
+    // nulls
+    assertEquals(1, new ULID(ULID.MIN_TIME, ZERO_ENTROPY).compareTo(null));
     // l == r
     assertEquals(0,
         new ULID(ULID.MIN_TIME, ZERO_ENTROPY).compareTo(new ULID(ULID.MIN_TIME, ZERO_ENTROPY)));
@@ -844,7 +901,8 @@ public class ULIDTest {
 
   @Test
   public void testULIDEquals() {
-    assertTrue(new ULID(TEST_RANDOM, TEST_CLOCK).equals(new ULID(TEST_RANDOM, TEST_CLOCK)),
+    assertTrue(
+        new ULID(TEST_TIMESTAMP, ZERO_ENTROPY).equals(new ULID(TEST_TIMESTAMP, ZERO_ENTROPY)),
         "ULID instances should be equal");
     byte[] bytes1 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes1, (byte) 0x00);
@@ -899,7 +957,7 @@ public class ULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     };
     for (byte[] entropy = new byte[10]; !Arrays.equals(endEntropy, entropy); entropy =
-        TestUtils.incrementBytes(entropy)) {
+        incrementBytes(entropy)) {
       String value = ULID.generate(ULID.MIN_TIME, entropy);
       TestParam param = new TestParam(ULID.MIN_TIME, entropy, value);
       // Skip first value (previousValue==null)
