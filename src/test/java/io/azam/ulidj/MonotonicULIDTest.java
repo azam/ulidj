@@ -34,6 +34,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import static io.azam.ulidj.TestUtils.assertEntropyIsIncremented;
+import static io.azam.ulidj.TestUtils.incrementBytes;
 import static io.azam.ulidj.ULIDTest.FILLED_ENTROPY;
 import static io.azam.ulidj.ULIDTest.TEST_CLOCK;
 import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
@@ -260,7 +261,7 @@ public class MonotonicULIDTest {
     assertEquals(ULID.MIN_TIME, ULID.getTimestamp(ulid1));
     // Default last timestamp is ULID.MIN_TIME with last entropy of ULID.ZERO_ENTROPY
     // so this is should be incremented
-    assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY), ULID.getEntropy(ulid1));
+    assertArrayEquals(incrementBytes(ZERO_ENTROPY), ULID.getEntropy(ulid1));
     // Reveerse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
     assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
@@ -284,7 +285,7 @@ public class MonotonicULIDTest {
     assertEquals(ULID.MIN_TIME, ULID.getTimestampBinary(ulid1));
     // Default last timestamp is ULID.MIN_TIME with last entropy of ULID.ZERO_ENTROPY
     // so this is should be incremented
-    assertArrayEquals(TestUtils.incrementBytes(ZERO_ENTROPY), ULID.getEntropyBinary(ulid1));
+    assertArrayEquals(incrementBytes(ZERO_ENTROPY), ULID.getEntropyBinary(ulid1));
     // Reveerse clock 1ms to the past
     clock.tick(Duration.ofMillis(-1));
     assertEquals(ULID.MIN_TIME - 1, clock.instant().toEpochMilli());
@@ -487,7 +488,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -533,7 +534,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(incrementBytes(prev), curr);
             prev = curr;
           }
         }
