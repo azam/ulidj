@@ -85,7 +85,7 @@ import java.util.Random;
  * @see <a href="https://www.crockford.com/wrmg/base32.html">Base32 Encoding</a>
  */
 public final class ULID implements Serializable, Comparable<ULID> {
-  private static final long serialVersionUID = 200L;
+  private static final long serialVersionUID = 1L;
 
   /**
    * ULID string length.
