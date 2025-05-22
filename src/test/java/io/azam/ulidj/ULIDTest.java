@@ -454,7 +454,10 @@ public class ULIDTest {
         "U0000000000000000000000000", //
         "0000000000000U000000000000", //
         "000000000000000000000000\u30420", //
+        "\u30420000000000000000000000000", //
         "0000000000000000000000000#", //
+        "80000000000000000000000000", // timestamp overflow
+        "Z0000000000000000000000000", // timestamp overflow
     };
     for (String ulid : invalidUlids) {
       assertFalse(ULID.isValid(ulid), "ULID \"" + ulid + "\" should be invalid");
@@ -506,14 +509,49 @@ public class ULIDTest {
   }
 
   @Test
-  public void testGetTimestamp() {
-    assertEquals(0x0003ffffffffffffL, ULID.getTimestamp("ZZZZZZZZZZ0000000000000000"),
-        "getTimestamp allows getting timestamp that overflows MAX_TIME");
-    long now = System.currentTimeMillis();
-    long ts = 0x0000ffffffffffffL;
-    assertTrue(now < ts);
-    String ulid = ULID.generate(ts, ZERO_ENTROPY);
-    assertEquals(ts, ULID.getTimestamp(ulid));
+  public void testGetTimestampNegative() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp(null);
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("7ZZZZZZZZZ000000000000000");
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("8ZZZZZZZZZ0000000000000000");
+    }, "Timestamp overflows MAX_TIME");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("ZZZZZZZZZZ0000000000000000");
+    }, "Timestamp overflows MAX_TIME");
+  }
+
+  @Test
+  public void testGetTimestampBinaryNegative() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestampBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getTimestampBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getTimestampBinary(ulid);
+    }, "ULID binary must be valid");
+  }
+
+  @Test
+  public void testGetEntropyNegative() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy(null);
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZ");
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+    }, "ULID string must be valid");
   }
 
   @Test
@@ -521,6 +559,23 @@ public class ULIDTest {
     for (TestParam params : TEST_PARAMETERS) {
       assertArrayEquals(params.entropy, ULID.getEntropy(params.value), "ULID entropy is different");
     }
+  }
+
+  @Test
+  public void testGetEntropyBinaryNegative() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropyBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getEntropyBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getEntropyBinary(ulid);
+    }, "ULID binary must be valid");
   }
 
   @Test
@@ -549,6 +604,23 @@ public class ULIDTest {
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
       assertEquals(params.value, ULID.fromBinary(bytes), "ULID string is different");
     }
+  }
+
+  @Test
+  public void testFromBinaryNegative() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.fromBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.fromBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.fromBinary(ulid);
+    }, "ULID binary must be valid");
   }
 
   @Test

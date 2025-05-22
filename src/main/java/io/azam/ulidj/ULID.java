@@ -258,11 +258,7 @@ public final class ULID implements Serializable, Comparable<ULID> {
    * @since 2.0.0
    */
   public ULID(CharSequence value) {
-    if (isValid(value)) {
-      this.binary = toBinary(value);
-    } else {
-      throw new IllegalArgumentException("Invalid ULID string");
-    }
+    this.binary = toBinary(value);
   }
 
   /**
@@ -274,8 +270,7 @@ public final class ULID implements Serializable, Comparable<ULID> {
    */
   public ULID(byte[] value) {
     if (isValidBinary(value)) {
-      this.binary = new byte[ULID_BINARY_LENGTH];
-      System.arraycopy(value, 0, this.binary, 0, ULID_BINARY_LENGTH);
+      this.binary = Arrays.copyOf(value, ULID_BINARY_LENGTH);
     } else {
       throw new IllegalArgumentException("Invalid ULID binary");
     }
@@ -324,9 +319,7 @@ public final class ULID implements Serializable, Comparable<ULID> {
    * @since 2.0.0
    */
   public byte[] toBinary() {
-    byte[] value = new byte[ULID_BINARY_LENGTH];
-    System.arraycopy(this.binary, 0, value, 0, ULID_BINARY_LENGTH);
-    return value;
+    return Arrays.copyOf(this.binary, ULID_BINARY_LENGTH);
   }
 
   /**
@@ -666,7 +659,12 @@ public final class ULID implements Serializable, Comparable<ULID> {
     if (ulid == null || ulid.length() != ULID_LENGTH) {
       return false;
     }
-    for (int i = 0; i < ULID_LENGTH; i++) {
+    // Maximum encodable timestamp is 50-bit, but ULID limits to 48-bit.
+    // {@link ULID.MAX_TIME}
+    char char0 = ulid.charAt(0);
+    if (char0 > V.length || V[char0] == (byte) 0xff || V[char0] > 0x07)
+      return false;
+    for (int i = 1; i < ULID_LENGTH; i++) {
       // We only care for chars between 0x00 and 0xff.
       char c = ulid.charAt(i);
       if (c > V.length || V[c] == (byte) 0xff) {
@@ -687,14 +685,15 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Extract and return the timestamp part from ULID string. Expects a valid ULID string. Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Extract and return the timestamp part from ULID string. Expects a valid ULID string.
    *
    * @param ulid ULID string
    * @return Unix epoch timestamp in millisecond
+   * @throws IllegalArgumentException if the ULID string is not valid
    */
   public static long getTimestamp(CharSequence ulid) {
+    if (!isValid(ulid))
+      throw new IllegalArgumentException("Invalid ULID string");
     return (long) V[ulid.charAt(0)] << 45 //
         | (long) V[ulid.charAt(1)] << 40 //
         | (long) V[ulid.charAt(2)] << 35 //
@@ -708,14 +707,15 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Extract and return the timestamp part from ULID binary. Expects a valid ULID binary. Call
-   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Extract and return the timestamp part from ULID binary.
    *
    * @param ulid ULID string
    * @return Unix epoch timestamp in millisecond
+   * @throws IllegalArgumentException if the ULID binary is not valid
    */
   public static long getTimestampBinary(byte[] ulid) {
+    if (!isValidBinary(ulid))
+      throw new IllegalArgumentException("Invalid ULID binary");
     long timestamp = (long) ulid[0] & 0xff;
     timestamp = (timestamp << 8) | ulid[1] & 0xff;
     timestamp = (timestamp << 8) | ulid[2] & 0xff;
@@ -726,14 +726,15 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Extract and return the entropy part from ULID string. Expects a valid ULID string. Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Extract and return the entropy part from ULID string.
    *
    * @param ulid ULID string
    * @return Entropy bytes
+   * @throws IllegalArgumentException if the ULID string is not valid
    */
   public static byte[] getEntropy(CharSequence ulid) {
+    if (!isValid(ulid))
+      throw new IllegalArgumentException("Invalid ULID string");
     byte[] bytes = new byte[ENTROPY_LENGTH];
     bytes[0] = (byte) ((V[ulid.charAt(10)] << 3) //
         | (V[ulid.charAt(11)] & 0xff) >>> 2);
@@ -763,28 +764,30 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Extract and return the entropy part from ULID binary. Expects a valid ULID binary. Call
-   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Extract and return the entropy part from ULID binary.
    *
    * @param ulid ULID binary
    * @return Entropy bytes
+   * @throws IllegalArgumentException if the ULID binary is not valid
    */
   public static byte[] getEntropyBinary(byte[] ulid) {
+    if (!isValidBinary(ulid))
+      throw new IllegalArgumentException("Invalid ULID binary");
     byte[] bytes = new byte[ENTROPY_LENGTH];
     System.arraycopy(ulid, 6, bytes, 0, 10);
     return bytes;
   }
 
   /**
-   * Convert a valid ULID string representation to its binary representation. Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Convert a valid ULID string representation to its binary representation.
    *
    * @param ulid ULID string
    * @return ULID binary
+   * @throws IllegalArgumentException if the ULID string is not valid
    */
   public static byte[] toBinary(CharSequence ulid) {
+    if (!isValid(ulid))
+      throw new IllegalArgumentException("Invalid ULID string");
     byte[] bytes = new byte[ULID_BINARY_LENGTH];
     // Timestamp
     bytes[0] = (byte) ((V[ulid.charAt(0)] << 5) //
@@ -830,53 +833,52 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Convert a valid ULID binary representation to its string representation. Call
-   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Convert a valid ULID binary representation to its string representation.
    *
-   * @param binary ULID binary
+   * @param ulid ULID binary
    * @return ULID string
+   * @throws IllegalArgumentException if the ULID binary is not valid
    */
-  public static String fromBinary(byte[] binary) {
+  public static String fromBinary(byte[] ulid) {
+    if (!isValidBinary(ulid))
+      throw new IllegalArgumentException("Invalid ULID binary");
     char[] chars = new char[26];
 
     // time
-    chars[0] = C[(byte) (((binary[0] & 0xff) >>> 5) & 0x1f)];
-    chars[1] = C[(byte) (binary[0] & 0x1f)];
-    chars[2] = C[(byte) ((binary[1] & 0xff) >>> 3)];
-    chars[3] = C[(byte) (((binary[1] << 2) | ((binary[2] & 0xff) >>> 6)) & 0x1f)];
-    chars[4] = C[(byte) (((binary[2] & 0xff) >>> 1) & 0x1f)];
-    chars[5] = C[(byte) (((binary[2] << 4) | ((binary[3] & 0xff) >>> 4)) & 0x1f)];
-    chars[6] = C[(byte) (((binary[3] << 1) | ((binary[4] & 0xff) >>> 7)) & 0x1f)];
-    chars[7] = C[(byte) (((binary[4] & 0xff) >>> 2) & 0x1f)];
-    chars[8] = C[(byte) (((binary[4] << 3) | ((binary[5] & 0xff) >>> 5)) & 0x1f)];
-    chars[9] = C[(byte) (binary[5] & 0x1f)];
+    chars[0] = C[(byte) (((ulid[0] & 0xff) >>> 5) & 0x1f)];
+    chars[1] = C[(byte) (ulid[0] & 0x1f)];
+    chars[2] = C[(byte) ((ulid[1] & 0xff) >>> 3)];
+    chars[3] = C[(byte) (((ulid[1] << 2) | ((ulid[2] & 0xff) >>> 6)) & 0x1f)];
+    chars[4] = C[(byte) (((ulid[2] & 0xff) >>> 1) & 0x1f)];
+    chars[5] = C[(byte) (((ulid[2] << 4) | ((ulid[3] & 0xff) >>> 4)) & 0x1f)];
+    chars[6] = C[(byte) (((ulid[3] << 1) | ((ulid[4] & 0xff) >>> 7)) & 0x1f)];
+    chars[7] = C[(byte) (((ulid[4] & 0xff) >>> 2) & 0x1f)];
+    chars[8] = C[(byte) (((ulid[4] << 3) | ((ulid[5] & 0xff) >>> 5)) & 0x1f)];
+    chars[9] = C[(byte) (ulid[5] & 0x1f)];
 
     // entropy
-    chars[10] = C[(byte) ((binary[6] & 0xff) >>> 3)];
-    chars[11] = C[(byte) (((binary[6] << 2) | ((binary[7] & 0xff) >>> 6)) & 0x1f)];
-    chars[12] = C[(byte) (((binary[7] & 0xff) >>> 1) & 0x1f)];
-    chars[13] = C[(byte) (((binary[7] << 4) | ((binary[8] & 0xff) >>> 4)) & 0x1f)];
-    chars[14] = C[(byte) (((binary[8] << 1) | ((binary[9] & 0xff) >>> 7)) & 0x1f)];
-    chars[15] = C[(byte) (((binary[9] & 0xff) >>> 2) & 0x1f)];
-    chars[16] = C[(byte) (((binary[9] << 3) | ((binary[10] & 0xff) >>> 5)) & 0x1f)];
-    chars[17] = C[(byte) (binary[10] & 0x1f)];
-    chars[18] = C[(byte) ((binary[11] & 0xff) >>> 3)];
-    chars[19] = C[(byte) (((binary[11] << 2) | ((binary[12] & 0xff) >>> 6)) & 0x1f)];
-    chars[20] = C[(byte) (((binary[12] & 0xff) >>> 1) & 0x1f)];
-    chars[21] = C[(byte) (((binary[12] << 4) | ((binary[13] & 0xff) >>> 4)) & 0x1f)];
-    chars[22] = C[(byte) (((binary[13] << 1) | ((binary[14] & 0xff) >>> 7)) & 0x1f)];
-    chars[23] = C[(byte) (((binary[14] & 0xff) >>> 2) & 0x1f)];
-    chars[24] = C[(byte) (((binary[14] << 3) | ((binary[15] & 0xff) >>> 5)) & 0x1f)];
-    chars[25] = C[(byte) (binary[15] & 0x1f)];
+    chars[10] = C[(byte) ((ulid[6] & 0xff) >>> 3)];
+    chars[11] = C[(byte) (((ulid[6] << 2) | ((ulid[7] & 0xff) >>> 6)) & 0x1f)];
+    chars[12] = C[(byte) (((ulid[7] & 0xff) >>> 1) & 0x1f)];
+    chars[13] = C[(byte) (((ulid[7] << 4) | ((ulid[8] & 0xff) >>> 4)) & 0x1f)];
+    chars[14] = C[(byte) (((ulid[8] << 1) | ((ulid[9] & 0xff) >>> 7)) & 0x1f)];
+    chars[15] = C[(byte) (((ulid[9] & 0xff) >>> 2) & 0x1f)];
+    chars[16] = C[(byte) (((ulid[9] << 3) | ((ulid[10] & 0xff) >>> 5)) & 0x1f)];
+    chars[17] = C[(byte) (ulid[10] & 0x1f)];
+    chars[18] = C[(byte) ((ulid[11] & 0xff) >>> 3)];
+    chars[19] = C[(byte) (((ulid[11] << 2) | ((ulid[12] & 0xff) >>> 6)) & 0x1f)];
+    chars[20] = C[(byte) (((ulid[12] & 0xff) >>> 1) & 0x1f)];
+    chars[21] = C[(byte) (((ulid[12] << 4) | ((ulid[13] & 0xff) >>> 4)) & 0x1f)];
+    chars[22] = C[(byte) (((ulid[13] << 1) | ((ulid[14] & 0xff) >>> 7)) & 0x1f)];
+    chars[23] = C[(byte) (((ulid[14] & 0xff) >>> 2) & 0x1f)];
+    chars[24] = C[(byte) (((ulid[14] << 3) | ((ulid[15] & 0xff) >>> 5)) & 0x1f)];
+    chars[25] = C[(byte) (ulid[15] & 0x1f)];
 
     return new String(chars);
   }
 
   /**
-   * Convert a valid ULID string representation to a ULID instance. Call
-   * {@link io.azam.ulidj.ULID#isValid(CharSequence)} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Convert a valid ULID string representation to a ULID instance.
    *
    * @param value ULID string
    * @return ULID instance
@@ -887,9 +889,7 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Convert a valid ULID binary representation to a ULID instance. Call
-   * {@link io.azam.ulidj.ULID#isValidBinary(byte[])} and check validity before calling this method
-   * if you do not trust the origin of the ULID string.
+   * Convert a valid ULID binary representation to a ULID instance.
    *
    * @param value ULID binary
    * @return ULID instance
