@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
   <name>ulidj</name>
   <description>ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.</description>
   <url>https://github.com/azam/ulidj</url>

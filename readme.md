@@ -57,7 +57,7 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 <dependency>
   <groupId>io.azam.ulidj</groupId>
   <artifactId>ulidj</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
