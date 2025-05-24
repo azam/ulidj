@@ -239,24 +239,15 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
   private final byte[] binary;
 
   /**
-   * ULID no argument constructor is private to prevent instantiation and finalizing attacks.
-   *
-   * @since 1.1.0
-   */
-<span class="nc" id="L246">  private ULID() {</span>
-<span class="nc" id="L247">    throw new UnsupportedOperationException(&quot;Use randomULID() or randomBinary() to generate ULID&quot;);</span>
-  }
-
-  /**
    * Constructs an immutable ULID instance using provided ULID binary byte array.
    *
    * @param value ULID binary
    * @throws IllegalArgumentException if the ULID binary byte array is not valid
    * @since 1.1.0
    */
-<span class="fc" id="L257">  private ULID(byte[] value) {</span>
-<span class="fc" id="L258">    this.binary = Arrays.copyOf(value, ULID_BINARY_LENGTH);</span>
-<span class="fc" id="L259">  }</span>
+<span class="fc" id="L248">  private ULID(byte[] value) {</span>
+<span class="fc" id="L249">    this.binary = Arrays.copyOf(value, ULID_BINARY_LENGTH);</span>
+<span class="fc" id="L250">  }</span>
 
   /**
    * Extract and return the timestamp part of this ULID instance.
@@ -265,7 +256,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public long getTimestamp() {
-<span class="fc" id="L268">    return getTimestampBinary(this.binary);</span>
+<span class="fc" id="L259">    return getTimestampBinary(this.binary);</span>
   }
 
   /**
@@ -275,7 +266,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public byte[] getEntropy() {
-<span class="fc" id="L278">    return getEntropyBinary(this.binary);</span>
+<span class="fc" id="L269">    return getEntropyBinary(this.binary);</span>
   }
 
   /**
@@ -285,7 +276,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public byte[] toBinary() {
-<span class="fc" id="L288">    return Arrays.copyOf(this.binary, ULID_BINARY_LENGTH);</span>
+<span class="fc" id="L279">    return Arrays.copyOf(this.binary, ULID_BINARY_LENGTH);</span>
   }
 
   /**
@@ -296,7 +287,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    */
   @Override
   public String toString() {
-<span class="fc" id="L299">    return fromBinary(this.binary);</span>
+<span class="fc" id="L290">    return fromBinary(this.binary);</span>
   }
 
   /**
@@ -322,7 +313,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    */
   @Override
   public int compareTo(ULID obj) {
-<span class="fc" id="L325">    return compare(this, obj);</span>
+<span class="fc" id="L316">    return compare(this, obj);</span>
   }
 
   /**
@@ -335,9 +326,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    */
   @Override
   public boolean equals(Object obj) {
-<span class="fc bfc" id="L338" title="All 4 branches covered.">    if ((null == obj) || (obj.getClass() != ULID.class))</span>
-<span class="fc" id="L339">      return false;</span>
-<span class="fc" id="L340">    return Arrays.equals(this.binary, ((ULID) obj).binary);</span>
+<span class="fc bfc" id="L329" title="All 4 branches covered.">    if ((null == obj) || (obj.getClass() != ULID.class))</span>
+<span class="fc" id="L330">      return false;</span>
+<span class="fc" id="L331">    return Arrays.equals(this.binary, ((ULID) obj).binary);</span>
   }
 
   /**
@@ -348,7 +339,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    */
   @Override
   public int hashCode() {
-<span class="fc" id="L351">    return 67 * Arrays.hashCode(this.binary);</span>
+<span class="fc" id="L342">    return 67 * Arrays.hashCode(this.binary);</span>
   }
 
   /**
@@ -372,20 +363,20 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static int compare(ULID a, ULID b) {
-<span class="fc bfc" id="L375" title="All 2 branches covered.">    if (a == b)</span>
-<span class="fc" id="L376">      return 0;</span>
-<span class="fc bfc" id="L377" title="All 4 branches covered.">    if (a == null || b == null)</span>
-<span class="fc bfc" id="L378" title="All 2 branches covered.">      return a == null ? -1 : 1;</span>
+<span class="fc bfc" id="L366" title="All 2 branches covered.">    if (a == b)</span>
+<span class="fc" id="L367">      return 0;</span>
+<span class="fc bfc" id="L368" title="All 4 branches covered.">    if (a == null || b == null)</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">      return a == null ? -1 : 1;</span>
     // {@link Arrays.compareUnsigned(byte[], byte[])} is not available in Java 7
-<span class="fc" id="L380">    int len = Math.min(a.binary.length, b.binary.length);</span>
-<span class="fc bfc" id="L381" title="All 2 branches covered.">    for (int i = 0; i &lt; len; i++) {</span>
-<span class="fc" id="L382">      int aInt = a.binary[i] &amp; 0xff;</span>
-<span class="fc" id="L383">      int bInt = b.binary[i] &amp; 0xff;</span>
-<span class="fc" id="L384">      int cmp = Integer.compare(aInt, bInt);</span>
-<span class="fc bfc" id="L385" title="All 2 branches covered.">      if (cmp != 0)</span>
-<span class="fc" id="L386">        return cmp;</span>
+<span class="fc" id="L371">    int len = Math.min(a.binary.length, b.binary.length);</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">    for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L373">      int aInt = a.binary[i] &amp; 0xff;</span>
+<span class="fc" id="L374">      int bInt = b.binary[i] &amp; 0xff;</span>
+<span class="fc" id="L375">      int cmp = Integer.compare(aInt, bInt);</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">      if (cmp != 0)</span>
+<span class="fc" id="L377">        return cmp;</span>
     }
-<span class="fc" id="L388">    return a.binary.length - b.binary.length;</span>
+<span class="fc" id="L379">    return a.binary.length - b.binary.length;</span>
   }
 
   /**
@@ -397,9 +388,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static String random() {
-<span class="fc" id="L400">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L401">    LazyDefaults.random.nextBytes(entropy);</span>
-<span class="fc" id="L402">    return generate(System.currentTimeMillis(), entropy);</span>
+<span class="fc" id="L391">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L392">    LazyDefaults.random.nextBytes(entropy);</span>
+<span class="fc" id="L393">    return generate(System.currentTimeMillis(), entropy);</span>
   }
 
   /**
@@ -411,9 +402,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static byte[] randomBinary() {
-<span class="fc" id="L414">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L415">    LazyDefaults.random.nextBytes(entropy);</span>
-<span class="fc" id="L416">    return generateBinary(System.currentTimeMillis(), entropy);</span>
+<span class="fc" id="L405">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L406">    LazyDefaults.random.nextBytes(entropy);</span>
+<span class="fc" id="L407">    return generateBinary(System.currentTimeMillis(), entropy);</span>
   }
 
   /**
@@ -425,7 +416,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static ULID randomULID() {
-<span class="fc" id="L428">    return new ULID(randomBinary());</span>
+<span class="fc" id="L419">    return new ULID(randomBinary());</span>
   }
 
   /**
@@ -437,9 +428,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static String random(Random random) {
-<span class="fc" id="L440">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L441">    random.nextBytes(entropy);</span>
-<span class="fc" id="L442">    return generate(System.currentTimeMillis(), entropy);</span>
+<span class="fc" id="L431">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L432">    random.nextBytes(entropy);</span>
+<span class="fc" id="L433">    return generate(System.currentTimeMillis(), entropy);</span>
   }
 
   /**
@@ -451,9 +442,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static byte[] randomBinary(Random random) {
-<span class="fc" id="L454">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L455">    random.nextBytes(entropy);</span>
-<span class="fc" id="L456">    return generateBinary(System.currentTimeMillis(), entropy);</span>
+<span class="fc" id="L445">    byte[] entropy = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L446">    random.nextBytes(entropy);</span>
+<span class="fc" id="L447">    return generateBinary(System.currentTimeMillis(), entropy);</span>
   }
 
   /**
@@ -465,7 +456,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static ULID randomULID(Random random) {
-<span class="fc" id="L468">    return new ULID(randomBinary(random));</span>
+<span class="fc" id="L459">    return new ULID(randomBinary(random));</span>
   }
 
   /**
@@ -481,43 +472,43 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static String generate(long time, byte[] entropy) {
-<span class="fc bfc" id="L484" title="All 8 branches covered.">    if (time &lt; MIN_TIME || time &gt; MAX_TIME || entropy == null || entropy.length != ENTROPY_LENGTH)</span>
-<span class="fc" id="L485">      throw new IllegalArgumentException(</span>
+<span class="fc bfc" id="L475" title="All 8 branches covered.">    if (time &lt; MIN_TIME || time &gt; MAX_TIME || entropy == null || entropy.length != ENTROPY_LENGTH)</span>
+<span class="fc" id="L476">      throw new IllegalArgumentException(</span>
           &quot;Time is out of ULID specification, or entropy is less than 10 bytes or null&quot;);
 
-<span class="fc" id="L488">    char[] chars = new char[ULID_LENGTH];</span>
+<span class="fc" id="L479">    char[] chars = new char[ULID_LENGTH];</span>
 
     // time
-<span class="fc" id="L491">    chars[0] = C[((byte) (time &gt;&gt;&gt; 45)) &amp; 0x1f];</span>
-<span class="fc" id="L492">    chars[1] = C[((byte) (time &gt;&gt;&gt; 40)) &amp; 0x1f];</span>
-<span class="fc" id="L493">    chars[2] = C[((byte) (time &gt;&gt;&gt; 35)) &amp; 0x1f];</span>
-<span class="fc" id="L494">    chars[3] = C[((byte) (time &gt;&gt;&gt; 30)) &amp; 0x1f];</span>
-<span class="fc" id="L495">    chars[4] = C[((byte) (time &gt;&gt;&gt; 25)) &amp; 0x1f];</span>
-<span class="fc" id="L496">    chars[5] = C[((byte) (time &gt;&gt;&gt; 20)) &amp; 0x1f];</span>
-<span class="fc" id="L497">    chars[6] = C[((byte) (time &gt;&gt;&gt; 15)) &amp; 0x1f];</span>
-<span class="fc" id="L498">    chars[7] = C[((byte) (time &gt;&gt;&gt; 10)) &amp; 0x1f];</span>
-<span class="fc" id="L499">    chars[8] = C[((byte) (time &gt;&gt;&gt; 5)) &amp; 0x1f];</span>
-<span class="fc" id="L500">    chars[9] = C[((byte) (time)) &amp; 0x1f];</span>
+<span class="fc" id="L482">    chars[0] = C[((byte) (time &gt;&gt;&gt; 45)) &amp; 0x1f];</span>
+<span class="fc" id="L483">    chars[1] = C[((byte) (time &gt;&gt;&gt; 40)) &amp; 0x1f];</span>
+<span class="fc" id="L484">    chars[2] = C[((byte) (time &gt;&gt;&gt; 35)) &amp; 0x1f];</span>
+<span class="fc" id="L485">    chars[3] = C[((byte) (time &gt;&gt;&gt; 30)) &amp; 0x1f];</span>
+<span class="fc" id="L486">    chars[4] = C[((byte) (time &gt;&gt;&gt; 25)) &amp; 0x1f];</span>
+<span class="fc" id="L487">    chars[5] = C[((byte) (time &gt;&gt;&gt; 20)) &amp; 0x1f];</span>
+<span class="fc" id="L488">    chars[6] = C[((byte) (time &gt;&gt;&gt; 15)) &amp; 0x1f];</span>
+<span class="fc" id="L489">    chars[7] = C[((byte) (time &gt;&gt;&gt; 10)) &amp; 0x1f];</span>
+<span class="fc" id="L490">    chars[8] = C[((byte) (time &gt;&gt;&gt; 5)) &amp; 0x1f];</span>
+<span class="fc" id="L491">    chars[9] = C[((byte) (time)) &amp; 0x1f];</span>
 
     // entropy
-<span class="fc" id="L503">    chars[10] = C[(byte) ((entropy[0] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
-<span class="fc" id="L504">    chars[11] = C[(byte) (((entropy[0] &lt;&lt; 2) | ((entropy[1] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
-<span class="fc" id="L505">    chars[12] = C[(byte) (((entropy[1] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
-<span class="fc" id="L506">    chars[13] = C[(byte) (((entropy[1] &lt;&lt; 4) | ((entropy[2] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
-<span class="fc" id="L507">    chars[14] = C[(byte) (((entropy[2] &lt;&lt; 1) | ((entropy[3] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
-<span class="fc" id="L508">    chars[15] = C[(byte) (((entropy[3] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
-<span class="fc" id="L509">    chars[16] = C[(byte) (((entropy[3] &lt;&lt; 3) | ((entropy[4] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
-<span class="fc" id="L510">    chars[17] = C[(byte) (entropy[4] &amp; 0x1f)];</span>
-<span class="fc" id="L511">    chars[18] = C[(byte) ((entropy[5] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
-<span class="fc" id="L512">    chars[19] = C[(byte) (((entropy[5] &lt;&lt; 2) | ((entropy[6] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
-<span class="fc" id="L513">    chars[20] = C[(byte) (((entropy[6] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
-<span class="fc" id="L514">    chars[21] = C[(byte) (((entropy[6] &lt;&lt; 4) | ((entropy[7] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
-<span class="fc" id="L515">    chars[22] = C[(byte) (((entropy[7] &lt;&lt; 1) | ((entropy[8] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
-<span class="fc" id="L516">    chars[23] = C[(byte) (((entropy[8] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
-<span class="fc" id="L517">    chars[24] = C[(byte) (((entropy[8] &lt;&lt; 3) | ((entropy[9] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
-<span class="fc" id="L518">    chars[25] = C[(byte) (entropy[9] &amp; 0x1f)];</span>
+<span class="fc" id="L494">    chars[10] = C[(byte) ((entropy[0] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
+<span class="fc" id="L495">    chars[11] = C[(byte) (((entropy[0] &lt;&lt; 2) | ((entropy[1] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
+<span class="fc" id="L496">    chars[12] = C[(byte) (((entropy[1] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
+<span class="fc" id="L497">    chars[13] = C[(byte) (((entropy[1] &lt;&lt; 4) | ((entropy[2] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
+<span class="fc" id="L498">    chars[14] = C[(byte) (((entropy[2] &lt;&lt; 1) | ((entropy[3] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
+<span class="fc" id="L499">    chars[15] = C[(byte) (((entropy[3] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
+<span class="fc" id="L500">    chars[16] = C[(byte) (((entropy[3] &lt;&lt; 3) | ((entropy[4] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
+<span class="fc" id="L501">    chars[17] = C[(byte) (entropy[4] &amp; 0x1f)];</span>
+<span class="fc" id="L502">    chars[18] = C[(byte) ((entropy[5] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
+<span class="fc" id="L503">    chars[19] = C[(byte) (((entropy[5] &lt;&lt; 2) | ((entropy[6] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
+<span class="fc" id="L504">    chars[20] = C[(byte) (((entropy[6] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
+<span class="fc" id="L505">    chars[21] = C[(byte) (((entropy[6] &lt;&lt; 4) | ((entropy[7] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
+<span class="fc" id="L506">    chars[22] = C[(byte) (((entropy[7] &lt;&lt; 1) | ((entropy[8] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
+<span class="fc" id="L507">    chars[23] = C[(byte) (((entropy[8] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
+<span class="fc" id="L508">    chars[24] = C[(byte) (((entropy[8] &lt;&lt; 3) | ((entropy[9] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
+<span class="fc" id="L509">    chars[25] = C[(byte) (entropy[9] &amp; 0x1f)];</span>
 
-<span class="fc" id="L520">    return new String(chars);</span>
+<span class="fc" id="L511">    return new String(chars);</span>
   }
 
   /**
@@ -533,23 +524,23 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static byte[] generateBinary(long time, byte[] entropy) {
-<span class="fc bfc" id="L536" title="All 8 branches covered.">    if (time &lt; MIN_TIME || time &gt; MAX_TIME || entropy == null || entropy.length != ENTROPY_LENGTH)</span>
-<span class="fc" id="L537">      throw new IllegalArgumentException(</span>
+<span class="fc bfc" id="L527" title="All 8 branches covered.">    if (time &lt; MIN_TIME || time &gt; MAX_TIME || entropy == null || entropy.length != ENTROPY_LENGTH)</span>
+<span class="fc" id="L528">      throw new IllegalArgumentException(</span>
           &quot;Time is out of ULID specification, or entropy is less than 10 bytes or null&quot;);
 
-<span class="fc" id="L540">    byte[] bytes = new byte[ULID_BINARY_LENGTH];</span>
+<span class="fc" id="L531">    byte[] bytes = new byte[ULID_BINARY_LENGTH];</span>
 
     // Long to big endian byte array up to 6 bytes
-<span class="fc" id="L543">    long ts = time;</span>
-<span class="fc bfc" id="L544" title="All 2 branches covered.">    for (int i = 5; i &gt;= 0; i--) {</span>
-<span class="fc" id="L545">      bytes[i] = (byte) (ts &amp; 0xff);</span>
-<span class="fc" id="L546">      ts = ts &gt;&gt;&gt; 8;</span>
+<span class="fc" id="L534">    long ts = time;</span>
+<span class="fc bfc" id="L535" title="All 2 branches covered.">    for (int i = 5; i &gt;= 0; i--) {</span>
+<span class="fc" id="L536">      bytes[i] = (byte) (ts &amp; 0xff);</span>
+<span class="fc" id="L537">      ts = ts &gt;&gt;&gt; 8;</span>
     }
 
     // Copy over bytes from entropy
-<span class="fc" id="L550">    System.arraycopy(entropy, 0, bytes, 6, 10);</span>
+<span class="fc" id="L541">    System.arraycopy(entropy, 0, bytes, 6, 10);</span>
 
-<span class="fc" id="L552">    return bytes;</span>
+<span class="fc" id="L543">    return bytes;</span>
   }
 
   /**
@@ -565,7 +556,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static ULID generateULID(long time, byte[] entropy) {
-<span class="fc" id="L568">    return new ULID(generateBinary(time, entropy));</span>
+<span class="fc" id="L559">    return new ULID(generateBinary(time, entropy));</span>
 
   }
 
@@ -577,21 +568,21 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static boolean isValid(CharSequence ulid) {
-<span class="fc bfc" id="L580" title="All 4 branches covered.">    if (ulid == null || ulid.length() != ULID_LENGTH)</span>
-<span class="fc" id="L581">      return false;</span>
+<span class="fc bfc" id="L571" title="All 4 branches covered.">    if (ulid == null || ulid.length() != ULID_LENGTH)</span>
+<span class="fc" id="L572">      return false;</span>
     // Maximum encodable timestamp is 50-bit, but ULID limits to 48-bit.
     // {@link ULID.MAX_TIME}
-<span class="fc" id="L584">    char char0 = ulid.charAt(0);</span>
-<span class="fc bfc" id="L585" title="All 6 branches covered.">    if (char0 &gt; V.length || V[char0] == (byte) 0xff || V[char0] &gt; 0x07)</span>
-<span class="fc" id="L586">      return false;</span>
-<span class="fc bfc" id="L587" title="All 2 branches covered.">    for (int i = 1; i &lt; ULID_LENGTH; i++) {</span>
+<span class="fc" id="L575">    char char0 = ulid.charAt(0);</span>
+<span class="fc bfc" id="L576" title="All 6 branches covered.">    if (char0 &gt; V.length || V[char0] == (byte) 0xff || V[char0] &gt; 0x07)</span>
+<span class="fc" id="L577">      return false;</span>
+<span class="fc bfc" id="L578" title="All 2 branches covered.">    for (int i = 1; i &lt; ULID_LENGTH; i++) {</span>
       // We only care for chars between 0x00 and 0xff.
-<span class="fc" id="L589">      char c = ulid.charAt(i);</span>
-<span class="fc bfc" id="L590" title="All 4 branches covered.">      if (c &gt; V.length || V[c] == (byte) 0xff) {</span>
-<span class="fc" id="L591">        return false;</span>
+<span class="fc" id="L580">      char c = ulid.charAt(i);</span>
+<span class="fc bfc" id="L581" title="All 4 branches covered.">      if (c &gt; V.length || V[c] == (byte) 0xff) {</span>
+<span class="fc" id="L582">        return false;</span>
       }
     }
-<span class="fc" id="L594">    return true;</span>
+<span class="fc" id="L585">    return true;</span>
   }
 
   /**
@@ -602,7 +593,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static boolean isValidBinary(byte[] ulid) {
-<span class="fc bfc" id="L605" title="All 4 branches covered.">    return ulid != null &amp;&amp; ulid.length == ULID_BINARY_LENGTH;</span>
+<span class="fc bfc" id="L596" title="All 4 branches covered.">    return ulid != null &amp;&amp; ulid.length == ULID_BINARY_LENGTH;</span>
   }
 
   /**
@@ -614,18 +605,18 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static long getTimestamp(CharSequence ulid) {
-<span class="fc bfc" id="L617" title="All 2 branches covered.">    if (!isValid(ulid))</span>
-<span class="fc" id="L618">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
-<span class="fc" id="L619">    return (long) V[ulid.charAt(0)] &lt;&lt; 45 //</span>
-<span class="fc" id="L620">        | (long) V[ulid.charAt(1)] &lt;&lt; 40 //</span>
-<span class="fc" id="L621">        | (long) V[ulid.charAt(2)] &lt;&lt; 35 //</span>
-<span class="fc" id="L622">        | (long) V[ulid.charAt(3)] &lt;&lt; 30 //</span>
-<span class="fc" id="L623">        | (long) V[ulid.charAt(4)] &lt;&lt; 25 //</span>
-<span class="fc" id="L624">        | (long) V[ulid.charAt(5)] &lt;&lt; 20 //</span>
-<span class="fc" id="L625">        | (long) V[ulid.charAt(6)] &lt;&lt; 15 //</span>
-<span class="fc" id="L626">        | (long) V[ulid.charAt(7)] &lt;&lt; 10 //</span>
-<span class="fc" id="L627">        | (long) V[ulid.charAt(8)] &lt;&lt; 5 //</span>
-<span class="fc" id="L628">        | (long) V[ulid.charAt(9)];</span>
+<span class="fc bfc" id="L608" title="All 2 branches covered.">    if (!isValid(ulid))</span>
+<span class="fc" id="L609">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
+<span class="fc" id="L610">    return (long) V[ulid.charAt(0)] &lt;&lt; 45 //</span>
+<span class="fc" id="L611">        | (long) V[ulid.charAt(1)] &lt;&lt; 40 //</span>
+<span class="fc" id="L612">        | (long) V[ulid.charAt(2)] &lt;&lt; 35 //</span>
+<span class="fc" id="L613">        | (long) V[ulid.charAt(3)] &lt;&lt; 30 //</span>
+<span class="fc" id="L614">        | (long) V[ulid.charAt(4)] &lt;&lt; 25 //</span>
+<span class="fc" id="L615">        | (long) V[ulid.charAt(5)] &lt;&lt; 20 //</span>
+<span class="fc" id="L616">        | (long) V[ulid.charAt(6)] &lt;&lt; 15 //</span>
+<span class="fc" id="L617">        | (long) V[ulid.charAt(7)] &lt;&lt; 10 //</span>
+<span class="fc" id="L618">        | (long) V[ulid.charAt(8)] &lt;&lt; 5 //</span>
+<span class="fc" id="L619">        | (long) V[ulid.charAt(9)];</span>
   }
 
   /**
@@ -637,15 +628,15 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static long getTimestampBinary(byte[] ulid) {
-<span class="fc bfc" id="L640" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
-<span class="fc" id="L641">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
-<span class="fc" id="L642">    long timestamp = (long) ulid[0] &amp; 0xff;</span>
-<span class="fc" id="L643">    timestamp = (timestamp &lt;&lt; 8) | ulid[1] &amp; 0xff;</span>
-<span class="fc" id="L644">    timestamp = (timestamp &lt;&lt; 8) | ulid[2] &amp; 0xff;</span>
-<span class="fc" id="L645">    timestamp = (timestamp &lt;&lt; 8) | ulid[3] &amp; 0xff;</span>
-<span class="fc" id="L646">    timestamp = (timestamp &lt;&lt; 8) | ulid[4] &amp; 0xff;</span>
-<span class="fc" id="L647">    timestamp = (timestamp &lt;&lt; 8) | ulid[5] &amp; 0xff;</span>
-<span class="fc" id="L648">    return timestamp;</span>
+<span class="fc bfc" id="L631" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
+<span class="fc" id="L632">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
+<span class="fc" id="L633">    long timestamp = (long) ulid[0] &amp; 0xff;</span>
+<span class="fc" id="L634">    timestamp = (timestamp &lt;&lt; 8) | ulid[1] &amp; 0xff;</span>
+<span class="fc" id="L635">    timestamp = (timestamp &lt;&lt; 8) | ulid[2] &amp; 0xff;</span>
+<span class="fc" id="L636">    timestamp = (timestamp &lt;&lt; 8) | ulid[3] &amp; 0xff;</span>
+<span class="fc" id="L637">    timestamp = (timestamp &lt;&lt; 8) | ulid[4] &amp; 0xff;</span>
+<span class="fc" id="L638">    timestamp = (timestamp &lt;&lt; 8) | ulid[5] &amp; 0xff;</span>
+<span class="fc" id="L639">    return timestamp;</span>
   }
 
   /**
@@ -657,34 +648,34 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 0.0.1
    */
   public static byte[] getEntropy(CharSequence ulid) {
-<span class="fc bfc" id="L660" title="All 2 branches covered.">    if (!isValid(ulid))</span>
-<span class="fc" id="L661">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
-<span class="fc" id="L662">    byte[] bytes = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L663">    bytes[0] = (byte) ((V[ulid.charAt(10)] &lt;&lt; 3) //</span>
-<span class="fc" id="L664">        | (V[ulid.charAt(11)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
-<span class="fc" id="L665">    bytes[1] = (byte) ((V[ulid.charAt(11)] &lt;&lt; 6) //</span>
-<span class="fc" id="L666">        | V[ulid.charAt(12)] &lt;&lt; 1 //</span>
-<span class="fc" id="L667">        | (V[ulid.charAt(13)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
-<span class="fc" id="L668">    bytes[2] = (byte) ((V[ulid.charAt(13)] &lt;&lt; 4) //</span>
-<span class="fc" id="L669">        | (V[ulid.charAt(14)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
-<span class="fc" id="L670">    bytes[3] = (byte) ((V[ulid.charAt(14)] &lt;&lt; 7) //</span>
-<span class="fc" id="L671">        | V[ulid.charAt(15)] &lt;&lt; 2 //</span>
-<span class="fc" id="L672">        | (V[ulid.charAt(16)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
-<span class="fc" id="L673">    bytes[4] = (byte) ((V[ulid.charAt(16)] &lt;&lt; 5) //</span>
-<span class="fc" id="L674">        | V[ulid.charAt(17)]);</span>
-<span class="fc" id="L675">    bytes[5] = (byte) ((V[ulid.charAt(18)] &lt;&lt; 3) //</span>
-<span class="fc" id="L676">        | (V[ulid.charAt(19)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
-<span class="fc" id="L677">    bytes[6] = (byte) ((V[ulid.charAt(19)] &lt;&lt; 6) //</span>
-<span class="fc" id="L678">        | V[ulid.charAt(20)] &lt;&lt; 1 //</span>
-<span class="fc" id="L679">        | (V[ulid.charAt(21)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
-<span class="fc" id="L680">    bytes[7] = (byte) ((V[ulid.charAt(21)] &lt;&lt; 4) //</span>
-<span class="fc" id="L681">        | (V[ulid.charAt(22)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
-<span class="fc" id="L682">    bytes[8] = (byte) ((V[ulid.charAt(22)] &lt;&lt; 7) //</span>
-<span class="fc" id="L683">        | V[ulid.charAt(23)] &lt;&lt; 2 //</span>
-<span class="fc" id="L684">        | (V[ulid.charAt(24)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
-<span class="fc" id="L685">    bytes[9] = (byte) ((V[ulid.charAt(24)] &lt;&lt; 5) //</span>
-<span class="fc" id="L686">        | V[ulid.charAt(25)]);</span>
-<span class="fc" id="L687">    return bytes;</span>
+<span class="fc bfc" id="L651" title="All 2 branches covered.">    if (!isValid(ulid))</span>
+<span class="fc" id="L652">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
+<span class="fc" id="L653">    byte[] bytes = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L654">    bytes[0] = (byte) ((V[ulid.charAt(10)] &lt;&lt; 3) //</span>
+<span class="fc" id="L655">        | (V[ulid.charAt(11)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
+<span class="fc" id="L656">    bytes[1] = (byte) ((V[ulid.charAt(11)] &lt;&lt; 6) //</span>
+<span class="fc" id="L657">        | V[ulid.charAt(12)] &lt;&lt; 1 //</span>
+<span class="fc" id="L658">        | (V[ulid.charAt(13)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
+<span class="fc" id="L659">    bytes[2] = (byte) ((V[ulid.charAt(13)] &lt;&lt; 4) //</span>
+<span class="fc" id="L660">        | (V[ulid.charAt(14)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
+<span class="fc" id="L661">    bytes[3] = (byte) ((V[ulid.charAt(14)] &lt;&lt; 7) //</span>
+<span class="fc" id="L662">        | V[ulid.charAt(15)] &lt;&lt; 2 //</span>
+<span class="fc" id="L663">        | (V[ulid.charAt(16)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
+<span class="fc" id="L664">    bytes[4] = (byte) ((V[ulid.charAt(16)] &lt;&lt; 5) //</span>
+<span class="fc" id="L665">        | V[ulid.charAt(17)]);</span>
+<span class="fc" id="L666">    bytes[5] = (byte) ((V[ulid.charAt(18)] &lt;&lt; 3) //</span>
+<span class="fc" id="L667">        | (V[ulid.charAt(19)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
+<span class="fc" id="L668">    bytes[6] = (byte) ((V[ulid.charAt(19)] &lt;&lt; 6) //</span>
+<span class="fc" id="L669">        | V[ulid.charAt(20)] &lt;&lt; 1 //</span>
+<span class="fc" id="L670">        | (V[ulid.charAt(21)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
+<span class="fc" id="L671">    bytes[7] = (byte) ((V[ulid.charAt(21)] &lt;&lt; 4) //</span>
+<span class="fc" id="L672">        | (V[ulid.charAt(22)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
+<span class="fc" id="L673">    bytes[8] = (byte) ((V[ulid.charAt(22)] &lt;&lt; 7) //</span>
+<span class="fc" id="L674">        | V[ulid.charAt(23)] &lt;&lt; 2 //</span>
+<span class="fc" id="L675">        | (V[ulid.charAt(24)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
+<span class="fc" id="L676">    bytes[9] = (byte) ((V[ulid.charAt(24)] &lt;&lt; 5) //</span>
+<span class="fc" id="L677">        | V[ulid.charAt(25)]);</span>
+<span class="fc" id="L678">    return bytes;</span>
   }
 
   /**
@@ -696,11 +687,11 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static byte[] getEntropyBinary(byte[] ulid) {
-<span class="fc bfc" id="L699" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
-<span class="fc" id="L700">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
-<span class="fc" id="L701">    byte[] bytes = new byte[ENTROPY_LENGTH];</span>
-<span class="fc" id="L702">    System.arraycopy(ulid, 6, bytes, 0, 10);</span>
-<span class="fc" id="L703">    return bytes;</span>
+<span class="fc bfc" id="L690" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
+<span class="fc" id="L691">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
+<span class="fc" id="L692">    byte[] bytes = new byte[ENTROPY_LENGTH];</span>
+<span class="fc" id="L693">    System.arraycopy(ulid, 6, bytes, 0, 10);</span>
+<span class="fc" id="L694">    return bytes;</span>
   }
 
   /**
@@ -712,50 +703,50 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static byte[] toBinary(CharSequence ulid) {
-<span class="fc bfc" id="L715" title="All 2 branches covered.">    if (!isValid(ulid))</span>
-<span class="fc" id="L716">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
-<span class="fc" id="L717">    byte[] bytes = new byte[ULID_BINARY_LENGTH];</span>
+<span class="fc bfc" id="L706" title="All 2 branches covered.">    if (!isValid(ulid))</span>
+<span class="fc" id="L707">      throw new IllegalArgumentException(&quot;Invalid ULID string&quot;);</span>
+<span class="fc" id="L708">    byte[] bytes = new byte[ULID_BINARY_LENGTH];</span>
     // Timestamp
-<span class="fc" id="L719">    bytes[0] = (byte) ((V[ulid.charAt(0)] &lt;&lt; 5) //</span>
-<span class="fc" id="L720">        | V[ulid.charAt(1)]);</span>
-<span class="fc" id="L721">    bytes[1] = (byte) ((V[ulid.charAt(2)] &lt;&lt; 3) //</span>
-<span class="fc" id="L722">        | (V[ulid.charAt(3)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
-<span class="fc" id="L723">    bytes[2] = (byte) ((V[ulid.charAt(3)] &lt;&lt; 6) //</span>
-<span class="fc" id="L724">        | V[ulid.charAt(4)] &lt;&lt; 1 //</span>
-<span class="fc" id="L725">        | (V[ulid.charAt(5)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
-<span class="fc" id="L726">    bytes[3] = (byte) ((V[ulid.charAt(5)] &lt;&lt; 4) //</span>
-<span class="fc" id="L727">        | (V[ulid.charAt(6)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
-<span class="fc" id="L728">    bytes[4] = (byte) ((V[ulid.charAt(6)] &lt;&lt; 7) //</span>
-<span class="fc" id="L729">        | V[ulid.charAt(7)] &lt;&lt; 2 //</span>
-<span class="fc" id="L730">        | (V[ulid.charAt(8)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
-<span class="fc" id="L731">    bytes[5] = (byte) ((V[ulid.charAt(8)] &lt;&lt; 5) //</span>
-<span class="fc" id="L732">        | V[ulid.charAt(9)]);</span>
+<span class="fc" id="L710">    bytes[0] = (byte) ((V[ulid.charAt(0)] &lt;&lt; 5) //</span>
+<span class="fc" id="L711">        | V[ulid.charAt(1)]);</span>
+<span class="fc" id="L712">    bytes[1] = (byte) ((V[ulid.charAt(2)] &lt;&lt; 3) //</span>
+<span class="fc" id="L713">        | (V[ulid.charAt(3)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
+<span class="fc" id="L714">    bytes[2] = (byte) ((V[ulid.charAt(3)] &lt;&lt; 6) //</span>
+<span class="fc" id="L715">        | V[ulid.charAt(4)] &lt;&lt; 1 //</span>
+<span class="fc" id="L716">        | (V[ulid.charAt(5)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
+<span class="fc" id="L717">    bytes[3] = (byte) ((V[ulid.charAt(5)] &lt;&lt; 4) //</span>
+<span class="fc" id="L718">        | (V[ulid.charAt(6)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
+<span class="fc" id="L719">    bytes[4] = (byte) ((V[ulid.charAt(6)] &lt;&lt; 7) //</span>
+<span class="fc" id="L720">        | V[ulid.charAt(7)] &lt;&lt; 2 //</span>
+<span class="fc" id="L721">        | (V[ulid.charAt(8)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
+<span class="fc" id="L722">    bytes[5] = (byte) ((V[ulid.charAt(8)] &lt;&lt; 5) //</span>
+<span class="fc" id="L723">        | V[ulid.charAt(9)]);</span>
     // Entropy
-<span class="fc" id="L734">    bytes[6] = (byte) ((V[ulid.charAt(10)] &lt;&lt; 3) //</span>
-<span class="fc" id="L735">        | (V[ulid.charAt(11)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
-<span class="fc" id="L736">    bytes[7] = (byte) ((V[ulid.charAt(11)] &lt;&lt; 6) //</span>
-<span class="fc" id="L737">        | V[ulid.charAt(12)] &lt;&lt; 1 //</span>
-<span class="fc" id="L738">        | (V[ulid.charAt(13)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
-<span class="fc" id="L739">    bytes[8] = (byte) ((V[ulid.charAt(13)] &lt;&lt; 4) //</span>
-<span class="fc" id="L740">        | (V[ulid.charAt(14)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
-<span class="fc" id="L741">    bytes[9] = (byte) ((V[ulid.charAt(14)] &lt;&lt; 7) //</span>
-<span class="fc" id="L742">        | V[ulid.charAt(15)] &lt;&lt; 2 //</span>
-<span class="fc" id="L743">        | (V[ulid.charAt(16)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
-<span class="fc" id="L744">    bytes[10] = (byte) ((V[ulid.charAt(16)] &lt;&lt; 5) //</span>
-<span class="fc" id="L745">        | V[ulid.charAt(17)]);</span>
-<span class="fc" id="L746">    bytes[11] = (byte) ((V[ulid.charAt(18)] &lt;&lt; 3) //</span>
-<span class="fc" id="L747">        | (V[ulid.charAt(19)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
-<span class="fc" id="L748">    bytes[12] = (byte) ((V[ulid.charAt(19)] &lt;&lt; 6) //</span>
-<span class="fc" id="L749">        | V[ulid.charAt(20)] &lt;&lt; 1 //</span>
-<span class="fc" id="L750">        | (V[ulid.charAt(21)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
-<span class="fc" id="L751">    bytes[13] = (byte) ((V[ulid.charAt(21)] &lt;&lt; 4) //</span>
-<span class="fc" id="L752">        | (V[ulid.charAt(22)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
-<span class="fc" id="L753">    bytes[14] = (byte) ((V[ulid.charAt(22)] &lt;&lt; 7) //</span>
-<span class="fc" id="L754">        | V[ulid.charAt(23)] &lt;&lt; 2 //</span>
-<span class="fc" id="L755">        | (V[ulid.charAt(24)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
-<span class="fc" id="L756">    bytes[15] = (byte) ((V[ulid.charAt(24)] &lt;&lt; 5) //</span>
-<span class="fc" id="L757">        | V[ulid.charAt(25)]);</span>
-<span class="fc" id="L758">    return bytes;</span>
+<span class="fc" id="L725">    bytes[6] = (byte) ((V[ulid.charAt(10)] &lt;&lt; 3) //</span>
+<span class="fc" id="L726">        | (V[ulid.charAt(11)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
+<span class="fc" id="L727">    bytes[7] = (byte) ((V[ulid.charAt(11)] &lt;&lt; 6) //</span>
+<span class="fc" id="L728">        | V[ulid.charAt(12)] &lt;&lt; 1 //</span>
+<span class="fc" id="L729">        | (V[ulid.charAt(13)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
+<span class="fc" id="L730">    bytes[8] = (byte) ((V[ulid.charAt(13)] &lt;&lt; 4) //</span>
+<span class="fc" id="L731">        | (V[ulid.charAt(14)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
+<span class="fc" id="L732">    bytes[9] = (byte) ((V[ulid.charAt(14)] &lt;&lt; 7) //</span>
+<span class="fc" id="L733">        | V[ulid.charAt(15)] &lt;&lt; 2 //</span>
+<span class="fc" id="L734">        | (V[ulid.charAt(16)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
+<span class="fc" id="L735">    bytes[10] = (byte) ((V[ulid.charAt(16)] &lt;&lt; 5) //</span>
+<span class="fc" id="L736">        | V[ulid.charAt(17)]);</span>
+<span class="fc" id="L737">    bytes[11] = (byte) ((V[ulid.charAt(18)] &lt;&lt; 3) //</span>
+<span class="fc" id="L738">        | (V[ulid.charAt(19)] &amp; 0xff) &gt;&gt;&gt; 2);</span>
+<span class="fc" id="L739">    bytes[12] = (byte) ((V[ulid.charAt(19)] &lt;&lt; 6) //</span>
+<span class="fc" id="L740">        | V[ulid.charAt(20)] &lt;&lt; 1 //</span>
+<span class="fc" id="L741">        | (V[ulid.charAt(21)] &amp; 0xff) &gt;&gt;&gt; 4);</span>
+<span class="fc" id="L742">    bytes[13] = (byte) ((V[ulid.charAt(21)] &lt;&lt; 4) //</span>
+<span class="fc" id="L743">        | (V[ulid.charAt(22)] &amp; 0xff) &gt;&gt;&gt; 1);</span>
+<span class="fc" id="L744">    bytes[14] = (byte) ((V[ulid.charAt(22)] &lt;&lt; 7) //</span>
+<span class="fc" id="L745">        | V[ulid.charAt(23)] &lt;&lt; 2 //</span>
+<span class="fc" id="L746">        | (V[ulid.charAt(24)] &amp; 0xff) &gt;&gt;&gt; 3);</span>
+<span class="fc" id="L747">    bytes[15] = (byte) ((V[ulid.charAt(24)] &lt;&lt; 5) //</span>
+<span class="fc" id="L748">        | V[ulid.charAt(25)]);</span>
+<span class="fc" id="L749">    return bytes;</span>
   }
 
   /**
@@ -767,41 +758,41 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.0.4
    */
   public static String fromBinary(byte[] ulid) {
-<span class="fc bfc" id="L770" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
-<span class="fc" id="L771">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
-<span class="fc" id="L772">    char[] chars = new char[ULID_LENGTH];</span>
+<span class="fc bfc" id="L761" title="All 2 branches covered.">    if (!isValidBinary(ulid))</span>
+<span class="fc" id="L762">      throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
+<span class="fc" id="L763">    char[] chars = new char[ULID_LENGTH];</span>
 
     // time
-<span class="fc" id="L775">    chars[0] = C[(byte) (((ulid[0] &amp; 0xff) &gt;&gt;&gt; 5) &amp; 0x1f)];</span>
-<span class="fc" id="L776">    chars[1] = C[(byte) (ulid[0] &amp; 0x1f)];</span>
-<span class="fc" id="L777">    chars[2] = C[(byte) ((ulid[1] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
-<span class="fc" id="L778">    chars[3] = C[(byte) (((ulid[1] &lt;&lt; 2) | ((ulid[2] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
-<span class="fc" id="L779">    chars[4] = C[(byte) (((ulid[2] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
-<span class="fc" id="L780">    chars[5] = C[(byte) (((ulid[2] &lt;&lt; 4) | ((ulid[3] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
-<span class="fc" id="L781">    chars[6] = C[(byte) (((ulid[3] &lt;&lt; 1) | ((ulid[4] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
-<span class="fc" id="L782">    chars[7] = C[(byte) (((ulid[4] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
-<span class="fc" id="L783">    chars[8] = C[(byte) (((ulid[4] &lt;&lt; 3) | ((ulid[5] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
-<span class="fc" id="L784">    chars[9] = C[(byte) (ulid[5] &amp; 0x1f)];</span>
+<span class="fc" id="L766">    chars[0] = C[(byte) (((ulid[0] &amp; 0xff) &gt;&gt;&gt; 5) &amp; 0x1f)];</span>
+<span class="fc" id="L767">    chars[1] = C[(byte) (ulid[0] &amp; 0x1f)];</span>
+<span class="fc" id="L768">    chars[2] = C[(byte) ((ulid[1] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
+<span class="fc" id="L769">    chars[3] = C[(byte) (((ulid[1] &lt;&lt; 2) | ((ulid[2] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
+<span class="fc" id="L770">    chars[4] = C[(byte) (((ulid[2] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
+<span class="fc" id="L771">    chars[5] = C[(byte) (((ulid[2] &lt;&lt; 4) | ((ulid[3] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
+<span class="fc" id="L772">    chars[6] = C[(byte) (((ulid[3] &lt;&lt; 1) | ((ulid[4] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
+<span class="fc" id="L773">    chars[7] = C[(byte) (((ulid[4] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
+<span class="fc" id="L774">    chars[8] = C[(byte) (((ulid[4] &lt;&lt; 3) | ((ulid[5] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
+<span class="fc" id="L775">    chars[9] = C[(byte) (ulid[5] &amp; 0x1f)];</span>
 
     // entropy
-<span class="fc" id="L787">    chars[10] = C[(byte) ((ulid[6] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
-<span class="fc" id="L788">    chars[11] = C[(byte) (((ulid[6] &lt;&lt; 2) | ((ulid[7] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
-<span class="fc" id="L789">    chars[12] = C[(byte) (((ulid[7] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
-<span class="fc" id="L790">    chars[13] = C[(byte) (((ulid[7] &lt;&lt; 4) | ((ulid[8] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
-<span class="fc" id="L791">    chars[14] = C[(byte) (((ulid[8] &lt;&lt; 1) | ((ulid[9] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
-<span class="fc" id="L792">    chars[15] = C[(byte) (((ulid[9] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
-<span class="fc" id="L793">    chars[16] = C[(byte) (((ulid[9] &lt;&lt; 3) | ((ulid[10] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
-<span class="fc" id="L794">    chars[17] = C[(byte) (ulid[10] &amp; 0x1f)];</span>
-<span class="fc" id="L795">    chars[18] = C[(byte) ((ulid[11] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
-<span class="fc" id="L796">    chars[19] = C[(byte) (((ulid[11] &lt;&lt; 2) | ((ulid[12] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
-<span class="fc" id="L797">    chars[20] = C[(byte) (((ulid[12] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
-<span class="fc" id="L798">    chars[21] = C[(byte) (((ulid[12] &lt;&lt; 4) | ((ulid[13] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
-<span class="fc" id="L799">    chars[22] = C[(byte) (((ulid[13] &lt;&lt; 1) | ((ulid[14] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
-<span class="fc" id="L800">    chars[23] = C[(byte) (((ulid[14] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
-<span class="fc" id="L801">    chars[24] = C[(byte) (((ulid[14] &lt;&lt; 3) | ((ulid[15] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
-<span class="fc" id="L802">    chars[25] = C[(byte) (ulid[15] &amp; 0x1f)];</span>
+<span class="fc" id="L778">    chars[10] = C[(byte) ((ulid[6] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
+<span class="fc" id="L779">    chars[11] = C[(byte) (((ulid[6] &lt;&lt; 2) | ((ulid[7] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
+<span class="fc" id="L780">    chars[12] = C[(byte) (((ulid[7] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
+<span class="fc" id="L781">    chars[13] = C[(byte) (((ulid[7] &lt;&lt; 4) | ((ulid[8] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
+<span class="fc" id="L782">    chars[14] = C[(byte) (((ulid[8] &lt;&lt; 1) | ((ulid[9] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
+<span class="fc" id="L783">    chars[15] = C[(byte) (((ulid[9] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
+<span class="fc" id="L784">    chars[16] = C[(byte) (((ulid[9] &lt;&lt; 3) | ((ulid[10] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
+<span class="fc" id="L785">    chars[17] = C[(byte) (ulid[10] &amp; 0x1f)];</span>
+<span class="fc" id="L786">    chars[18] = C[(byte) ((ulid[11] &amp; 0xff) &gt;&gt;&gt; 3)];</span>
+<span class="fc" id="L787">    chars[19] = C[(byte) (((ulid[11] &lt;&lt; 2) | ((ulid[12] &amp; 0xff) &gt;&gt;&gt; 6)) &amp; 0x1f)];</span>
+<span class="fc" id="L788">    chars[20] = C[(byte) (((ulid[12] &amp; 0xff) &gt;&gt;&gt; 1) &amp; 0x1f)];</span>
+<span class="fc" id="L789">    chars[21] = C[(byte) (((ulid[12] &lt;&lt; 4) | ((ulid[13] &amp; 0xff) &gt;&gt;&gt; 4)) &amp; 0x1f)];</span>
+<span class="fc" id="L790">    chars[22] = C[(byte) (((ulid[13] &lt;&lt; 1) | ((ulid[14] &amp; 0xff) &gt;&gt;&gt; 7)) &amp; 0x1f)];</span>
+<span class="fc" id="L791">    chars[23] = C[(byte) (((ulid[14] &amp; 0xff) &gt;&gt;&gt; 2) &amp; 0x1f)];</span>
+<span class="fc" id="L792">    chars[24] = C[(byte) (((ulid[14] &lt;&lt; 3) | ((ulid[15] &amp; 0xff) &gt;&gt;&gt; 5)) &amp; 0x1f)];</span>
+<span class="fc" id="L793">    chars[25] = C[(byte) (ulid[15] &amp; 0x1f)];</span>
 
-<span class="fc" id="L804">    return new String(chars);</span>
+<span class="fc" id="L795">    return new String(chars);</span>
   }
 
   /**
@@ -813,7 +804,7 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static ULID parseULID(CharSequence ulid) {
-<span class="fc" id="L816">    return new ULID(toBinary(ulid));</span>
+<span class="fc" id="L807">    return new ULID(toBinary(ulid));</span>
   }
 
   /**
@@ -825,9 +816,9 @@ public final class ULID implements Serializable, Comparable&lt;ULID&gt; {
    * @since 1.1.0
    */
   public static ULID parseULID(byte[] ulid) {
-<span class="fc bfc" id="L828" title="All 2 branches covered.">    if (isValidBinary(ulid))</span>
-<span class="fc" id="L829">      return new ULID(ulid);</span>
-<span class="fc" id="L830">    throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
+<span class="fc bfc" id="L819" title="All 2 branches covered.">    if (isValidBinary(ulid))</span>
+<span class="fc" id="L820">      return new ULID(ulid);</span>
+<span class="fc" id="L821">    throw new IllegalArgumentException(&quot;Invalid ULID binary&quot;);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

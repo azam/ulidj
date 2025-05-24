@@ -153,8 +153,8 @@ public class MonotonicULID {
    */
   private void mutate() {
 <span class="fc" id="L155">    long now = System.currentTimeMillis();</span>
-<span class="fc bfc" id="L156" title="All 4 branches covered.">    if (now &lt; ULID.MIN_TIME || now &gt; ULID.MAX_TIME)</span>
-<span class="fc" id="L157">      throw new IllegalStateException(&quot;Time is out of ULID specification&quot;);</span>
+<span class="pc bpc" id="L156" title="2 of 4 branches missed.">    if (now &lt; ULID.MIN_TIME || now &gt; ULID.MAX_TIME)</span>
+<span class="nc" id="L157">      throw new IllegalStateException(&quot;Time is out of ULID specification&quot;);</span>
 <span class="fc bfc" id="L158" title="All 2 branches covered.">    if (now &lt;= this.lastTimestamp) {</span>
       // Keep last timestamp and increment last entropy
       // Save a copy of last entropy in case of entropy overflow
