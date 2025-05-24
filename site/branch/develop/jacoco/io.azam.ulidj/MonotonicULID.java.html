@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonotonicULID.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ulidj</a> &gt; <a href="index.source.html" class="el_package">io.azam.ulidj</a> &gt; <span class="el_source">MonotonicULID.java</span></div><h1>MonotonicULID.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2016-2025 Azamshul Azizy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package io.azam.ulidj;
+
+import java.security.SecureRandom;
+import java.util.Random;
+
+/**
+ * Monotonic instance of ULID. ULID spec defines monotonicity behavior as if a ULID is to be
+ * generated in the same millisecond, the entropy(random) component is to be incremented by 1-bit in
+ * the least significant bit with carryover.&lt;br&gt;
+ *
+ * In practice this behavior is however applicable to ULID's generated from the same source (in
+ * Java, from the same instance), else an external synchronization is needed. Hence, instance of
+ * this class will produce ULID in monotonic order only if called from the same instance, e.g. from
+ * a singleton Bean.&lt;br&gt;
+ *
+ * Usage example:&lt;br&gt;
+ *
+ * &lt;pre&gt;
+ * MonotonicULID ulid = new MonotonicULID();
+ * String ulid1 = ulid.generate();
+ * String ulid2 = ulid.generate();
+ * String ulid3 = ulid.generate();
+ * byte[] ulid4 = ulid.generateBinary();
+ * ULID ulid5 = ulid.generateULID();
+ * &lt;/pre&gt;
+ *
+ * @see &lt;a href=&quot;https://github.com/ulid/spec&quot;&gt;ULID&lt;/a&gt;
+ *
+ * @author azam
+ * @since 1.0.3
+ *
+ * @see &lt;a href=&quot;https://github.com/azam&quot;&gt;ulidj&lt;/a&gt;
+ * @see &lt;a href=&quot;https://github.com/ulid/spec&quot;&gt;ULID Specification&lt;/a&gt;
+ * @see &lt;a href=&quot;https://www.crockford.com/wrmg/base32.html&quot;&gt;Crockford Base32 Encoding&lt;/a&gt;
+ */
+public class MonotonicULID {
+  private final Random random;
+  private final byte[] lastEntropy;
+  private long lastTimestamp;
+
+  /**
+   * This allows lazy initialization of the default {@link java.util.Random} instance, backed by
+   * {@link java.security.SecureRandom} instance.
+   *
+   * @since 1.1.0
+   */
+  private static class LazyDefaults {
+    /**
+     * Default {@link java.util.Random} instance.
+     *
+     * @since 1.1.0
+     */
+<span class="fc" id="L73">    static final Random random = new SecureRandom();</span>
+  }
+
+  /**
+   * Generate a monotonic ULID generator instance using default {@link java.util.Random} instance
+   * backed by {@link java.security.SecureRandom}.
+   *
+   * @since 1.0.3
+   */
+  public MonotonicULID() {
+<span class="fc" id="L83">    this(LazyDefaults.random);</span>
+<span class="fc" id="L84">  }</span>
+
+  /**
+   * Generate a monotonic ULID generator instance.
+   *
+   * @param random {@link java.util.Random} instance
+   * @since 1.0.3
+   */
+<span class="fc" id="L92">  public MonotonicULID(Random random) {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    this.random = random == null ? LazyDefaults.random : random;</span>
+<span class="fc" id="L94">    this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
+<span class="fc" id="L95">    this.lastTimestamp = 0L;</span>
+<span class="fc" id="L96">  }</span>
+
+  /**
+   * Generate ULID string monotonically. If this method is called within the same millisecond, last
+   * entropy will be incremented by 1 and the ULID string of incremented value is returned.&lt;br&gt;
+   * &lt;br&gt;
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes)
+   *
+   * @return ULID string
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.0.3
+   */
+  public synchronized String generate() {
+<span class="fc" id="L110">    mutate();</span>
+<span class="fc" id="L111">    return ULID.generate(this.lastTimestamp, this.lastEntropy);</span>
+  }
+
+  /**
+   * Generate ULID binary monotonically. If this method is called within the same millisecond, last
+   * entropy will be incremented by 1 and the ULID string of incremented value is returned.&lt;br&gt;
+   * &lt;br&gt;
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes)
+   *
+   * @return ULID binary
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.0.4
+   */
+  public synchronized byte[] generateBinary() {
+<span class="fc" id="L126">    mutate();</span>
+<span class="fc" id="L127">    return ULID.generateBinary(this.lastTimestamp, this.lastEntropy);</span>
+  }
+
+  /**
+   * Generate ULID instance monotonically. If this method is called within the same millisecond,
+   * last entropy will be incremented by 1 and the ULID string of incremented value is returned.&lt;br&gt;
+   * &lt;br&gt;
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes)
+   *
+   * @return ULID instance
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.1.0
+   */
+  public synchronized ULID generateULID() {
+<span class="fc" id="L142">    mutate();</span>
+<span class="fc" id="L143">    return ULID.generateULID(this.lastTimestamp, this.lastEntropy);</span>
+  }
+
+  /**
+   * Check if the last timestamp is less than the current time. If so, generate new entropy
+   * otherwise increment the last entropy by 1-bit in the least significant bit with carryover. If
+   * the last entropy overflows, revert to the previous value and throw an exception.
+   *
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.1.0
+   */
+  private void mutate() {
+<span class="fc" id="L155">    long now = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L156" title="All 4 branches covered.">    if (now &lt; ULID.MIN_TIME || now &gt; ULID.MAX_TIME)</span>
+<span class="fc" id="L157">      throw new IllegalStateException(&quot;Time is out of ULID specification&quot;);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">    if (now &lt;= this.lastTimestamp) {</span>
+      // Keep last timestamp and increment last entropy
+      // Save a copy of last entropy in case of entropy overflow
+<span class="fc" id="L161">      byte[] previousEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
+<span class="fc" id="L162">      System.arraycopy(this.lastEntropy, 0, previousEntropy, 0, ULID.ENTROPY_LENGTH);</span>
+      // Entropy is big-endian (network byte order) per ULID spec
+      // Increment last entropy by 1
+<span class="fc" id="L165">      boolean carry = true;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">      for (int i = ULID.ENTROPY_LENGTH - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (carry) {</span>
+<span class="fc" id="L168">          byte work = this.lastEntropy[i];</span>
+<span class="fc" id="L169">          work = (byte) (work + 0x01);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">          carry = this.lastEntropy[i] == (byte) 0xff;</span>
+<span class="fc" id="L171">          this.lastEntropy[i] = work;</span>
+        }
+      }
+      // Last byte has carry over
+<span class="fc bfc" id="L175" title="All 2 branches covered.">      if (carry) {</span>
+        // Revert last entropy to previous value
+<span class="fc" id="L177">        System.arraycopy(previousEntropy, 0, this.lastEntropy, 0, ULID.ENTROPY_LENGTH);</span>
+        // Throw error if entropy overflows in same millisecond per ULID spec
+<span class="fc" id="L179">        throw new IllegalStateException(&quot;ULID entropy overflowed for same millisecond&quot;);</span>
+      }
+<span class="fc" id="L181">    } else {</span>
+      // Generate new entropy
+<span class="fc" id="L183">      this.lastTimestamp = now;</span>
+<span class="fc" id="L184">      this.random.nextBytes(this.lastEntropy);</span>
+    }
+<span class="fc" id="L186">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
