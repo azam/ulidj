@@ -148,20 +148,30 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>   }
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>   @Benchmark
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> newRandom(Blackhole blackhole, ULIDState state) {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     blackhole.consume(<strong class="jxr_keyword">new</strong> Random());
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> parseULIDString(Blackhole blackhole) {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     blackhole.consume(ULID.parseULID(TEST_VALUE));
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>   }
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> 
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>   @Benchmark
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> newSecureRandom(Blackhole blackhole, ULIDState state) {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     blackhole.consume(<strong class="jxr_keyword">new</strong> SecureRandom());
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> parseULIDBinary(Blackhole blackhole) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     blackhole.consume(ULID.parseULID(TEST_BINARY));
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>   }
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>   @Benchmark
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> threadLocalRandomCurrent(Blackhole blackhole, ULIDState state) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     blackhole.consume(ThreadLocalRandom.current());
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> newRandom(Blackhole blackhole, ULIDState state) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     blackhole.consume(<strong class="jxr_keyword">new</strong> Random());
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>   }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>   @Benchmark
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> newSecureRandom(Blackhole blackhole, ULIDState state) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     blackhole.consume(<strong class="jxr_keyword">new</strong> SecureRandom());
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>   }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>   @Benchmark
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> threadLocalRandomCurrent(Blackhole blackhole, ULIDState state) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     blackhole.consume(ThreadLocalRandom.current());
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>   }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> }
 </pre>
 <hr/>
 <div id="footer">© 2025 <a href="http://azam.io">azam</a></div>
