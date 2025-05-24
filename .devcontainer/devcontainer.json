@@ -1,6 +1,6 @@
 {
-    "name": "java-7-maven",
-    "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+    "name": "java-maven",
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
     "features": {
         "ghcr.io/devcontainers/features/java:1": {
             "jdkDistro": "tem",
