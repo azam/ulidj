@@ -17,6 +17,14 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: setup-toolchain
+        if: ${{ !startsWith(github.event.release.tag_name, '1.') }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: temurin
+          cache: maven
+      - name: setup-toolchain-v1
+        if: ${{ startsWith(github.event.release.tag_name, '1.') }}
         uses: actions/setup-java@v4
         with:
           java-version: 8
@@ -33,7 +41,7 @@ jobs:
           MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
           MAVEN_GPG_KEYNAME: ${{secrets.MAVEN_GPG_KEYNAME}}
           MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
-        run: mvn deploy -P release --batch-mode --settings .settings.xml -DperformRelease=false --update-snapshots -B -V
+        run: mvn deploy -P release --batch-mode --settings .settings.xml -Dmaven.test.skip=true -Djacoco.skip=true -DperformRelease=false --update-snapshots -B -V
       - name: artifacts
         uses: softprops/action-gh-release@v2
         with:
