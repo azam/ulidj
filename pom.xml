@@ -207,7 +207,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>3.11.2</version>
         <configuration>
           <!-- Setting this to 7 removes unnamed modules found warnings -->
           <!-- Defaults to ${maven.compiler.source} -->
@@ -312,7 +312,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>3.11.2</version>
       </plugin>
     </plugins>
   </reporting>
