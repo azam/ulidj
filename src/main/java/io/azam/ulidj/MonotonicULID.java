@@ -27,24 +27,46 @@ import java.util.Random;
  * Monotonic instance of ULID. ULID spec defines monotonicity behavior as if a ULID is to be
  * generated in the same millisecond, the entropy(random) component is to be incremented by 1-bit in
  * the least significant bit with carryover.<br>
- *
- * In practice this behavior is however applicable to ULID's generated from the same source (in
- * Java, from the same instance), else an external synchronization is needed. Hence, instance of
- * this class will produce ULID in monotonic order only if called from the same instance, e.g. from
- * a singleton Bean.<br>
- *
- * Usage example:<br>
- *
+ * <br>
+ * In order to achieve monotonicity, the state for timestamp and its last generated entropy must be
+ * persisted so that the next ULID generated within the same millisecond can generate an incremented
+ * byte array for its entropy.<br>
+ * <br>
+ * This class achieves that via behaving as a factory class that generates ULID strings, binary and
+ * ULID instances with the last timestamp and entropy persisted in the instance, and generates a new
+ * ULID based on that. It guarantees the monotonicity of ULID (string/binary/ULID instance) if
+ * called with the same {@link io.azam.ulidj.MonotonicULID} instance within the JVM.<br>
+ * <br>
+ * Normally you would want to create a singleton bean of this class in your application and use that
+ * to generate ULIDs.<br>
+ * <br>
+ * Monotonic ULID examples:<br>
+ * 
  * <pre>
- * MonotonicULID ulid = new MonotonicULID();
- * String ulid1 = ulid.generate();
- * String ulid2 = ulid.generate();
- * String ulid3 = ulid.generate();
- * byte[] ulid4 = ulid.generateBinary();
- * ULID ulid5 = ulid.generateULID();
- * </pre>
+ * // Using default MonotonicULID static instance backed by SecureRandom
+ * String ulid1 = MonotonicULID.random();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid2 = MonotonicULID.random();
+ * byte[] ulid3 = MonotonicULID.randomBinary();
+ * ULID ulid4 = MonotonicULID.randomULID();
  *
- * @see <a href="https://github.com/ulid/spec">ULID</a>
+ * // Create a new independent instance of MonotonicULID using default Random
+ * // instance backed by SecureRandom
+ * MonotonicULID monotonicUlid = new MonotonicULID();
+ * String ulid5 = monotonicUlid.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid6 = monotonicUlid.generate();
+ * byte[] ulid7 = monotonicUlid.generateBinary();
+ * ULID ulid8 = monotonicUlid.generateULID();
+ *
+ * // Create a new independent instance of MonotonicULID using provided Random instance
+ * MonotonicULID monotonicUlid2 = new MonotonicULID(SecureRandom.newInstance("SHA1PRNG"));
+ * String ulid9 = monotonicUlid2.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid10 = monotonicUlid2.generate();
+ * byte[] ulid11 = monotonicUlid2.generateBinary();
+ * ULID ulid12 = monotonicUlid2.generateULID();
+ * </pre>
  *
  * @author azam
  * @since 1.0.3
@@ -53,7 +75,7 @@ import java.util.Random;
  * @see <a href="https://github.com/ulid/spec">ULID Specification</a>
  * @see <a href="https://www.crockford.com/wrmg/base32.html">Crockford Base32 Encoding</a>
  */
-public class MonotonicULID {
+public final class MonotonicULID {
   private final Random random;
   private final byte[] lastEntropy;
   private long lastTimestamp;
@@ -71,6 +93,13 @@ public class MonotonicULID {
      * @since 1.1.0
      */
     static final Random random = new SecureRandom();
+
+    /**
+     * Default {@link io.azam.ulidj.MonotonicULID} instance.
+     *
+     * @since 1.1.0
+     */
+    static final MonotonicULID singleton = new MonotonicULID(random);
   }
 
   /**
@@ -100,7 +129,7 @@ public class MonotonicULID {
    * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
-   * overflows entropy length (80-bits/10-bytes)
+   * overflows entropy length (80-bits/10-bytes).
    *
    * @return ULID string
    * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
@@ -116,7 +145,7 @@ public class MonotonicULID {
    * entropy will be incremented by 1 and the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
-   * overflows entropy length (80-bits/10-bytes)
+   * overflows entropy length (80-bits/10-bytes).
    *
    * @return ULID binary
    * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
@@ -183,5 +212,56 @@ public class MonotonicULID {
       this.lastTimestamp = now;
       this.random.nextBytes(this.lastEntropy);
     }
+  }
+
+  /**
+   * Generate ULID string monotonically with the defauit {@link io.azam.ulidj.MonotonicULID}
+   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
+   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
+   * returned.<br>
+   * <br>
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes).
+   *
+   * @return ULID string
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.0.3
+   */
+  public static String random() {
+    return LazyDefaults.singleton.generate();
+  }
+
+  /**
+   * Generate ULID binary monotonically with the defauit {@link io.azam.ulidj.MonotonicULID} *
+   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
+   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
+   * returned.<br>
+   * <br>
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes).
+   *
+   * @return ULID binary
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.0.4
+   */
+  public static byte[] randomBinary() {
+    return LazyDefaults.singleton.generateBinary();
+  }
+
+  /**
+   * Generate ULID instance monotonically with the defauit {@link io.azam.ulidj.MonotonicULID} *
+   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
+   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
+   * returned.<br>
+   * <br>
+   * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
+   * overflows entropy length (80-bits/10-bytes).
+   *
+   * @return ULID instance
+   * @throws IllegalStateException if time is out of ULID specification or entropy overflowed
+   * @since 1.1.0
+   */
+  public static ULID randomULID() {
+    return LazyDefaults.singleton.generateULID();
   }
 }

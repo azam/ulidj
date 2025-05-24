@@ -26,45 +26,89 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * ULID string generator and parser class, using Crockford Base32 encoding. Only upper case letters
- * are used for generation. Parsing allows upper and lower case letters, and i and l will be treated
- * as 1 and o will be treated as 0. <br>
+ * ULID implementation in Java. This class implements an immutable, sortable (implements
+ * {@link java.lang.Comparable}) ULID instance, convertors and helper methods for ULID string,
+ * binary representations.<br>
+ * <br>
+ * ULID string representations are generated as upper case letters. Parsing of ULID strings allow
+ * upper and lower case letters, where `i` and `l` will be treated as `1` and `o` will be treated as
+ * `0`. <br>
+ * <br>
  *
- * ULID immutable sortable (implements {@link java.lang.Comparable}) valid instance generation. <br>
+ * ULID instance generation examples:<br>
  *
  * <pre>
+ * // Using default Random instance backed by SecureRandom
  * ULID ulid1 = ULID.randomULID();
+ * // Using provided Random instance
  * ULID ulid2 = ULID.randomULID(ThreadLocalRandom.current());
+ * // Using provided SecureRandom instance
  * ULID ulid3 = ULID.parseULID("003JZ9J6G80123456789abcdef");
- * ULID ulid4 = ULID.parseULID(
+ * // Convert ULID string to ULID instance
+ * ULID ulid4 = ULID.parseULID("003JZ9J6G80123456789abcdef");
+ * // Convert ULID binary to ULID instance
+ * ULID ulid5 = ULID.parseULID(
  *     new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
- * ULID ulid5 = ULID.generateULID(System.currentTimeMillis(), entropy);
+ * // Instantiate a ULID instance from current time and provided entropy bytes
+ * ULID ulid6 = ULID.generateULID(System.currentTimeMillis(), entropy);
+ * // Sort ULID instances lexicographically
+ * List&lt;ULID&gt; ulids = Arrays.asList(ulid1, ulid2, ulid3, ulid4, ulid5, ulid6);
+ * Collections.sort(ulids);
  * </pre>
  *
  * ULID string generation examples:<br>
  *
  * <pre>
+ * // Using default Random instance backed by SecureRandom
  * String ulid1 = ULID.random();
+ * // Using provided Random instance
  * String ulid2 = ULID.random(ThreadLocalRandom.current());
+ * // Using provided SecureRandom instance
  * String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
+ * // Generate ULID string from current time and provided entropy bytes
  * byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
  * String ulid4 = ULID.generate(System.currentTimeMillis(), entropy);
+ * // Convert ULID binary to ULID string
+ * String ulid5 = ULID.fromBinary(
+ *     new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
  * </pre>
  *
- * ULID parsing examples:<br>
+ * ULID binary generation examples:<br>
+ *
+ * <pre>
+ * // Using default Random instance backed by SecureRandom
+ * byte[] ulid1 = ULID.randomBinary();
+ * // Using provided Random instance
+ * byte[] ulid2 = ULID.randomBinary(ThreadLocalRandom.current());
+ * // Using provided SecureRandom instance
+ * byte[] ulid3 = ULID.randomBinary(SecureRandom.newInstance("SHA1PRNG"));
+ * // Generate ULID string from current time and provided entropy bytes
+ * byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
+ * byte[] ulid4 = ULID.generateBinary(System.currentTimeMillis(), entropy);
+ * // Convert ULID string to ULID binary
+ * byte[] ulid5 = ULID.toBinary("003JZ9J6G80123456789abcdef");
+ * </pre>
+ *
+ * ULID utilities:<br>
  *
  * <pre>
  * String ulid = "003JZ9J6G80123456789abcdef";
+ * // Validate ULID string
  * assert ULID.isValid(ulid);
+ * // Get timestamp from ULID string
  * long ts = ULID.getTimestamp(ulid);
  * assert ts == 123456789000L;
+ * // Get entropy from ULID string
  * byte[] entropy = ULID.getEntropy(ulid);
  *
  * byte[] ulidBinary =
  *     new byte[] {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf};
+ * // Validate ULID binary
  * assert ULID.isValidBinary(ulidBinary);
+ * // Get timestamp from ULID binary
  * long tsBinary = ULID.getTimestampBinary(ulidBinary);
  * assert tsBinary == 1L;
+ * // Get entropy from ULID binary
  * byte[] entropyBinary = ULID.getEntropyBinary(ulidBinary);
  * </pre>
  *
@@ -292,15 +336,15 @@ public final class ULID implements Serializable, Comparable<ULID> {
 
   /**
    * Compares ULID instance lexicographically.<br>
-   *
+   * <br>
    * If the two ULID instances share a common prefix, then the lexicographic comparison is the
    * result of comparing the rest of the value of the two ULID instances.<br>
-   *
+   * <br>
    * A null ULID instance reference is considered lexicographically less than a non-null ULID
    * instance reference.<br>
-   *
+   * <br>
    * Two null ULID instances references are considered equal.<br>
-   *
+   * <br>
    * The comparison is consistent with equals, where the ULID instances are equal if and only if
    * they are lexicographically equal.
    *
@@ -344,13 +388,13 @@ public final class ULID implements Serializable, Comparable<ULID> {
 
   /**
    * Compares two ULID instances lexicographically.<br>
-   *
+   * <br>
    * If the two ULID instances share a common prefix, then the lexicographic comparison is the
    * result of comparing the rest of the value of the two ULID instances.<br>
-   *
+   * <br>
    * A null ULID instance reference is considered lexicographically less than a non-null ULID
    * instance reference.<br>
-   *
+   * <br>
    * The comparison is consistent with equals, where the ULID instances are equal if and only if
    * they are lexicographically equal.
    *

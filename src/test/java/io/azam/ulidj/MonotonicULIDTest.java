@@ -232,4 +232,26 @@ public class MonotonicULIDTest {
       }
     });
   }
+
+  @Test
+  public void testRandom() {
+    String value = MonotonicULID.random();
+    assertNotNull(value);
+    assertTrue(ULID.isValid(value));
+  }
+
+  @Test
+  public void testRandomBinary() {
+    byte[] value = MonotonicULID.randomBinary();
+    assertNotNull(value);
+    assertTrue(ULID.isValidBinary(value));
+  }
+
+  @Test
+  public void testRandomULID() {
+    ULID value = MonotonicULID.randomULID();
+    assertNotNull(value);
+    assertTrue(ULID.isValid(value.toString()));
+    assertTrue(ULID.isValidBinary(value.toBinary()));
+  }
 }

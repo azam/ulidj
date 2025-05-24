@@ -13,8 +13,10 @@ Version 1.x targets JDK 1.7, and is functionally equals to version 2.x without t
 
 ## Features
 
-* Generates ULID to `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
-* Parses ULID from `String` (Crockford's base32) or `byte[]` (128-bit binary) objects
+* Generate, parse, convert ULID as either:
+  * an immutable, sortable, valid `ULID` instance
+  * a `String` in Crockford Base32 encoding as per ULID string representation 
+  * a `byte[]` as per ULID binary specification
 * Fast and simple static methods for non-monotonic ULID (monotonic ULID is stateful)
 * Includes ULID monotonic generator
 * Zero runtime dependencies
@@ -61,60 +63,109 @@ Add the following tag to `dependencies` tag in your `pom.xml` file. Change the v
 
 ## Usage
 
-ULID generation examples:
+ULID instance examples:
 
 ```java
-// Random ULID generation
+ // Using default Random instance backed by SecureRandom
+ULID ulid1 = ULID.randomULID();
+// Using provided Random instance
+ULID ulid2 = ULID.randomULID(ThreadLocalRandom.current());
+// Using provided SecureRandom instance
+ULID ulid3 = ULID.parseULID("003JZ9J6G80123456789abcdef");
+// Convert ULID string to ULID instance
+ULID ulid4 = ULID.parseULID("003JZ9J6G80123456789abcdef");
+// Convert ULID binary to ULID instance
+ULID ulid5 = ULID.parseULID(
+        new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
+// Instantiate a ULID instance from current time and provided entropy bytes
+ULID ulid6 = ULID.generateULID(System.currentTimeMillis(), entropy);
+// Sort ULID instances lexicographically
+List<ULID> ulids = Arrays.asList(ulid1, ulid2, ulid3, ulid4, ulid5, ulid6);
+Collections.sort(ulids);
+```
+
+ULID string examples:
+
+```java
+ // Using default Random instance backed by SecureRandom
 String ulid1 = ULID.random();
+// Using provided Random instance
 String ulid2 = ULID.random(ThreadLocalRandom.current());
+// Using provided SecureRandom instance
 String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
-
-// Random binary ULID generation
-String ulid1Binary = ULID.randomBinary();
-String ulid2Binary = ULID.randomBinary(ThreadLocalRandom.current());
-String ulid3Binary = ULID.randomBinary(SecureRandom.newInstance("SHA1PRNG"));
-
-// Custom ULID generation
-byte[] entropy = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9 };
-String ulid4 = ULID.generate(System.currentTimeMillis(), entropy); // Generate ULID in string representation
-byte[] ulid5 = ULID.generateBinary(System.currentTimeMillis(), entropy); // Generate ULID in binary representation
+// Generate ULID string from current time and provided entropy bytes
+byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
+String ulid4 = ULID.generate(System.currentTimeMillis(), entropy);
+// Convert ULID binary to ULID string
+String ulid5 = ULID.fromBinary(
+        new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
 ```
 
-ULID parsing examples:
+ULID binary examples:
 
 ```java
-// ULID string parsing
+// Using default Random instance backed by SecureRandom
+byte[] ulid1 = ULID.randomBinary();
+// Using provided Random instance
+byte[] ulid2 = ULID.randomBinary(ThreadLocalRandom.current());
+// Using provided SecureRandom instance
+byte[] ulid3 = ULID.randomBinary(SecureRandom.newInstance("SHA1PRNG"));
+// Generate ULID string from current time and provided entropy bytes
+byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
+byte[] ulid4 = ULID.generateBinary(System.currentTimeMillis(), entropy);
+// Convert ULID string to ULID binary
+byte[] ulid5 = ULID.toBinary("003JZ9J6G80123456789abcdef");
+```
+
+ULID utilities examples:
+
+```java
 String ulid = "003JZ9J6G80123456789abcdef";
+// Validate ULID string
 assert ULID.isValid(ulid);
-long ts = ULID.getTimestamp(ulid); // Get UTC timestamp in milliseconds
+// Get timestamp from ULID string
+long ts = ULID.getTimestamp(ulid);
 assert ts == 123456789000L;
-byte[] entropy = ULID.getEntropy(ulid); // Get entropy part
+// Get entropy from ULID string
+byte[] entropy = ULID.getEntropy(ulid);
 
-// ULID binary parsing
-byte[] ulidBinary =  new byte[] { //
-    // Timestamp part
-    (byte) 0x01, (byte) 0x33, (byte) 0x7C, (byte) 0x0D, (byte) 0xEF, (byte) 0x00, //
-    // Entropy part
-    (byte) 0x10, (byte) 0x20, (byte) 0x30, (byte) 0x40, (byte) 0x50, (byte) 0x60, (byte) 0x70, (byte) 0x80, (byte) 0x90, (byte) 0x10 //
-};
+byte[] ulidBinary =
+        new byte[] {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf};
+// Validate ULID binary
 assert ULID.isValidBinary(ulidBinary);
-long ts = ULID.getTimestampBinary(ulidBinary); // Get UTC timestamp in milliseconds
-assert ts == 1320636247808L;
-byte[] entropy = ULID.getEntropyBinary(ulidBinary); // Get entropy part
+// Get timestamp from ULID binary
+long tsBinary = ULID.getTimestampBinary(ulidBinary);
+assert tsBinary == 1L;
+// Get entropy from ULID binary
+byte[] entropyBinary = ULID.getEntropyBinary(ulidBinary);
 ```
 
-Monotonic ULID generation example:
+Monotonic ULID examples:
 
 ```java
-// Monotonic ULID geneation
-MonotonicULID ulid = new MonotonicULID();
-String ulidString = ulid.generate(); // Generate ULID in string representation
-byte[] ulidBinary = ulid.generateBinary(); // Generate ULID in binary representation
+ // Using default MonotonicULID static instance backed by SecureRandom
+String ulid1 = MonotonicULID.random();
+// Subsequent calls generates monotonic ULID
+String ulid2 = MonotonicULID.random();
+byte[] ulid3 = MonotonicULID.randomBinary();
+ULID ulid4 = MonotonicULID.randomULID();
 
-// Monotonic ULID geneation with custom random generator
-MonotonicULID ulidSecure = new MonotonicULID(SecureRandom.newInstance("SHA1PRNG"));
-String ulidSecureString = ulid.generate(); // Generate ULID in string representation
-byte[] ulidSecureBinary = ulid.generateBinary(); // Generate ULID in binary representation
+// Create a new independent instance of MonotonicULID using default Random
+// instance backed by SecureRandom
+MonotonicULID monotonicUlid = new MonotonicULID();
+String ulid5 = monotonicUlid.generate();
+// Subsequent calls generates monotonic ULID
+String ulid6 = monotonicUlid.generate();
+byte[] ulid7 = monotonicUlid.generateBinary();
+ULID ulid8 = monotonicUlid.generateULID();
+
+// Create a new independent instance of MonotonicULID using provided Random instance
+MonotonicULID monotonicUlid2 = new MonotonicULID(SecureRandom.newInstance("SHA1PRNG"));
+String ulid9 = monotonicUlid2.generate();
+// Subsequent calls generates monotonic ULID
+String ulid10 = monotonicUlid2.generate();
+byte[] ulid11 = monotonicUlid2.generateBinary();
+ULID ulid12 = monotonicUlid2.generateULID();
 ```
 
 ## Develop

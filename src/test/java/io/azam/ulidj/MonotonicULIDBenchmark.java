@@ -107,4 +107,19 @@ public class MonotonicULIDBenchmark {
   public void generateULIDThreadLocalRandom(Blackhole blackhole, MonotonicULIDState state) {
     blackhole.consume(state.threadLocalRandom.generateULID());
   }
+
+  @Benchmark
+  public void random(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(MonotonicULID.random());
+  }
+
+  @Benchmark
+  public void randomBinary(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(MonotonicULID.randomBinary());
+  }
+
+  @Benchmark
+  public void randomULID(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(MonotonicULID.randomULID());
+  }
 }

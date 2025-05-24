@@ -944,6 +944,24 @@ public class ULIDTest {
   }
 
   @Test
+  public void testULIDSort() {
+    ULID[] ulids = new ULID[TEST_PARAMETERS.length];
+    for (int i = 0; i < TEST_PARAMETERS.length; i++) {
+      ulids[i] = ULID.generateULID(TEST_PARAMETERS[i].timestamp, TEST_PARAMETERS[i].entropy);
+    }
+    Arrays.sort(ulids);
+    for (int i = 1; i < ulids.length; i++) {
+      if (ulids[i - 1].equals(ulids[i])) {
+        assertEquals("ULID " + ulids[i - 1] + " should be equal to " + ulids[i], 0,
+            ulids[i - 1].compareTo(ulids[i]));
+      } else {
+        assertTrue("ULID " + ulids[i - 1] + " should be lesser than " + ulids[i],
+            ulids[i - 1].compareTo(ulids[i]) < 0);
+      }
+    }
+  }
+
+  @Test
   public void testULIDNew() {
     Constructor<?>[] ctors = ULID.class.getConstructors();
     Constructor<?> noArgsCtor = null;
