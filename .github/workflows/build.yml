@@ -26,9 +26,6 @@ jobs:
       matrix:
         include:
           # LTS versions
-          - name: temurin-jdk8
-            version: 8
-            distribution: temurin
           - name: temurin-jdk11
             version: 11
             distribution: temurin
@@ -68,12 +65,7 @@ jobs:
           distribution: ${{matrix.distribution}}
           cache: maven
       - name: verify-${{matrix.name}}
-        # Java 1.7 is source compatible only up to JDK 17
-        if: ${{matrix.version<=17}}
         run: mvn clean verify --settings .settings.xml -Dgpg.skip -B -V
-      - name: verify-as-jdk8-${{matrix.name}}
-        if: ${{matrix.version>=8}}
-        run: mvn clean verify -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 --settings .settings.xml -Dgpg.skip -B -V
       - name: verify-as-jdk11-${{matrix.name}}
         if: ${{matrix.version>=11}}
         run: mvn clean verify -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 --settings .settings.xml -Dgpg.skip -B -V

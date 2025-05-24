@@ -41,7 +41,7 @@ import java.util.Random;
  * to generate ULIDs.<br>
  * <br>
  * Monotonic ULID examples:<br>
- * 
+ *
  * <pre>
  * // Using default MonotonicULID static instance backed by SecureRandom
  * String ulid1 = MonotonicULID.random();

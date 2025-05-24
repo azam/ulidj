@@ -24,7 +24,7 @@ jobs:
       - name: setup-toolchain
         uses: actions/setup-java@v4
         with:
-          java-version: 8
+          java-version: 11
           distribution: temurin
           cache: maven
       - name: site
