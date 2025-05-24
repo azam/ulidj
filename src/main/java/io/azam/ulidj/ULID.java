@@ -239,15 +239,6 @@ public final class ULID implements Serializable, Comparable<ULID> {
   private final byte[] binary;
 
   /**
-   * ULID no argument constructor is private to prevent instantiation and finalizing attacks.
-   *
-   * @since 1.1.0
-   */
-  private ULID() {
-    throw new UnsupportedOperationException("Use randomULID() or randomBinary() to generate ULID");
-  }
-
-  /**
    * Constructs an immutable ULID instance using provided ULID binary byte array.
    *
    * @param value ULID binary

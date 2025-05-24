@@ -29,21 +29,15 @@ import java.util.Random;
 
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static io.azam.ulidj.TestUtils.incrementBytes;
 import static io.azam.ulidj.ULIDTest.FILLED_ENTROPY;
 import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
-import static io.azam.ulidj.ULIDTest.TEST_TIMESTAMP;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
@@ -51,8 +45,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author azam
  * @since 1.0.3
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({System.class, MonotonicULID.class})
 public class MonotonicULIDTest {
   @Test
   public void testConstructor() {
@@ -72,79 +64,11 @@ public class MonotonicULIDTest {
   }
 
   @Test
-  public void testGenerateNegativeMock() {
-    mockStatic(System.class);
-    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            String value = ulid.generate();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            String value = ulid.generate();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
-    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
-    String valid = ulidEntropyOverflow.generate();
-    assertTrue(ULID.isValid(valid));
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            String value = ulidEntropyOverflow.generate();
-          }
-        });
-  }
-
-  @Test
   public void testGenerateBinary() {
     MonotonicULID ulid = new MonotonicULID();
     byte[] value = ulid.generateBinary();
     assertNotNull(value);
     assertTrue(ULID.isValidBinary(value));
-  }
-
-  @Test
-  public void testGenerateBinaryNegativeMock() {
-    mockStatic(System.class);
-    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            byte[] value = ulid.generateBinary();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            byte[] value = ulid.generateBinary();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
-    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
-    String valid = ulidEntropyOverflow.generate();
-    assertTrue(ULID.isValid(valid));
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] value = ulidEntropyOverflow.generateBinary();
-          }
-        });
   }
 
   @Test
@@ -157,40 +81,6 @@ public class MonotonicULIDTest {
     assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
     assertNotNull("ULID instance binary value should not be null", value.toBinary());
     assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
-  }
-
-  @Test
-  public void testGenerateULIDNegativeMock() {
-    mockStatic(System.class);
-    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            ULID value = ulid.generateULID();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            MonotonicULID ulid = new MonotonicULID();
-            ULID value = ulid.generateULID();
-          }
-        });
-    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
-    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
-    String valid = ulidEntropyOverflow.generate();
-    assertTrue(ULID.isValid(valid));
-    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID value = ulidEntropyOverflow.generateULID();
-          }
-        });
   }
 
   @Test

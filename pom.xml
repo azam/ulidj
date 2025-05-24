@@ -66,24 +66,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>2.28.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>2.0.9</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <version>2.0.9</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.agent</artifactId>
       <classifier>runtime</classifier>
@@ -160,15 +142,9 @@
         <version>0.8.13</version>
         <executions>
           <execution>
-            <id>jacoco-instrument</id>
+            <id>jacoco-prepare-agent</id>
             <goals>
-              <goal>instrument</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>jacoco-restore-instrumented-classes</id>
-            <goals>
-              <goal>restore-instrumented-classes</goal>
+              <goal>prepare-agent</goal>
             </goals>
           </execution>
           <execution>
@@ -192,7 +168,6 @@
               <goal>check</goal>
             </goals>
             <configuration>
-              <skip>${skipTests}</skip>
               <dataFile>${project.build.directory}/jacoco.exec</dataFile>
               <excludes>
                 <exclude>...</exclude>
@@ -232,7 +207,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.4.1</version>
         <configuration>
           <!-- Setting this to 7 removes unnamed modules found warnings -->
           <!-- Defaults to ${maven.compiler.source} -->
@@ -328,6 +303,16 @@
             </reports>
           </reportSet>
         </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>3.6.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.4.1</version>
       </plugin>
     </plugins>
   </reporting>

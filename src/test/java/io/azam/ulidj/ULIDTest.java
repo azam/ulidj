@@ -36,6 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -944,7 +945,7 @@ public class ULIDTest {
 
   @Test
   public void testULIDNew() {
-    Constructor<?>[] ctors = ULID.class.getDeclaredConstructors();
+    Constructor<?>[] ctors = ULID.class.getConstructors();
     Constructor<?> noArgsCtor = null;
     for (Constructor<?> ctor : ctors) {
       if (ctor.getParameterTypes().length == 0) {
@@ -952,8 +953,7 @@ public class ULIDTest {
         break;
       }
     }
-    assertNotNull(noArgsCtor);
-    assertFalse(noArgsCtor.isAccessible());
+    assertNull("ULID class should not have a no-args constructor", noArgsCtor);
   }
 
   @Test
