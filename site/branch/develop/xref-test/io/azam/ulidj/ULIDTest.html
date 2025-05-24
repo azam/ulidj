@@ -952,96 +952,114 @@
 <a class="jxr_linenumber" name="L944" href="#L944">944</a>   }
 <a class="jxr_linenumber" name="L945" href="#L945">945</a> 
 <a class="jxr_linenumber" name="L946" href="#L946">946</a>   @Test
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDNew() {
-<a class="jxr_linenumber" name="L948" href="#L948">948</a>     Constructor&lt;?&gt;[] ctors = ULID.<strong class="jxr_keyword">class</strong>.getConstructors();
-<a class="jxr_linenumber" name="L949" href="#L949">949</a>     Constructor&lt;?&gt; noArgsCtor = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L950" href="#L950">950</a>     <strong class="jxr_keyword">for</strong> (Constructor&lt;?&gt; ctor : ctors) {
-<a class="jxr_linenumber" name="L951" href="#L951">951</a>       <strong class="jxr_keyword">if</strong> (ctor.getParameterTypes().length == 0) {
-<a class="jxr_linenumber" name="L952" href="#L952">952</a>         noArgsCtor = ctor;
-<a class="jxr_linenumber" name="L953" href="#L953">953</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L954" href="#L954">954</a>       }
-<a class="jxr_linenumber" name="L955" href="#L955">955</a>     }
-<a class="jxr_linenumber" name="L956" href="#L956">956</a>     assertNull(<span class="jxr_string">"ULID class should not have a no-args constructor"</span>, noArgsCtor);
-<a class="jxr_linenumber" name="L957" href="#L957">957</a>   }
-<a class="jxr_linenumber" name="L958" href="#L958">958</a> 
-<a class="jxr_linenumber" name="L959" href="#L959">959</a>   @Test
-<a class="jxr_linenumber" name="L960" href="#L960">960</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDEquals() {
-<a class="jxr_linenumber" name="L961" href="#L961">961</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)
-<a class="jxr_linenumber" name="L962" href="#L962">962</a>         .equals(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)));
-<a class="jxr_linenumber" name="L963" href="#L963">963</a>     byte[] bytes1 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L964" href="#L964">964</a>     Arrays.fill(bytes1, (byte) 0x00);
-<a class="jxr_linenumber" name="L965" href="#L965">965</a>     ULID value1 = ULID.parseULID(bytes1);
-<a class="jxr_linenumber" name="L966" href="#L966">966</a>     byte[] bytes2 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L967" href="#L967">967</a>     Arrays.fill(bytes2, (byte) 0x00);
-<a class="jxr_linenumber" name="L968" href="#L968">968</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, value1.equals(ULID.parseULID(bytes2)));
-<a class="jxr_linenumber" name="L969" href="#L969">969</a>     byte[] bytes3 = value1.toBinary();
-<a class="jxr_linenumber" name="L970" href="#L970">970</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, value1.equals(ULID.parseULID(bytes3)));
-<a class="jxr_linenumber" name="L971" href="#L971">971</a>     byte[] bytes4 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L972" href="#L972">972</a>     Arrays.fill(bytes4, (byte) 0x00);
-<a class="jxr_linenumber" name="L973" href="#L973">973</a>     bytes4[0] = (byte) 0x01;
-<a class="jxr_linenumber" name="L974" href="#L974">974</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal"</span>, value1.equals(ULID.parseULID(bytes4)));
-<a class="jxr_linenumber" name="L975" href="#L975">975</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal to null"</span>, value1.equals(<strong class="jxr_keyword">null</strong>));
-<a class="jxr_linenumber" name="L976" href="#L976">976</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal to non-ULID instance"</span>,
-<a class="jxr_linenumber" name="L977" href="#L977">977</a>         value1.equals((Object) value1.toString()));
-<a class="jxr_linenumber" name="L978" href="#L978">978</a>   }
-<a class="jxr_linenumber" name="L979" href="#L979">979</a> 
-<a class="jxr_linenumber" name="L980" href="#L980">980</a>   @Test
-<a class="jxr_linenumber" name="L981" href="#L981">981</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDHashCode() {
-<a class="jxr_linenumber" name="L982" href="#L982">982</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>,
-<a class="jxr_linenumber" name="L983" href="#L983">983</a>         ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode(),
-<a class="jxr_linenumber" name="L984" href="#L984">984</a>         ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode());
-<a class="jxr_linenumber" name="L985" href="#L985">985</a>     byte[] bytes1 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L986" href="#L986">986</a>     Arrays.fill(bytes1, (byte) 0x00);
-<a class="jxr_linenumber" name="L987" href="#L987">987</a>     ULID value1 = ULID.parseULID(bytes1);
-<a class="jxr_linenumber" name="L988" href="#L988">988</a>     byte[] bytes2 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L989" href="#L989">989</a>     Arrays.fill(bytes2, (byte) 0x00);
-<a class="jxr_linenumber" name="L990" href="#L990">990</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>, value1.hashCode(),
-<a class="jxr_linenumber" name="L991" href="#L991">991</a>         ULID.parseULID(bytes2).hashCode());
-<a class="jxr_linenumber" name="L992" href="#L992">992</a>     byte[] bytes3 = value1.toBinary();
-<a class="jxr_linenumber" name="L993" href="#L993">993</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>, value1.hashCode(),
-<a class="jxr_linenumber" name="L994" href="#L994">994</a>         ULID.parseULID(bytes3).hashCode());
-<a class="jxr_linenumber" name="L995" href="#L995">995</a>     byte[] bytes4 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
-<a class="jxr_linenumber" name="L996" href="#L996">996</a>     Arrays.fill(bytes4, (byte) 0x00);
-<a class="jxr_linenumber" name="L997" href="#L997">997</a>     bytes4[0] = (byte) 0x01;
-<a class="jxr_linenumber" name="L998" href="#L998">998</a>     assertNotEquals(<span class="jxr_string">"ULID instances should not have same hash code"</span>, value1.hashCode(),
-<a class="jxr_linenumber" name="L999" href="#L999">999</a>         ULID.parseULID(bytes4).hashCode());
-<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>   }
-<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a> 
-<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a> <em class="jxr_javadoccomment">   * This test increments entropy and checks the ULID value correctness. This takes approx 45mins on</em>
-<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a> <em class="jxr_javadoccomment">   * a Intel® Core™ i7-7820X CPU @ 3.60GHz × 16, so only run this locally.</em>
-<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>   <em class="jxr_comment">// @Disabled("Very expensive test")</em>
-<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>   <em class="jxr_comment">// @Test</em>
-<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGeneratorCorrectness() {
-<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>     <strong class="jxr_keyword">long</strong> start = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>     String previousValue = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>     <strong class="jxr_keyword">final</strong> byte[] endEntropy = <strong class="jxr_keyword">new</strong> byte[] { <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>     };
-<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>     <strong class="jxr_keyword">for</strong> (byte[] entropy = <strong class="jxr_keyword">new</strong> byte[10]; !Arrays.equals(endEntropy, entropy); entropy =
-<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>         incrementBytes(entropy)) {
-<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>       String value = ULID.generate(ULID.MIN_TIME, entropy);
-<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>       TestParam param = <strong class="jxr_keyword">new</strong> TestParam(ULID.MIN_TIME, entropy, value);
-<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>       <em class="jxr_comment">// Skip first value (previousValue==null)</em>
-<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>       <strong class="jxr_keyword">if</strong> (previousValue != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>         assertEntropyIsIncremented(previousValue, value);
-<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>       }
-<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>       <em class="jxr_comment">// Progress logging</em>
-<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>       <strong class="jxr_keyword">if</strong> (entropy[7] == 0x0 &amp;&amp; entropy[8] == 0x0 &amp;&amp; entropy[9] == 0x0) {
-<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>         System.out.println(value);
-<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>       }
-<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>       assertArrayEquals(<span class="jxr_string">"ULID entropy is different for "</span> + param.reproducer, entropy,
-<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a>           ULID.getEntropy(value));
-<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>       assertEquals(<span class="jxr_string">"ULID timestamp is different for "</span> + param.reproducer, ULID.MIN_TIME,
-<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>           ULID.getTimestamp(value));
-<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>       previousValue = value;
-<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>     }
-<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>     <strong class="jxr_keyword">long</strong> end = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>     System.out.println(<span class="jxr_string">"testGeneratorCorrectness took "</span> + (end - start) + <span class="jxr_string">" [ms]"</span>);
-<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>   }
-<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a> }
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDSort() {
+<a class="jxr_linenumber" name="L948" href="#L948">948</a>     ULID[] ulids = <strong class="jxr_keyword">new</strong> ULID[TEST_PARAMETERS.length];
+<a class="jxr_linenumber" name="L949" href="#L949">949</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TEST_PARAMETERS.length; i++) {
+<a class="jxr_linenumber" name="L950" href="#L950">950</a>       ulids[i] = ULID.generateULID(TEST_PARAMETERS[i].timestamp, TEST_PARAMETERS[i].entropy);
+<a class="jxr_linenumber" name="L951" href="#L951">951</a>     }
+<a class="jxr_linenumber" name="L952" href="#L952">952</a>     Arrays.sort(ulids);
+<a class="jxr_linenumber" name="L953" href="#L953">953</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; ulids.length; i++) {
+<a class="jxr_linenumber" name="L954" href="#L954">954</a>       <strong class="jxr_keyword">if</strong> (ulids[i - 1].equals(ulids[i])) {
+<a class="jxr_linenumber" name="L955" href="#L955">955</a>         assertEquals(<span class="jxr_string">"ULID "</span> + ulids[i - 1] + <span class="jxr_string">" should be equal to "</span> + ulids[i], 0,
+<a class="jxr_linenumber" name="L956" href="#L956">956</a>             ulids[i - 1].compareTo(ulids[i]));
+<a class="jxr_linenumber" name="L957" href="#L957">957</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L958" href="#L958">958</a>         assertTrue(<span class="jxr_string">"ULID "</span> + ulids[i - 1] + <span class="jxr_string">" should be lesser than "</span> + ulids[i],
+<a class="jxr_linenumber" name="L959" href="#L959">959</a>             ulids[i - 1].compareTo(ulids[i]) &lt; 0);
+<a class="jxr_linenumber" name="L960" href="#L960">960</a>       }
+<a class="jxr_linenumber" name="L961" href="#L961">961</a>     }
+<a class="jxr_linenumber" name="L962" href="#L962">962</a>   }
+<a class="jxr_linenumber" name="L963" href="#L963">963</a> 
+<a class="jxr_linenumber" name="L964" href="#L964">964</a>   @Test
+<a class="jxr_linenumber" name="L965" href="#L965">965</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDNew() {
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>     Constructor&lt;?&gt;[] ctors = ULID.<strong class="jxr_keyword">class</strong>.getConstructors();
+<a class="jxr_linenumber" name="L967" href="#L967">967</a>     Constructor&lt;?&gt; noArgsCtor = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>     <strong class="jxr_keyword">for</strong> (Constructor&lt;?&gt; ctor : ctors) {
+<a class="jxr_linenumber" name="L969" href="#L969">969</a>       <strong class="jxr_keyword">if</strong> (ctor.getParameterTypes().length == 0) {
+<a class="jxr_linenumber" name="L970" href="#L970">970</a>         noArgsCtor = ctor;
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L972" href="#L972">972</a>       }
+<a class="jxr_linenumber" name="L973" href="#L973">973</a>     }
+<a class="jxr_linenumber" name="L974" href="#L974">974</a>     assertNull(<span class="jxr_string">"ULID class should not have a no-args constructor"</span>, noArgsCtor);
+<a class="jxr_linenumber" name="L975" href="#L975">975</a>   }
+<a class="jxr_linenumber" name="L976" href="#L976">976</a> 
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>   @Test
+<a class="jxr_linenumber" name="L978" href="#L978">978</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDEquals() {
+<a class="jxr_linenumber" name="L979" href="#L979">979</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)
+<a class="jxr_linenumber" name="L980" href="#L980">980</a>         .equals(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)));
+<a class="jxr_linenumber" name="L981" href="#L981">981</a>     byte[] bytes1 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L982" href="#L982">982</a>     Arrays.fill(bytes1, (byte) 0x00);
+<a class="jxr_linenumber" name="L983" href="#L983">983</a>     ULID value1 = ULID.parseULID(bytes1);
+<a class="jxr_linenumber" name="L984" href="#L984">984</a>     byte[] bytes2 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L985" href="#L985">985</a>     Arrays.fill(bytes2, (byte) 0x00);
+<a class="jxr_linenumber" name="L986" href="#L986">986</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, value1.equals(ULID.parseULID(bytes2)));
+<a class="jxr_linenumber" name="L987" href="#L987">987</a>     byte[] bytes3 = value1.toBinary();
+<a class="jxr_linenumber" name="L988" href="#L988">988</a>     assertTrue(<span class="jxr_string">"ULID instances should be equal"</span>, value1.equals(ULID.parseULID(bytes3)));
+<a class="jxr_linenumber" name="L989" href="#L989">989</a>     byte[] bytes4 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L990" href="#L990">990</a>     Arrays.fill(bytes4, (byte) 0x00);
+<a class="jxr_linenumber" name="L991" href="#L991">991</a>     bytes4[0] = (byte) 0x01;
+<a class="jxr_linenumber" name="L992" href="#L992">992</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal"</span>, value1.equals(ULID.parseULID(bytes4)));
+<a class="jxr_linenumber" name="L993" href="#L993">993</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal to null"</span>, value1.equals(<strong class="jxr_keyword">null</strong>));
+<a class="jxr_linenumber" name="L994" href="#L994">994</a>     assertFalse(<span class="jxr_string">"ULID instances should not be equal to non-ULID instance"</span>,
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>         value1.equals((Object) value1.toString()));
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>   }
+<a class="jxr_linenumber" name="L997" href="#L997">997</a> 
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>   @Test
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testULIDHashCode() {
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>,
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>         ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode(),
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>         ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode());
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>     byte[] bytes1 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>     Arrays.fill(bytes1, (byte) 0x00);
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>     ULID value1 = ULID.parseULID(bytes1);
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>     byte[] bytes2 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>     Arrays.fill(bytes2, (byte) 0x00);
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>, value1.hashCode(),
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         ULID.parseULID(bytes2).hashCode());
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>     byte[] bytes3 = value1.toBinary();
+<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>     assertEquals(<span class="jxr_string">"ULID instances should have same hash code"</span>, value1.hashCode(),
+<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>         ULID.parseULID(bytes3).hashCode());
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>     byte[] bytes4 = <strong class="jxr_keyword">new</strong> byte[ULID.ULID_BINARY_LENGTH];
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>     Arrays.fill(bytes4, (byte) 0x00);
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>     bytes4[0] = (byte) 0x01;
+<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>     assertNotEquals(<span class="jxr_string">"ULID instances should not have same hash code"</span>, value1.hashCode(),
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>         ULID.parseULID(bytes4).hashCode());
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>   }
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a> 
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a> <em class="jxr_javadoccomment">   * This test increments entropy and checks the ULID value correctness. This takes approx 45mins on</em>
+<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a> <em class="jxr_javadoccomment">   * a Intel® Core™ i7-7820X CPU @ 3.60GHz × 16, so only run this locally.</em>
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>   <em class="jxr_comment">// @Disabled("Very expensive test")</em>
+<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>   <em class="jxr_comment">// @Test</em>
+<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGeneratorCorrectness() {
+<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>     <strong class="jxr_keyword">long</strong> start = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a>     String previousValue = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>     <strong class="jxr_keyword">final</strong> byte[] endEntropy = <strong class="jxr_keyword">new</strong> byte[] { <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>     };
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>     <strong class="jxr_keyword">for</strong> (byte[] entropy = <strong class="jxr_keyword">new</strong> byte[10]; !Arrays.equals(endEntropy, entropy); entropy =
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>         incrementBytes(entropy)) {
+<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>       String value = ULID.generate(ULID.MIN_TIME, entropy);
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>       TestParam param = <strong class="jxr_keyword">new</strong> TestParam(ULID.MIN_TIME, entropy, value);
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>       <em class="jxr_comment">// Skip first value (previousValue==null)</em>
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>       <strong class="jxr_keyword">if</strong> (previousValue != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>         assertEntropyIsIncremented(previousValue, value);
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>       }
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>       <em class="jxr_comment">// Progress logging</em>
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>       <strong class="jxr_keyword">if</strong> (entropy[7] == 0x0 &amp;&amp; entropy[8] == 0x0 &amp;&amp; entropy[9] == 0x0) {
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>         System.out.println(value);
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>       }
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>       assertArrayEquals(<span class="jxr_string">"ULID entropy is different for "</span> + param.reproducer, entropy,
+<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>           ULID.getEntropy(value));
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>       assertEquals(<span class="jxr_string">"ULID timestamp is different for "</span> + param.reproducer, ULID.MIN_TIME,
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>           ULID.getTimestamp(value));
+<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>       previousValue = value;
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>     }
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>     <strong class="jxr_keyword">long</strong> end = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>     System.out.println(<span class="jxr_string">"testGeneratorCorrectness took "</span> + (end - start) + <span class="jxr_string">" [ms]"</span>);
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>   }
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a> }
 </pre>
 <hr/>
 <div id="footer">© 2025 <a href="http://azam.io">azam</a></div>
