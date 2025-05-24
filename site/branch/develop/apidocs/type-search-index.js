@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"io.azam.ulidj","l":"MonotonicULID"},{"p":"io.azam.ulidj","l":"ULID"}]
