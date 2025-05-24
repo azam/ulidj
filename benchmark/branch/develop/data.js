@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1748125000220,
+  "lastUpdate": 1748125001517,
   "repoUrl": "https://github.com/azam/ulidj",
   "entries": {
     "branch-develop-temurin-jdk21-target-jdk17": [
@@ -1196,6 +1196,262 @@ window.BENCHMARK_DATA = {
           {
             "name": "io.azam.ulidj.UUIDBenchmark.randomUUID",
             "value": 212.7413248373941,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "azam",
+            "username": "azam",
+            "email": "azamshul@gmail.com"
+          },
+          "committer": {
+            "name": "azam",
+            "username": "azam",
+            "email": "azamshul@gmail.com"
+          },
+          "id": "7361a5633d6eed7bcbfe94509daf79ef83c29075",
+          "message": "Update to Java 11",
+          "timestamp": "2025-05-24T21:00:19Z",
+          "url": "https://github.com/azam/ulidj/commit/7361a5633d6eed7bcbfe94509daf79ef83c29075"
+        },
+        "date": 1748124998989,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateBinaryNoArgs",
+            "value": 45.16796611471856,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateBinaryRandom",
+            "value": 45.07591420462474,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateBinarySecureRandom",
+            "value": 45.198240572124895,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateBinaryThreadLocalRandom",
+            "value": 45.075369870045044,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateNoArgs",
+            "value": 59.32758380776135,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateRandom",
+            "value": 58.98153077064362,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateSecureRandom",
+            "value": 60.42174444417744,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateThreadLocalRandom",
+            "value": 59.1659094150848,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateULIDNoArgs",
+            "value": 53.44273932755429,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateULIDRandom",
+            "value": 53.52669119754803,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateULIDSecureRandom",
+            "value": 53.29114409524828,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.generateULIDThreadLocalRandom",
+            "value": 53.38784807775756,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.random",
+            "value": 60.8939328094244,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.randomBinary",
+            "value": 45.140738670998665,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.MonotonicULIDBenchmark.randomULID",
+            "value": 53.74618191679904,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.fromBinary",
+            "value": 29.31728061856315,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.getEntropy",
+            "value": 23.727350136769648,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.getEntropyBinary",
+            "value": 5.149400647345706,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.getTimestamp",
+            "value": 11.41643728740798,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.getTimestampBinary",
+            "value": 1.5553087871322295,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.newRandom",
+            "value": 35.649092638725435,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.newSecureRandom",
+            "value": 75.86169629918963,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.parseULIDBinary",
+            "value": 5.88711943926804,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.parseULIDString",
+            "value": 35.46031976731776,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.random",
+            "value": 203.15030144914698,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomBinary",
+            "value": 184.81950968065658,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomBinaryWithRandom",
+            "value": 44.76366987776531,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomBinaryWithSecureRandom",
+            "value": 191.96494967264172,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomBinaryWithThreadLocalRandom",
+            "value": 41.379009651006335,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomULID",
+            "value": 186.6865705853455,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomULIDWithSecureRandom",
+            "value": 186.92983611921647,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomULIDWithThreadLocalRandom",
+            "value": 51.548469557369785,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomWithRandom",
+            "value": 65.66604789198976,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomWithSecureRandom",
+            "value": 203.5859694470952,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.randomWithThreadLocalRandom",
+            "value": 64.33649220687319,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.threadLocalRandomCurrent",
+            "value": 0.6230286233834803,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.ULIDBenchmark.toBinary",
+            "value": 29.603968833423192,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.UUIDBenchmark.fromString",
+            "value": 7.417291528414084,
+            "unit": "ns/op",
+            "extra": "iterations: 5\nforks: 3\nthreads: 1"
+          },
+          {
+            "name": "io.azam.ulidj.UUIDBenchmark.randomUUID",
+            "value": 213.0255250585213,
             "unit": "ns/op",
             "extra": "iterations: 5\nforks: 3\nthreads: 1"
           }
