@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - main-v1
       - develop
+      - main-v1
       - develop-v1
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
