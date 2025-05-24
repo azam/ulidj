@@ -27,8 +27,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import static io.azam.ulidj.TestUtils.incrementBytes;
+import static io.azam.ulidj.ULIDTest.FILLED_ENTROPY;
+import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
+import static io.azam.ulidj.ULIDTest.TEST_TIMESTAMP;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
@@ -36,37 +51,170 @@ import org.junit.Test;
  * @author azam
  * @since 1.0.3
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({System.class, MonotonicULID.class})
 public class MonotonicULIDTest {
   @Test
   public void testConstructor() {
-    Assert.assertNotNull(new MonotonicULID());
-    Assert.assertNotNull(new MonotonicULID(new Random()));
-    Assert.assertNotNull(new MonotonicULID(new SecureRandom()));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructorNullRandom() {
-    new MonotonicULID(null);
+    assertNotNull(new MonotonicULID());
+    assertNotNull(new MonotonicULID(new Random()));
+    assertNotNull(new MonotonicULID(new SecureRandom()));
+    Random nullRandom = null;
+    assertNotNull(new MonotonicULID(nullRandom));
   }
 
   @Test
   public void testGenerate() {
     MonotonicULID ulid = new MonotonicULID();
     String value = ulid.generate();
-    Assert.assertNotNull(value);
-    Assert.assertTrue(ULID.isValid(value));
+    assertNotNull(value);
+    assertTrue(ULID.isValid(value));
+  }
+
+  @Test
+  public void testGenerateNegativeMock() {
+    mockStatic(System.class);
+    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            String value = ulid.generate();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            String value = ulid.generate();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
+    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
+    String valid = ulidEntropyOverflow.generate();
+    assertTrue(ULID.isValid(valid));
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            String value = ulidEntropyOverflow.generate();
+          }
+        });
   }
 
   @Test
   public void testGenerateBinary() {
     MonotonicULID ulid = new MonotonicULID();
     byte[] value = ulid.generateBinary();
-    Assert.assertNotNull(value);
-    Assert.assertTrue(ULID.isValidBinary(value));
+    assertNotNull(value);
+    assertTrue(ULID.isValidBinary(value));
   }
 
   @Test
-  public void testGenerateConcurrent() {
+  public void testGenerateBinaryNegativeMock() {
+    mockStatic(System.class);
+    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            byte[] value = ulid.generateBinary();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            byte[] value = ulid.generateBinary();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
+    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
+    String valid = ulidEntropyOverflow.generate();
+    assertTrue(ULID.isValid(valid));
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            byte[] value = ulidEntropyOverflow.generateBinary();
+          }
+        });
+  }
+
+  @Test
+  public void testGenerateULID() {
+    MonotonicULID ulid = new MonotonicULID();
+    ULID value = ulid.generateULID();
+    assertNotNull(value);
+    assertEquals(ULID.class, value.getClass());
+    assertNotNull("ULID instance string value should not be null", value.toString());
+    assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
+    assertNotNull("ULID instance binary value should not be null", value.toBinary());
+    assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
+  }
+
+  @Test
+  public void testGenerateULIDNegativeMock() {
+    mockStatic(System.class);
+    when(System.currentTimeMillis()).thenReturn(ULID.MIN_TIME - 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            ULID value = ulid.generateULID();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(ULID.MAX_TIME + 1);
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            MonotonicULID ulid = new MonotonicULID();
+            ULID value = ulid.generateULID();
+          }
+        });
+    when(System.currentTimeMillis()).thenReturn(TEST_TIMESTAMP);
+    final MonotonicULID ulidEntropyOverflow = new MonotonicULID(new FixedRandom(FILLED_ENTROPY));
+    String valid = ulidEntropyOverflow.generate();
+    assertTrue(ULID.isValid(valid));
+    assertThrows("ULID timestamp is out of ULID specification", IllegalStateException.class,
+        new ThrowingRunnable() {
+          @Override
+          public void run() {
+            ULID value = ulidEntropyOverflow.generateULID();
+          }
+        });
+  }
+
+  @Test
+  public void testGenerateExternalRandom() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
+    String value = ulid.generate();
+    assertNotNull("ULID value should not be null", value);
+    assertTrue("ULID value must be valid", ULID.isValid(value));
+    assertArrayEquals("ULID entropy should be filled with the provided random", FILLED_ENTROPY,
+        ULID.getEntropy(value));
+  }
+
+  @Test
+  public void testGenerateBinaryExternalRandom() {
+    MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
+    byte[] value = ulid.generateBinary();
+    assertNotNull("Binary ULID value should not be null", value);
+    assertTrue("Binary ULID value must be valid", ULID.isValidBinary(value));
+    assertArrayEquals("Binary ULID entropy should be filled with the provided random",
+        FILLED_ENTROPY, ULID.getEntropyBinary(value));
+  }
+
+  @Test
+  public void testGenerateConcurrentNonDeterministic() {
     MonotonicULID ulid = new MonotonicULID();
     boolean hasSameTimestamp = false;
     // This test might not end if we cannot generate multiple ULID in the same
@@ -81,8 +229,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (String value : values) {
-        Assert.assertNotNull(value);
-        Assert.assertTrue(ULID.isValid(value));
+        assertNotNull(value);
+        assertTrue(ULID.isValid(value));
         long ts = ULID.getTimestamp(value);
         byte[] entropy = ULID.getEntropy(value);
         if (!groups.containsKey(ts)) {
@@ -103,7 +251,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assert.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -112,7 +260,7 @@ public class MonotonicULIDTest {
   }
 
   @Test
-  public void testGenerateBinaryConcurrent() {
+  public void testGenerateBinaryConcurrentNonDeterministic() {
     MonotonicULID ulid = new MonotonicULID();
     boolean hasSameTimestamp = false;
     // This test might not end if we cannot generate multiple ULID in the same
@@ -127,8 +275,8 @@ public class MonotonicULIDTest {
       // Group into timestamp bucket
       Map<Long, List<byte[]>> groups = new HashMap<Long, List<byte[]>>();
       for (byte[] value : values) {
-        Assert.assertNotNull(value);
-        Assert.assertTrue(ULID.isValidBinary(value));
+        assertNotNull(value);
+        assertTrue(ULID.isValidBinary(value));
         long ts = ULID.getTimestampBinary(value);
         byte[] entropy = ULID.getEntropyBinary(value);
         if (!groups.containsKey(ts)) {
@@ -149,7 +297,7 @@ public class MonotonicULIDTest {
             byte[] curr = bucketValues.get(i);
             // The next value on the same timestamp is an increment of 1-bit if the previous
             // value
-            Assert.assertArrayEquals(TestUtils.incrementBytes(prev), curr);
+            assertArrayEquals(incrementBytes(prev), curr);
             prev = curr;
           }
         }
@@ -157,32 +305,41 @@ public class MonotonicULIDTest {
     }
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testGenerateOverflow() {
+  @Test
+  public void testGenerateOverflowNonDeterministic() {
     // Using a random generator that always return 0xff... so that next increment on
     // the same timestamp will throw exception
-    MonotonicULID ulid = new MonotonicULID(new FixedRandom(new byte[] { //
+    final MonotonicULID ulid = new MonotonicULID(new FixedRandom(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    List<String> values = new ArrayList<String>();
-    for (int i = 0; i < 1000000; i++) {
-      values.add(ulid.generate());
-    }
+    assertThrows(IllegalStateException.class, new ThrowingRunnable() {
+      @Override
+      public void run() {
+        List<String> values = new ArrayList<String>();
+        for (int i = 0; i < 1000000; i++) {
+          values.add(ulid.generate());
+        }
+      }
+    });
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testGenerateBinaryOverflow() {
+  @Test
+  public void testGenerateBinaryOverflowNonDeterministic() {
     // Using a random generator that always return 0xff... so that next increment on
     // the same timestamp will throw exception
-    MonotonicULID ulid = new MonotonicULID(new FixedRandom(new byte[] { //
+    final MonotonicULID ulid = new MonotonicULID(new FixedRandom(new byte[] { //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    List<byte[]> values = new ArrayList<byte[]>();
-    for (int i = 0; i < 1000000; i++) {
-      values.add(ulid.generateBinary());
-    }
+    assertThrows(IllegalStateException.class, new ThrowingRunnable() {
+      @Override
+      public void run() {
+        List<byte[]> values = new ArrayList<byte[]>();
+        for (int i = 0; i < 1000000; i++) {
+          values.add(ulid.generateBinary());
+        }
+      }
+    });
   }
-
 }
