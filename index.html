@@ -36,8 +36,8 @@
         const BRANCHES_API = 'https://api.github.com/repos/azam/ulidj/branches';
         const TAGS_API = 'https://api.github.com/repos/azam/ulidj/tags';
         async function load() {
-            const branches = await (await fetch(BRANCHES_API)).json().map(x => x.name).sort();
-            const tags = await (await fetch(TAGS_API)).json().map(x => x.name).sort();
+            const branches = (await (await fetch(BRANCHES_API)).json()).map(x => x.name).sort();
+            const tags = (await (await fetch(TAGS_API)).json()).map(x => x.name).sort();
 
             const branchSitesUl = document.getElementById('branch-sites');
             branches.forEach(branch => {
