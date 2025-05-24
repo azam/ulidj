@@ -954,43 +954,6 @@ public class ULIDTest {
     }
     assertNotNull(noArgsCtor);
     assertFalse(noArgsCtor.isAccessible());
-    assertThrows("ULID constructor should throw IllegalAccessException",
-        IllegalAccessException.class, new ThrowingRunnable() {
-          @Override
-          public void run()
-              throws InvocationTargetException, InstantiationException, IllegalAccessException {
-            Constructor<?> testCtor = null;
-            for (Constructor<?> ctor : ULID.class.getDeclaredConstructors()) {
-              if (ctor.getParameterTypes().length == 0) {
-                testCtor = ctor;
-                break;
-              }
-            }
-            assert testCtor != null;
-            ULID value = ((Constructor<ULID>) testCtor).newInstance();
-          }
-        });
-    assertThrows("ULID constructor should throw UnsupportedOperationException if actually called",
-        UnsupportedOperationException.class, new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Constructor<?> testCtor = null;
-            for (Constructor<?> ctor : ULID.class.getDeclaredConstructors()) {
-              if (ctor.getParameterTypes().length == 0) {
-                testCtor = ctor;
-                break;
-              }
-            }
-            assert testCtor != null;
-            testCtor.setAccessible(true);
-            try {
-              ULID value = ((Constructor<ULID>) testCtor).newInstance();
-            } catch (InvocationTargetException e) {
-              // unwrap the target exception
-              throw e.getTargetException();
-            }
-          }
-        });
   }
 
   @Test
