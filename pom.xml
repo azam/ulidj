@@ -236,7 +236,7 @@
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
         <!-- Sticking to this version as it is the latest that supports JDK8 -->
-        <version>2.16.0</version>
+        <version>2.26.0</version>
         <configuration>
           <configFile>${project.basedir}/eclipse-java-google-style.xml</configFile>
           <encoding>${project.build.sourceEncoding}</encoding>
