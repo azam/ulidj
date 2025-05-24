@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ulidj</title>
+</head>
+
+<body>
+    <div id="main" class="main">
+        <ul>
+            <li>
+                Maven Project Info (by branch)<br />
+                <ul id="branch-sites"></ul>
+            </li>
+            <li>
+                Maven Project Info (by tag)<br />
+                <ul id="tag-sites"></ul>
+            </li>
+            <li>
+                Benchmark (by branch)<br />
+                <ul id="branch-benchmarks"></ul>
+            </li>
+            <li>
+                Benchmark (tags)<br />
+                <ul id="tag-benchmarks">
+                    <li>
+                        <a href="benchmark/tags">benchmark/tags</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <script type="module">
+        const PROJECT_API = 'https://api.github.com/repos/azam/ulidj';
+        const BRANCHES_API = 'https://api.github.com/repos/azam/ulidj/branches';
+        const TAGS_API = 'https://api.github.com/repos/azam/ulidj/tags';
+        async function load() {
+            const branches = await (await fetch(BRANCHES_API)).json().map(x => x.name).sort();
+            const tags = await (await fetch(TAGS_API)).json().map(x => x.name).sort();
+
+            const branchSitesUl = document.getElementById('branch-sites');
+            branches.forEach(branch => {
+                const branchA = document.createElement('a');
+                branchA.textContent = `site/branch/${branch}`;
+                branchA.href = `site/branch/${branch}`;
+                const branchLi = document.createElement('li');
+                branchLi.appendChild(branchA);
+                branchSitesUl.appendChild(branchLi);
+            });
+
+            const tagSitesUl = document.getElementById('tag-sites');
+            tags.forEach(tag => {
+                const tagA = document.createElement('a');
+                tagA.textContent = `site/tag/${tag}`;
+                tagA.href = `site/tag/${tag}`;
+                const tagLi = document.createElement('li');
+                tagLi.appendChild(tagA);
+                tagSitesUl.appendChild(tagLi);
+            });
+
+            const branchBenchmarksUl = document.getElementById('branch-benchmarks');
+            branches.forEach(branch => {
+                const branchA = document.createElement('a');
+                branchA.textContent = `benchmark/branch/${branch}`;
+                branchA.href = `benchmark/branch/${branch}`;
+                const branchLi = document.createElement('li');
+                branchLi.appendChild(branchA);
+                branchBenchmarksUl.appendChild(branchLi);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', load);
+    </script>
+</body>
+
+</html>
