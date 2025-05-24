@@ -1,4 +1,4 @@
-name: package
+name: site
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  package:
+  site:
     name: package
     runs-on: ubuntu-latest
     permissions:
