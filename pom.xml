@@ -259,7 +259,7 @@
       <plugin>
         <groupId>au.com.acegi</groupId>
         <artifactId>xml-format-maven-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>4.1.0</version>
         <configuration>
           <includes>pom.xml</includes>
           <includes>.settings.xml</includes>
