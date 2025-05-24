@@ -140,6 +140,16 @@ public class ULIDBenchmark {
   }
 
   @Benchmark
+  public void parseULIDString(Blackhole blackhole) {
+    blackhole.consume(ULID.parseULID(TEST_VALUE));
+  }
+
+  @Benchmark
+  public void parseULIDBinary(Blackhole blackhole) {
+    blackhole.consume(ULID.parseULID(TEST_BINARY));
+  }
+
+  @Benchmark
   public void newRandom(Blackhole blackhole, ULIDState state) {
     blackhole.consume(new Random());
   }
