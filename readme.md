@@ -71,14 +71,18 @@ ULID ulid1 = ULID.randomULID();
 // Using provided Random instance
 ULID ulid2 = ULID.randomULID(ThreadLocalRandom.current());
 // Using provided SecureRandom instance
-ULID ulid3 = ULID.parseULID("003JZ9J6G80123456789abcdef");
+ULID ulid3 = ULID.randomULID(SecureRandom.newInstance("SHA1PRNG"));
+// Using provided Clock instance
+ULID ulid4 = ULID.randomULID(Clock.systemUTC());
+// Using provided Clock and Random instance
+ULID ulid5 = ULID.randomULID(Clock.systemUTC(), SecureRandom.newInstance("SHA1PRNG"));
 // Convert ULID string to ULID instance
-ULID ulid4 = ULID.parseULID("003JZ9J6G80123456789abcdef");
+ULID ulid6 = ULID.parseULID("003JZ9J6G80123456789abcdef");
 // Convert ULID binary to ULID instance
-ULID ulid5 = ULID.parseULID(
+ULID ulid7 = ULID.parseULID(
         new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
 // Instantiate a ULID instance from current time and provided entropy bytes
-ULID ulid6 = ULID.generateULID(System.currentTimeMillis(), entropy);
+ULID ulid8 = ULID.generateULID(System.currentTimeMillis(), entropy);
 // Sort ULID instances lexicographically
 List<ULID> ulids = Arrays.asList(ulid1, ulid2, ulid3, ulid4, ulid5, ulid6);
 Collections.sort(ulids);
@@ -93,11 +97,15 @@ String ulid1 = ULID.random();
 String ulid2 = ULID.random(ThreadLocalRandom.current());
 // Using provided SecureRandom instance
 String ulid3 = ULID.random(SecureRandom.newInstance("SHA1PRNG"));
+// Using provided Clock instance
+String ulid4 = ULID.random(Clock.systemUTC());
+// Using provided Clock and Random instance
+String ulid5 = ULID.random(Clock.systemUTC(), SecureRandom.newInstance("SHA1PRNG"));
 // Generate ULID string from current time and provided entropy bytes
 byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
-String ulid4 = ULID.generate(System.currentTimeMillis(), entropy);
+String ulid6 = ULID.generate(System.currentTimeMillis(), entropy);
 // Convert ULID binary to ULID string
-String ulid5 = ULID.fromBinary(
+String ulid7 = ULID.fromBinary(
         new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf});
 ```
 
@@ -110,11 +118,15 @@ byte[] ulid1 = ULID.randomBinary();
 byte[] ulid2 = ULID.randomBinary(ThreadLocalRandom.current());
 // Using provided SecureRandom instance
 byte[] ulid3 = ULID.randomBinary(SecureRandom.newInstance("SHA1PRNG"));
+// Using provided Clock instance
+byte[] ulid4 = ULID.randomBinary(Clock.systemUTC());
+// Using provided Clock and Random instance
+byte[] ulid5 = ULID.randomBinary(Clock.systemUTC(), SecureRandom.newInstance("SHA1PRNG"));
 // Generate ULID string from current time and provided entropy bytes
 byte[] entropy = new byte[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
-byte[] ulid4 = ULID.generateBinary(System.currentTimeMillis(), entropy);
+byte[] ulid6 = ULID.generateBinary(System.currentTimeMillis(), entropy);
 // Convert ULID string to ULID binary
-byte[] ulid5 = ULID.toBinary("003JZ9J6G80123456789abcdef");
+byte[] ulid7 = ULID.toBinary("003JZ9J6G80123456789abcdef");
 ```
 
 ULID utilities examples:
@@ -166,6 +178,23 @@ String ulid9 = monotonicUlid2.generate();
 String ulid10 = monotonicUlid2.generate();
 byte[] ulid11 = monotonicUlid2.generateBinary();
 ULID ulid12 = monotonicUlid2.generateULID();
+
+// Create a new independent instance of MonotonicULID using provided Clock instance
+MonotonicULID monotonicUlid3 = new MonotonicULID(Clock.systemUTC());
+String ulid13 = monotonicUlid3.generate();
+// Subsequent calls generates monotonic ULID
+String ulid14 = monotonicUlid3.generate();
+byte[] ulid15 = monotonicUlid3.generateBinary();
+ULID ulid16 = monotonicUlid3.generateULID();
+
+// Create a new independent instance of MonotonicULID using provided Clock and Random instance
+MonotonicULID monotonicUlid4 =
+        new MonotonicULID(Clock.systemUTC(), SecureRandom.newInstance("SHA1PRNG"));
+String ulid17 = monotonicUlid4.generate();
+// Subsequent calls generates monotonic ULID
+String ulid18 = monotonicUlid4.generate();
+byte[] ulid19 = monotonicUlid4.generateBinary();
+ULID ulid20 = monotonicUlid4.generateULID();
 ```
 
 ## Develop

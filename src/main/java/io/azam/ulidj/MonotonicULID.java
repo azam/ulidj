@@ -68,6 +68,23 @@ import java.util.Random;
  * String ulid10 = monotonicUlid2.generate();
  * byte[] ulid11 = monotonicUlid2.generateBinary();
  * ULID ulid12 = monotonicUlid2.generateULID();
+ *
+ * // Create a new independent instance of MonotonicULID using provided Clock instance
+ * MonotonicULID monotonicUlid3 = new MonotonicULID(Clock.systemUTC());
+ * String ulid13 = monotonicUlid3.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid14 = monotonicUlid3.generate();
+ * byte[] ulid15 = monotonicUlid3.generateBinary();
+ * ULID ulid16 = monotonicUlid3.generateULID();
+ *
+ * // Create a new independent instance of MonotonicULID using provided Clock and Random instance
+ * MonotonicULID monotonicUlid4 =
+ *     new MonotonicULID(Clock.systemUTC(), SecureRandom.newInstance("SHA1PRNG"));
+ * String ulid17 = monotonicUlid4.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid18 = monotonicUlid4.generate();
+ * byte[] ulid19 = monotonicUlid4.generateBinary();
+ * ULID ulid20 = monotonicUlid4.generateULID();
  * </pre>
  *
  * @author azam
