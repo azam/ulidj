@@ -68,6 +68,23 @@ import java.util.Random;
  * String ulid10 = monotonicUlid2.generate();
  * byte[] ulid11 = monotonicUlid2.generateBinary();
  * ULID ulid12 = monotonicUlid2.generateULID();
+ *
+ * // Create a new independent instance of MonotonicULID using provided Clock instance
+ * MonotonicULID monotonicUlid3 = new MonotonicULID(Clock.systemUTC());
+ * String ulid13 = monotonicUlid3.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid14 = monotonicUlid3.generate();
+ * byte[] ulid15 = monotonicUlid3.generateBinary();
+ * ULID ulid16 = monotonicUlid3.generateULID();
+ *
+ * // Create a new independent instance of MonotonicULID using provided Clock and Random instance
+ * MonotonicULID monotonicUlid4 =
+ *     new MonotonicULID(Clock.systemUTC(), SecureRandom.newInstance(&quot;SHA1PRNG&quot;));
+ * String ulid17 = monotonicUlid4.generate();
+ * // Subsequent calls generates monotonic ULID
+ * String ulid18 = monotonicUlid4.generate();
+ * byte[] ulid19 = monotonicUlid4.generateBinary();
+ * ULID ulid20 = monotonicUlid4.generateULID();
  * &lt;/pre&gt;
  *
  * @author azam
@@ -121,14 +138,14 @@ public final class MonotonicULID implements Serializable {
      *
      * @since 1.1.0
      */
-<span class="fc" id="L124">    static final Random random = new SecureRandom();</span>
+<span class="fc" id="L141">    static final Random random = new SecureRandom();</span>
 
     /**
      * Default {@link io.azam.ulidj.MonotonicULID} instance.
      *
      * @since 1.1.0
      */
-<span class="fc" id="L131">    static final MonotonicULID singleton = new MonotonicULID(Clock.systemUTC(), random);</span>
+<span class="fc" id="L148">    static final MonotonicULID singleton = new MonotonicULID(Clock.systemUTC(), random);</span>
   }
 
   /**
@@ -139,8 +156,8 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.3
    */
   public MonotonicULID() {
-<span class="fc" id="L142">    this(Clock.systemUTC(), LazyDefaults.random);</span>
-<span class="fc" id="L143">  }</span>
+<span class="fc" id="L159">    this(Clock.systemUTC(), LazyDefaults.random);</span>
+<span class="fc" id="L160">  }</span>
 
   /**
    * Generate a monotonic ULID generator instance using provided {@link java.util.Random} instance
@@ -150,8 +167,8 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.3
    */
   public MonotonicULID(Random random) {
-<span class="fc" id="L153">    this(Clock.systemUTC(), random);</span>
-<span class="fc" id="L154">  }</span>
+<span class="fc" id="L170">    this(Clock.systemUTC(), random);</span>
+<span class="fc" id="L171">  }</span>
 
   /**
    * Generate a monotonic ULID generator instance using provided {@link java.time.Clock} instance
@@ -162,8 +179,8 @@ public final class MonotonicULID implements Serializable {
    * @since 2.0.0
    */
   public MonotonicULID(Clock clock) {
-<span class="fc" id="L165">    this(clock, LazyDefaults.random);</span>
-<span class="fc" id="L166">  }</span>
+<span class="fc" id="L182">    this(clock, LazyDefaults.random);</span>
+<span class="fc" id="L183">  }</span>
 
   /**
    * Generate a monotonic ULID generator instance using provided {@link java.time.Clock} instance
@@ -173,14 +190,14 @@ public final class MonotonicULID implements Serializable {
    * @param random {@link java.util.Random} instance
    * @since 2.0.0
    */
-<span class="fc" id="L176">  public MonotonicULID(Clock clock, Random random) {</span>
-<span class="fc bfc" id="L177" title="All 4 branches covered.">    if (clock == null || random == null)</span>
-<span class="fc" id="L178">      throw new IllegalArgumentException(&quot;clock or random instance is null&quot;);</span>
-<span class="fc" id="L179">    this.clock = clock;</span>
-<span class="fc" id="L180">    this.random = random;</span>
-<span class="fc" id="L181">    this.lastTimestamp = 0L;</span>
-<span class="fc" id="L182">    this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
-<span class="fc" id="L183">  }</span>
+<span class="fc" id="L193">  public MonotonicULID(Clock clock, Random random) {</span>
+<span class="fc bfc" id="L194" title="All 4 branches covered.">    if (clock == null || random == null)</span>
+<span class="fc" id="L195">      throw new IllegalArgumentException(&quot;clock or random instance is null&quot;);</span>
+<span class="fc" id="L196">    this.clock = clock;</span>
+<span class="fc" id="L197">    this.random = random;</span>
+<span class="fc" id="L198">    this.lastTimestamp = 0L;</span>
+<span class="fc" id="L199">    this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
+<span class="fc" id="L200">  }</span>
 
   /**
    * Generate ULID string monotonically. If this method is called within the same millisecond, last
@@ -194,8 +211,8 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.3
    */
   public synchronized String generate() {
-<span class="fc" id="L197">    mutate();</span>
-<span class="fc" id="L198">    return ULID.generate(this.lastTimestamp, this.lastEntropy);</span>
+<span class="fc" id="L214">    mutate();</span>
+<span class="fc" id="L215">    return ULID.generate(this.lastTimestamp, this.lastEntropy);</span>
   }
 
   /**
@@ -210,8 +227,8 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.4
    */
   public synchronized byte[] generateBinary() {
-<span class="fc" id="L213">    mutate();</span>
-<span class="fc" id="L214">    return ULID.generateBinary(this.lastTimestamp, this.lastEntropy);</span>
+<span class="fc" id="L230">    mutate();</span>
+<span class="fc" id="L231">    return ULID.generateBinary(this.lastTimestamp, this.lastEntropy);</span>
   }
 
   /**
@@ -226,8 +243,8 @@ public final class MonotonicULID implements Serializable {
    * @since 1.1.0
    */
   public synchronized ULID generateULID() {
-<span class="fc" id="L229">    mutate();</span>
-<span class="fc" id="L230">    return ULID.generateULID(this.lastTimestamp, this.lastEntropy);</span>
+<span class="fc" id="L246">    mutate();</span>
+<span class="fc" id="L247">    return ULID.generateULID(this.lastTimestamp, this.lastEntropy);</span>
   }
 
   /**
@@ -239,38 +256,38 @@ public final class MonotonicULID implements Serializable {
    * @since 1.1.0
    */
   private void mutate() {
-<span class="fc" id="L242">    long now = this.clock.millis();</span>
-<span class="fc bfc" id="L243" title="All 4 branches covered.">    if (now &lt; ULID.MIN_TIME || now &gt; ULID.MAX_TIME)</span>
-<span class="fc" id="L244">      throw new IllegalStateException(&quot;Time is out of ULID specification&quot;);</span>
-<span class="fc bfc" id="L245" title="All 2 branches covered.">    if (now &lt;= this.lastTimestamp) {</span>
+<span class="fc" id="L259">    long now = this.clock.millis();</span>
+<span class="fc bfc" id="L260" title="All 4 branches covered.">    if (now &lt; ULID.MIN_TIME || now &gt; ULID.MAX_TIME)</span>
+<span class="fc" id="L261">      throw new IllegalStateException(&quot;Time is out of ULID specification&quot;);</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">    if (now &lt;= this.lastTimestamp) {</span>
       // Keep last timestamp and increment last entropy
       // Save a copy of last entropy in case of entropy overflow
-<span class="fc" id="L248">      byte[] previousEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
-<span class="fc" id="L249">      System.arraycopy(this.lastEntropy, 0, previousEntropy, 0, ULID.ENTROPY_LENGTH);</span>
+<span class="fc" id="L265">      byte[] previousEntropy = new byte[ULID.ENTROPY_LENGTH];</span>
+<span class="fc" id="L266">      System.arraycopy(this.lastEntropy, 0, previousEntropy, 0, ULID.ENTROPY_LENGTH);</span>
       // Entropy is big-endian (network byte order) per ULID spec
       // Increment last entropy by 1
-<span class="fc" id="L252">      boolean carry = true;</span>
-<span class="fc bfc" id="L253" title="All 2 branches covered.">      for (int i = ULID.ENTROPY_LENGTH - 1; i &gt;= 0; i--) {</span>
-<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (carry) {</span>
-<span class="fc" id="L255">          byte work = this.lastEntropy[i];</span>
-<span class="fc" id="L256">          work = (byte) (work + 0x01);</span>
-<span class="fc bfc" id="L257" title="All 2 branches covered.">          carry = this.lastEntropy[i] == (byte) 0xff;</span>
-<span class="fc" id="L258">          this.lastEntropy[i] = work;</span>
+<span class="fc" id="L269">      boolean carry = true;</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">      for (int i = ULID.ENTROPY_LENGTH - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        if (carry) {</span>
+<span class="fc" id="L272">          byte work = this.lastEntropy[i];</span>
+<span class="fc" id="L273">          work = (byte) (work + 0x01);</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">          carry = this.lastEntropy[i] == (byte) 0xff;</span>
+<span class="fc" id="L275">          this.lastEntropy[i] = work;</span>
         }
       }
       // Last byte has carry over
-<span class="fc bfc" id="L262" title="All 2 branches covered.">      if (carry) {</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">      if (carry) {</span>
         // Revert last entropy to previous value
-<span class="fc" id="L264">        System.arraycopy(previousEntropy, 0, this.lastEntropy, 0, ULID.ENTROPY_LENGTH);</span>
+<span class="fc" id="L281">        System.arraycopy(previousEntropy, 0, this.lastEntropy, 0, ULID.ENTROPY_LENGTH);</span>
         // Throw error if entropy overflows in same millisecond per ULID spec
-<span class="fc" id="L266">        throw new IllegalStateException(&quot;ULID entropy overflowed for same millisecond&quot;);</span>
+<span class="fc" id="L283">        throw new IllegalStateException(&quot;ULID entropy overflowed for same millisecond&quot;);</span>
       }
-<span class="fc" id="L268">    } else {</span>
+<span class="fc" id="L285">    } else {</span>
       // Generate new entropy
-<span class="fc" id="L270">      this.lastTimestamp = now;</span>
-<span class="fc" id="L271">      this.random.nextBytes(this.lastEntropy);</span>
+<span class="fc" id="L287">      this.lastTimestamp = now;</span>
+<span class="fc" id="L288">      this.random.nextBytes(this.lastEntropy);</span>
     }
-<span class="fc" id="L273">  }</span>
+<span class="fc" id="L290">  }</span>
 
   /**
    * Generate ULID string monotonically with {@link Clock#systemUTC()} for timestamp and default
@@ -286,7 +303,7 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.3
    */
   public static String random() {
-<span class="fc" id="L289">    return LazyDefaults.singleton.generate();</span>
+<span class="fc" id="L306">    return LazyDefaults.singleton.generate();</span>
   }
 
   /**
@@ -303,7 +320,7 @@ public final class MonotonicULID implements Serializable {
    * @since 1.0.4
    */
   public static byte[] randomBinary() {
-<span class="fc" id="L306">    return LazyDefaults.singleton.generateBinary();</span>
+<span class="fc" id="L323">    return LazyDefaults.singleton.generateBinary();</span>
   }
 
   /**
@@ -320,7 +337,7 @@ public final class MonotonicULID implements Serializable {
    * @since 1.1.0
    */
   public static ULID randomULID() {
-<span class="fc" id="L323">    return LazyDefaults.singleton.generateULID();</span>
+<span class="fc" id="L340">    return LazyDefaults.singleton.generateULID();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
