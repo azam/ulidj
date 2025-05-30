@@ -22,7 +22,7 @@
  * ULID (Universally Unique Lexicographically Sortable Identifier) generator and parser for Java.
  *
  * @author azam
- * @since 0.0.1
+ * @since 2.0.0
  *
  * @see <a href="https://github.com/azam">ulidj</a>
  * @see <a href="https://github.com/ulid/spec">ULID</a>
