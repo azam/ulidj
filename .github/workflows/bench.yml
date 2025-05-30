@@ -16,22 +16,12 @@ jobs:
       matrix:
         include:
           # Oldest LTS
-          - name: temurin-jdk8-target-jdk7
-            version: 8
+          - name: temurin-jdk11-target-jdk11
+            version: 11
             distribution: temurin
-            target: 7
-            targetStr: '1.7'
-          - name: temurin-jdk8-target-jdk8
-            version: 8
-            distribution: temurin
-            target: 8
-            targetStr: '1.8'
+            target: 11
+            targetStr: '11'
           # Latest LTS
-          - name: temurin-jdk21-target-jdk8
-            version: 21
-            distribution: temurin
-            target: 8
-            targetStr: '1.8'
           - name: temurin-jdk21-target-jdk11
             version: 21
             distribution: temurin
@@ -67,7 +57,7 @@ jobs:
           cat ./bench-${{matrix.name}}.json >> $GITHUB_STEP_SUMMARY
           echo -e "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY
       - name: bench-pages-branch-${{matrix.name}}
-        if: ${{github.ref_type == 'branch'}}
+        if: ${{github.ref_type == 'branch' && matrix.version >= matrix.target}}
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: branch-${{github.ref_name}}-${{matrix.name}}
@@ -78,7 +68,7 @@ jobs:
           summary-always: true
           benchmark-data-dir-path: 'benchmark/branch/${{github.ref_name}}'
       - name: bench-pages-tag-${{matrix.name}}
-        if: ${{github.ref_type == 'tag'}}
+        if: ${{github.ref_type == 'tag' && matrix.version >= matrix.target}}
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: tag-${{github.ref_name}}-${{matrix.name}}

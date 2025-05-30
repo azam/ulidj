@@ -21,6 +21,7 @@
 package io.azam.ulidj;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -45,12 +46,16 @@ public class ULIDBenchmark {
     public Random random;
     public SecureRandom secureRandom;
     public ThreadLocalRandom threadLocalRandom;
+    public Clock systemDefaultZone;
+    public Clock systemUTC;
 
     @Setup(Level.Trial)
     public void doSetup() {
       this.random = new Random();
       this.secureRandom = new SecureRandom();
       this.threadLocalRandom = ThreadLocalRandom.current();
+      this.systemDefaultZone = Clock.systemDefaultZone();
+      this.systemUTC = Clock.systemUTC();
     }
   }
 
@@ -107,6 +112,36 @@ public class ULIDBenchmark {
   @Benchmark
   public void randomULIDWithThreadLocalRandom(Blackhole blackhole, ULIDState state) {
     blackhole.consume(ULID.randomULID(state.threadLocalRandom));
+  }
+
+  @Benchmark
+  public void randomWithSystemDefaultZone(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.random(state.systemDefaultZone));
+  }
+
+  @Benchmark
+  public void randomBinaryWithSystemDefaultZone(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomBinary(state.systemDefaultZone));
+  }
+
+  @Benchmark
+  public void randomULIDWithSystemDefaultZone(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomULID(state.systemDefaultZone));
+  }
+
+  @Benchmark
+  public void randomWithSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.random(state.systemUTC));
+  }
+
+  @Benchmark
+  public void randomBinaryWithSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomBinary(state.systemUTC));
+  }
+
+  @Benchmark
+  public void randomULIDWithSystemUTC(Blackhole blackhole, ULIDState state) {
+    blackhole.consume(ULID.randomULID(state.systemUTC));
   }
 
   @Benchmark

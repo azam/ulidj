@@ -38,6 +38,8 @@ public class MonotonicULIDBenchmark {
     public MonotonicULID random;
     public MonotonicULID secureRandom;
     public MonotonicULID threadLocalRandom;
+    public MonotonicULID systemDefaultZone;
+    public MonotonicULID systemUTC;
 
     @Setup(Level.Trial)
     public void doSetup() {
@@ -45,6 +47,8 @@ public class MonotonicULIDBenchmark {
       this.random = new MonotonicULID(new Random());
       this.secureRandom = new MonotonicULID(new SecureRandom());
       this.threadLocalRandom = new MonotonicULID(ThreadLocalRandom.current());
+      this.systemDefaultZone = new MonotonicULID(MutableFixedClock.systemDefaultZone());
+      this.systemUTC = new MonotonicULID(MutableFixedClock.systemUTC());
     }
   }
 
@@ -106,6 +110,36 @@ public class MonotonicULIDBenchmark {
   @Benchmark
   public void generateULIDThreadLocalRandom(Blackhole blackhole, MonotonicULIDState state) {
     blackhole.consume(state.threadLocalRandom.generateULID());
+  }
+
+  @Benchmark
+  public void generateSystemDefaultZone(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemDefaultZone.generate());
+  }
+
+  @Benchmark
+  public void generateBinarySystemDefaultZone(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemDefaultZone.generateBinary());
+  }
+
+  @Benchmark
+  public void generateULIDSystemDefaultZone(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemDefaultZone.generateULID());
+  }
+
+  @Benchmark
+  public void generateSystemUTC(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemUTC.generate());
+  }
+
+  @Benchmark
+  public void generateBinarySystemUTC(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemUTC.generateBinary());
+  }
+
+  @Benchmark
+  public void generateULIDSystemUTC(Blackhole blackhole, MonotonicULIDState state) {
+    blackhole.consume(state.systemUTC.generateULID());
   }
 
   @Benchmark
