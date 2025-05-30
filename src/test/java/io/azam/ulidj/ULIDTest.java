@@ -1,7 +1,7 @@
-/**
+/*
  * MIT License
  *
- * Copyright (c) 2016 Azamshul Azizy
+ * Copyright (c) 2016-2025 Azamshul Azizy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -23,6 +23,9 @@ package io.azam.ulidj;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -54,6 +57,8 @@ public class ULIDTest {
       (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
   };
   public static final long TEST_TIMESTAMP = 946652400000L; // 2000-01-01T00:00:00Z
+  public static final Clock TEST_CLOCK =
+      Clock.fixed(Instant.ofEpochMilli(TEST_TIMESTAMP), ZoneOffset.UTC);
   public static final Random TEST_RANDOM = new FixedRandom(FILLED_ENTROPY);
 
   private static class TestParam {
@@ -151,10 +156,53 @@ public class ULIDTest {
   }
 
   @Test
+  public void testRandomExternalClock() {
+    String value = ULID.random(TEST_CLOCK);
+    assertNotNull(value, "Generated ULID must not be null");
+    assertEquals(26, value.length(), "Generated ULID length must be 26");
+    assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "Generated ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomExternalClockAndRandom() {
+    String value = ULID.random(TEST_CLOCK, TEST_RANDOM);
+    assertNotNull(value, "Generated ULID must not be null");
+    assertEquals(26, value.length(), "Generated ULID length must be 26");
+    assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "Generated ULID must use provided clock instance");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "Generated ULID must use provided random instance");
+  }
+
+  @Test
   public void testRandomInvalid() {
     assertThrows(NullPointerException.class, () -> {
       Random random = null;
       String value = ULID.random(random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      String value = ULID.random(clock);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = null;
+      String value = ULID.random(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = new Random();
+      String value = ULID.random(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = Clock.systemUTC();
+      Random random = null;
+      String value = ULID.random(clock, random);
     }, "Null random instance should throw NullPointerException");
   }
 
@@ -179,10 +227,53 @@ public class ULIDTest {
   }
 
   @Test
+  public void testRandomBinaryExternalClock() {
+    byte[] value = ULID.randomBinary(TEST_CLOCK);
+    assertNotNull(value, "Generated binary ULID must not be null");
+    assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Generated binary ULID must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomBinaryExternalClockAndRandom() {
+    byte[] value = ULID.randomBinary(TEST_CLOCK, TEST_RANDOM);
+    assertNotNull(value, "Generated binary ULID must not be null");
+    assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Generated binary ULID must use provided clock instance");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Generated binary ULID must use provided random instance");
+  }
+
+  @Test
   public void testRandomBinaryInvalid() {
     assertThrows(NullPointerException.class, () -> {
       Random random = null;
       byte[] value = ULID.randomBinary(random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      byte[] value = ULID.randomBinary(clock);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = null;
+      byte[] value = ULID.randomBinary(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = new Random();
+      byte[] value = ULID.randomBinary(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = Clock.systemUTC();
+      Random random = null;
+      byte[] value = ULID.randomBinary(clock, random);
     }, "Null random instance should throw NullPointerException");
   }
 
@@ -213,6 +304,65 @@ public class ULIDTest {
         "Generated ULID instance binary value must be valid");
     assertArrayEquals(FILLED_ENTROPY, value.getEntropy(),
         "Generated ULID instance entropy must use provided random instance");
+  }
+
+  @Test
+  public void testRandomULIDExternalClock() {
+    ULID value = ULID.randomULID(TEST_CLOCK);
+    assertNotNull(value, "Generated ULID instance must not be null");
+    assertEquals(ULID.class, value.getClass(), "Generated ULID instance must be of type ULID");
+    assertNotNull(value.toString(), "Generated ULID instance string value must not be null");
+    assertTrue(ULID.isValid(value.toString()),
+        "Generated ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "Generated ULID instance binary value must not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()),
+        "Generated ULID instance binary value must be valid");
+    assertEquals(TEST_TIMESTAMP, value.getTimestamp(),
+        "Generated ULID instance must use provided clock instance");
+  }
+
+  @Test
+  public void testRandomULIDExternalClockAndRandom() {
+    ULID value = ULID.randomULID(TEST_CLOCK, TEST_RANDOM);
+    assertNotNull(value, "Generated ULID instance must not be null");
+    assertEquals(ULID.class, value.getClass(), "Generated ULID instance must be of type ULID");
+    assertNotNull(value.toString(), "Generated ULID instance string value must not be null");
+    assertTrue(ULID.isValid(value.toString()),
+        "Generated ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "Generated ULID instance binary value must not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()),
+        "Generated ULID instance binary value must be valid");
+    assertEquals(TEST_TIMESTAMP, value.getTimestamp(),
+        "Generated ULID instance must use provided clock instance");
+    assertArrayEquals(FILLED_ENTROPY, value.getEntropy(),
+        "Generated ULID instance entropy must use provided random instance");
+  }
+
+  @Test
+  public void testRandomULIDInvalid() {
+    assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      ULID value = ULID.randomULID(random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      ULID value = ULID.randomULID(clock);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = null;
+      ULID value = ULID.randomULID(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = null;
+      Random random = new Random();
+      ULID value = ULID.randomULID(clock, random);
+    }, "Null random instance should throw NullPointerException");
+    assertThrows(NullPointerException.class, () -> {
+      Clock clock = Clock.systemUTC();
+      Random random = null;
+      ULID value = ULID.randomULID(clock, random);
+    }, "Null random instance should throw NullPointerException");
   }
 
   @Test
