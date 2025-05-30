@@ -22,6 +22,7 @@ package io.azam.ulidj;
 
 import java.io.Serializable;
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -425,7 +426,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
 
   /**
    * Generate random ULID string using default {@link java.util.Random} instance backed by
-   * {@link java.security.SecureRandom}.
+   * {@link java.security.SecureRandom} for entropy and {@link System#currentTimeMillis()} for
+   * timestamp.
    *
    * @return ULID string
    * @throws IllegalArgumentException if current time is out of ULID specification
@@ -439,7 +441,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
 
   /**
    * Generate random ULID binary using default {@link java.util.Random} instance backed by
-   * {@link java.security.SecureRandom}.
+   * {@link java.security.SecureRandom} for entropy and {@link System#currentTimeMillis()} for
+   * timestamp.
    *
    * @return ULID binary
    * @throws IllegalArgumentException if current time is out of ULID specification
@@ -453,7 +456,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
 
   /**
    * Generate random ULID instance using default {@link java.util.Random} instance backed by
-   * {@link java.security.SecureRandom}.
+   * {@link java.security.SecureRandom} for entropy and {@link System#currentTimeMillis()} for
+   * timestamp.
    *
    * @return ULID instance
    * @throws IllegalArgumentException if current time is out of ULID specification
@@ -464,7 +468,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Generate random ULID string using provided {@link java.util.Random} instance.
+   * Generate random ULID string using provided {@link java.util.Random} instance for entropy and
+   * {@link System#currentTimeMillis()} for timestamp.
    *
    * @param random {@link java.util.Random} instance
    * @return ULID string
@@ -478,7 +483,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Generate random ULID binary using provided {@link java.util.Random} instance.
+   * Generate random ULID binary using provided {@link java.util.Random} instance for entropy and
+   * {@link System#currentTimeMillis()} for timestamp.
    *
    * @param random {@link java.util.Random} instance
    * @return ULID string
@@ -492,7 +498,8 @@ public final class ULID implements Serializable, Comparable<ULID> {
   }
 
   /**
-   * Generate random ULID instance using provided {@link java.util.Random} instance.
+   * Generate random ULID instance using provided {@link java.util.Random} instance for entropy and
+   * {@link System#currentTimeMillis()} for timestamp.
    *
    * @param random {@link java.util.Random} instance
    * @return ULID instance
@@ -501,6 +508,98 @@ public final class ULID implements Serializable, Comparable<ULID> {
    */
   public static ULID randomULID(Random random) {
     return new ULID(randomBinary(random));
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.time.Clock} instance for timestamp and
+   * default {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for
+   * entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static String random(Clock clock) {
+    byte[] entropy = new byte[ENTROPY_LENGTH];
+    LazyDefaults.random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.time.Clock} instance for timestamp and
+   * default {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for
+   * entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID string
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static byte[] randomBinary(Clock clock) {
+    byte[] entropy = new byte[ENTROPY_LENGTH];
+    LazyDefaults.random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID instance using provided {@link java.time.Clock} instance for timestamp and
+   * default {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for
+   * entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @return ULID instance
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static ULID randomULID(Clock clock) {
+    return new ULID(randomBinary(clock));
+  }
+
+  /**
+   * Generate random ULID string using provided {@link java.time.Clock} instance for timestamp and
+   * {@link java.util.Random} instance for entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @param random {@link java.util.Random} instance
+   * @return ULID string
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static String random(Clock clock, Random random) {
+    byte[] entropy = new byte[ENTROPY_LENGTH];
+    random.nextBytes(entropy);
+    return generate(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID binary using provided {@link java.time.Clock} instance for timestamp and
+   * {@link java.util.Random} instance for entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @param random {@link java.util.Random} instance
+   * @return ULID string
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static byte[] randomBinary(Clock clock, Random random) {
+    byte[] entropy = new byte[ENTROPY_LENGTH];
+    random.nextBytes(entropy);
+    return generateBinary(clock.millis(), entropy);
+  }
+
+  /**
+   * Generate random ULID instance using provided {@link java.time.Clock} instance for timestamp and
+   * {@link java.util.Random} instance for entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @param random {@link java.util.Random} instance
+   * @return ULID instance
+   * @throws IllegalArgumentException if current time is out of ULID specification
+   * @since 2.0.0
+   */
+  public static ULID randomULID(Clock clock, Random random) {
+    return new ULID(randomBinary(clock, random));
   }
 
   /**

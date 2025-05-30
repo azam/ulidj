@@ -20,7 +20,9 @@
  */
 package io.azam.ulidj;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.Random;
 
 /**
@@ -75,10 +77,37 @@ import java.util.Random;
  * @see <a href="https://github.com/ulid/spec">ULID Specification</a>
  * @see <a href="https://www.crockford.com/wrmg/base32.html">Crockford Base32 Encoding</a>
  */
-public final class MonotonicULID {
+public final class MonotonicULID implements Serializable {
+  private static final long serialVersionUID = 2L;
+
+  /**
+   * {@link java.time.Clock} instance used to generate timestamp (milliseconds since epoch) for
+   * ULID.
+   */
+  private final Clock clock;
+
+  /**
+   * {@link java.util.Random} instance used to generate entropy for ULID.
+   */
   private final Random random;
-  private final byte[] lastEntropy;
+
+  /**
+   * Last timestamp generated in the last call to {@link #generate()} or {@link #generateBinary()}
+   * or {@link #generateULID()}.<br>
+   * <br>
+   * This is used to check if the current time is less than or equal to the last timestamp so that
+   * the entropy can be incremented by 1-bit in the least significant bit with carryover.
+   */
   private long lastTimestamp;
+
+  /**
+   * Last entropy generated in the last call to {@link #generate()} or {@link #generateBinary()} or
+   * {@link #generateULID()}.<br>
+   * <br>
+   * This is used to increment the entropy in the least significant bit with carryover if this
+   * method is called within the same millisecond.
+   */
+  private final byte[] lastEntropy;
 
   /**
    * This allows lazy initialization of the default {@link java.util.Random} instance, backed by
@@ -99,29 +128,58 @@ public final class MonotonicULID {
      *
      * @since 1.1.0
      */
-    static final MonotonicULID singleton = new MonotonicULID(random);
+    static final MonotonicULID singleton = new MonotonicULID(Clock.systemUTC(), random);
   }
 
   /**
    * Generate a monotonic ULID generator instance using default {@link java.util.Random} instance
-   * backed by {@link java.security.SecureRandom}.
+   * backed by {@link java.security.SecureRandom} for entropy and {@link Clock#systemUTC()} for
+   * timestamp.
    *
    * @since 1.0.3
    */
   public MonotonicULID() {
-    this(LazyDefaults.random);
+    this(Clock.systemUTC(), LazyDefaults.random);
   }
 
   /**
-   * Generate a monotonic ULID generator instance.
+   * Generate a monotonic ULID generator instance using provided {@link java.util.Random} instance
+   * for entropy and {@link Clock#systemUTC()} for timestamp.
    *
    * @param random {@link java.util.Random} instance
    * @since 1.0.3
    */
   public MonotonicULID(Random random) {
-    this.random = random == null ? LazyDefaults.random : random;
-    this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];
+    this(Clock.systemUTC(), random);
+  }
+
+  /**
+   * Generate a monotonic ULID generator instance using provided {@link java.time.Clock} instance
+   * for timestamp and default {@link java.util.Random} instance backed by
+   * {@link java.security.SecureRandom} for entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @since 2.0.0
+   */
+  public MonotonicULID(Clock clock) {
+    this(clock, LazyDefaults.random);
+  }
+
+  /**
+   * Generate a monotonic ULID generator instance using provided {@link java.time.Clock} instance
+   * for timestamp and {@link java.util.Random} instance for entropy.
+   *
+   * @param clock {@link java.time.Clock} instance
+   * @param random {@link java.util.Random} instance
+   * @since 2.0.0
+   */
+  public MonotonicULID(Clock clock, Random random) {
+    if (clock == null || random == null)
+      throw new IllegalArgumentException("clock or random instance is null");
+    this.clock = clock;
+    this.random = random;
     this.lastTimestamp = 0L;
+    this.lastEntropy = new byte[ULID.ENTROPY_LENGTH];
   }
 
   /**
@@ -181,7 +239,7 @@ public final class MonotonicULID {
    * @since 1.1.0
    */
   private void mutate() {
-    long now = System.currentTimeMillis();
+    long now = this.clock.millis();
     if (now < ULID.MIN_TIME || now > ULID.MAX_TIME)
       throw new IllegalStateException("Time is out of ULID specification");
     if (now <= this.lastTimestamp) {
@@ -215,10 +273,10 @@ public final class MonotonicULID {
   }
 
   /**
-   * Generate ULID string monotonically with the defauit {@link io.azam.ulidj.MonotonicULID}
-   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
-   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
-   * returned.<br>
+   * Generate ULID string monotonically with {@link Clock#systemUTC()} for timestamp and default
+   * {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for entropy. If
+   * this method is called within the same millisecond, last entropy will be incremented by 1 and
+   * the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
    * overflows entropy length (80-bits/10-bytes).
@@ -232,10 +290,10 @@ public final class MonotonicULID {
   }
 
   /**
-   * Generate ULID binary monotonically with the defauit {@link io.azam.ulidj.MonotonicULID} *
-   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
-   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
-   * returned.<br>
+   * Generate ULID binary monotonically with {@link Clock#systemUTC()} for timestamp and default
+   * {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for entropy. If
+   * this method is called within the same millisecond, last entropy will be incremented by 1 and
+   * the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
    * overflows entropy length (80-bits/10-bytes).
@@ -249,10 +307,10 @@ public final class MonotonicULID {
   }
 
   /**
-   * Generate ULID instance monotonically with the defauit {@link io.azam.ulidj.MonotonicULID} *
-   * instance backed by {@link java.security.SecureRandom}. If this method is called within the same
-   * millisecond, last entropy will be incremented by 1 and the ULID string of incremented value is
-   * returned.<br>
+   * Generate ULID instance monotonically with {@link Clock#systemUTC()} for timestamp and default
+   * {@link java.util.Random} instance backed by {@link java.security.SecureRandom} for entropy. If
+   * this method is called within the same millisecond, last entropy will be incremented by 1 and
+   * the ULID string of incremented value is returned.<br>
    * <br>
    * This method will throw a {@link java.lang.IllegalStateException} exception if incremented value
    * overflows entropy length (80-bits/10-bytes).
