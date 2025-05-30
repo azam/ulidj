@@ -20,6 +20,8 @@
  */
 package io.azam.ulidj;
 
+import org.junit.jupiter.api.Test;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,17 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 import static io.azam.ulidj.TestUtils.incrementBytes;
 import static io.azam.ulidj.ULIDTest.FILLED_ENTROPY;
 import static io.azam.ulidj.ULIDTest.TEST_RANDOM;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for {@link io.azam.ulidj.MonotonicULID}
@@ -77,30 +77,30 @@ public class MonotonicULIDTest {
     ULID value = ulid.generateULID();
     assertNotNull(value);
     assertEquals(ULID.class, value.getClass());
-    assertNotNull("ULID instance string value should not be null", value.toString());
-    assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
-    assertNotNull("ULID instance binary value should not be null", value.toBinary());
-    assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
+    assertNotNull(value.toString(), "ULID instance string value should not be null");
+    assertTrue(ULID.isValid(value.toString()), "ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "ULID instance binary value should not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()), "ULID instance binary value must be valid");
   }
 
   @Test
   public void testGenerateExternalRandom() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
     String value = ulid.generate();
-    assertNotNull("ULID value should not be null", value);
-    assertTrue("ULID value must be valid", ULID.isValid(value));
-    assertArrayEquals("ULID entropy should be filled with the provided random", FILLED_ENTROPY,
-        ULID.getEntropy(value));
+    assertNotNull(value, "ULID value should not be null");
+    assertTrue(ULID.isValid(value), "ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "ULID entropy should be filled with the provided random");
   }
 
   @Test
   public void testGenerateBinaryExternalRandom() {
     MonotonicULID ulid = new MonotonicULID(TEST_RANDOM);
     byte[] value = ulid.generateBinary();
-    assertNotNull("Binary ULID value should not be null", value);
-    assertTrue("Binary ULID value must be valid", ULID.isValidBinary(value));
-    assertArrayEquals("Binary ULID entropy should be filled with the provided random",
-        FILLED_ENTROPY, ULID.getEntropyBinary(value));
+    assertNotNull(value, "Binary ULID value should not be null");
+    assertTrue(ULID.isValidBinary(value), "Binary ULID value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Binary ULID entropy should be filled with the provided random");
   }
 
   @Test
@@ -203,13 +203,10 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    assertThrows(IllegalStateException.class, new ThrowingRunnable() {
-      @Override
-      public void run() {
-        List<String> values = new ArrayList<String>();
-        for (int i = 0; i < 1000000; i++) {
-          values.add(ulid.generate());
-        }
+    assertThrows(IllegalStateException.class, () -> {
+      List<String> values = new ArrayList<String>();
+      for (int i = 0; i < 1000000; i++) {
+        values.add(ulid.generate());
       }
     });
   }
@@ -222,13 +219,10 @@ public class MonotonicULIDTest {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff //
     }));
-    assertThrows(IllegalStateException.class, new ThrowingRunnable() {
-      @Override
-      public void run() {
-        List<byte[]> values = new ArrayList<byte[]>();
-        for (int i = 0; i < 1000000; i++) {
-          values.add(ulid.generateBinary());
-        }
+    assertThrows(IllegalStateException.class, () -> {
+      List<byte[]> values = new ArrayList<byte[]>();
+      for (int i = 0; i < 1000000; i++) {
+        values.add(ulid.generateBinary());
       }
     });
   }

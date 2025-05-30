@@ -20,25 +20,23 @@
  */
 package io.azam.ulidj;
 
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Random;
-
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 import static io.azam.ulidj.TestUtils.assertEntropyIsIncremented;
 import static io.azam.ulidj.TestUtils.bytesToInitializer;
 import static io.azam.ulidj.TestUtils.incrementBytes;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for {@link io.azam.ulidj.ULID}
@@ -135,94 +133,86 @@ public class ULIDTest {
   @Test
   public void testRandom() {
     String value = ULID.random();
-    assertNotNull("Generated ULID must not be null", value);
-    assertEquals("Generated ULID length must be 26", 26, value.length());
-    assertTrue("Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]",
-        value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
+    assertNotNull(value, "Generated ULID must not be null");
+    assertEquals(26, value.length(), "Generated ULID length must be 26");
+    assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
   }
 
   @Test
   public void testRandomExternalRandom() {
     String value = ULID.random(TEST_RANDOM);
-    assertNotNull("Generated ULID must not be null", value);
-    assertEquals("Generated ULID length must be 26", 26, value.length());
-    assertTrue("Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]",
-        value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
-    assertArrayEquals("Generated ULID must use provided random instance", FILLED_ENTROPY,
-        ULID.getEntropy(value));
+    assertNotNull(value, "Generated ULID must not be null");
+    assertEquals(26, value.length(), "Generated ULID length must be 26");
+    assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
+        "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ]");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropy(value),
+        "Generated ULID must use provided random instance");
   }
 
   @Test
   public void testRandomInvalid() {
-    assertThrows("Null random instance should throw NullPointerException",
-        NullPointerException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            Random random = null;
-            String value = ULID.random(random);
-          }
-        });
+    assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      String value = ULID.random(random);
+    }, "Null random instance should throw NullPointerException");
   }
 
   @Test
   public void testRandomBinary() {
     byte[] value = ULID.randomBinary();
-    assertNotNull("Generated ULID binary must not be null", value);
-    assertEquals("Generated ULID binary length must be 16", 16, value.length);
-    assertEquals("Generated binary ULID entropy must be of length 10", 10,
-        ULID.getEntropyBinary(value).length);
+    assertNotNull(value, "Generated ULID binary must not be null");
+    assertEquals(16, value.length, "Generated ULID binary length must be 16");
+    assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
   }
 
   @Test
   public void testRandomBinaryExternalRandom() {
     byte[] value = ULID.randomBinary(TEST_RANDOM);
-    assertNotNull("Generated binary ULID must not be null", value);
-    assertEquals("Generated binary ULID length must be 16", 16, value.length);
-    assertEquals("Generated binary ULID entropy must be of length 10", 10,
-        ULID.getEntropyBinary(value).length);
-    assertArrayEquals("Generated binary ULID must use provided random instance", FILLED_ENTROPY,
-        ULID.getEntropyBinary(value));
+    assertNotNull(value, "Generated binary ULID must not be null");
+    assertEquals(16, value.length, "Generated binary ULID length must be 16");
+    assertEquals(10, ULID.getEntropyBinary(value).length,
+        "Generated binary ULID entropy must be of length 10");
+    assertArrayEquals(FILLED_ENTROPY, ULID.getEntropyBinary(value),
+        "Generated binary ULID must use provided random instance");
   }
 
   @Test
   public void testRandomBinaryInvalid() {
-    assertThrows("Null random instance should throw NullPointerException",
-        NullPointerException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            Random random = null;
-            byte[] value = ULID.randomBinary(random);
-          }
-        });
+    assertThrows(NullPointerException.class, () -> {
+      Random random = null;
+      byte[] value = ULID.randomBinary(random);
+    }, "Null random instance should throw NullPointerException");
   }
 
 
   @Test
   public void testRandomULID() {
     ULID value = ULID.randomULID();
-    assertNotNull("Generated ULID instance must not be null", value);
-    assertEquals("Generated ULID instance must be of type ULID", ULID.class, value.getClass());
-    assertNotNull("Generated ULID instance string value must not be null", value.toString());
-    assertTrue("Generated ULID instance string value must be valid",
-        ULID.isValid(value.toString()));
-    assertNotNull("Generated ULID instance binary value must not be null", value.toBinary());
-    assertTrue("Generated ULID instance binary value must be valid",
-        ULID.isValidBinary(value.toBinary()));
+    assertNotNull(value, "Generated ULID instance must not be null");
+    assertEquals(ULID.class, value.getClass(), "Generated ULID instance must be of type ULID");
+    assertNotNull(value.toString(), "Generated ULID instance string value must not be null");
+    assertTrue(ULID.isValid(value.toString()),
+        "Generated ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "Generated ULID instance binary value must not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()),
+        "Generated ULID instance binary value must be valid");
   }
 
   @Test
   public void testRandomULIDExternalRandom() {
     ULID value = ULID.randomULID(TEST_RANDOM);
-    assertNotNull("Generated ULID instance must not be null", value);
-    assertEquals("Generated ULID instance must be of type ULID", ULID.class, value.getClass());
-    assertNotNull("Generated ULID instance string value must not be null", value.toString());
-    assertTrue("Generated ULID instance string value must be valid",
-        ULID.isValid(value.toString()));
-    assertNotNull("Generated ULID instance binary value must not be null", value.toBinary());
-    assertTrue("Generated ULID instance binary value must be valid",
-        ULID.isValidBinary(value.toBinary()));
-    assertArrayEquals("Generated ULID instance entropy must use provided random instance",
-        FILLED_ENTROPY, value.getEntropy());
+    assertNotNull(value, "Generated ULID instance must not be null");
+    assertEquals(ULID.class, value.getClass(), "Generated ULID instance must be of type ULID");
+    assertNotNull(value.toString(), "Generated ULID instance string value must not be null");
+    assertTrue(ULID.isValid(value.toString()),
+        "Generated ULID instance string value must be valid");
+    assertNotNull(value.toBinary(), "Generated ULID instance binary value must not be null");
+    assertTrue(ULID.isValidBinary(value.toBinary()),
+        "Generated ULID instance binary value must be valid");
+    assertArrayEquals(FILLED_ENTROPY, value.getEntropy(),
+        "Generated ULID instance entropy must use provided random instance");
   }
 
   @Test
@@ -231,53 +221,40 @@ public class ULIDTest {
     Random random = new Random();
     random.nextBytes(entropy);
     String value = ULID.generate(TEST_TIMESTAMP, entropy);
-    assertNotNull("Generated ULID must not be null", value);
-    assertEquals("Generated ULID length must be 26, but returned " + value.length() + " instead",
-        26, value.length());
-    assertTrue(
+    assertNotNull(value, "Generated ULID must not be null");
+    assertEquals(26, value.length(),
+        "Generated ULID length must be 26, but returned " + value.length() + " instead");
+    assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
         "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ], but returned "
-            + value + " instead",
-        value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
-    assertEquals("Generated ULID timestamp must equal given timestamp", TEST_TIMESTAMP,
-        ULID.getTimestamp(value));
-    assertArrayEquals("Generated ULID entropy must equal given entropy", entropy,
-        ULID.getEntropy(value));
+            + value + " instead");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestamp(value),
+        "Generated ULID timestamp must equal given timestamp");
+    assertArrayEquals(entropy, ULID.getEntropy(value),
+        "Generated ULID entropy must equal given entropy");
   }
 
   @Test
   public void testGenerateInvalid() {
     Random random = new Random();
-    assertThrows("Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME("
-        + ULID.MIN_TIME + ")", IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            String value = ULID.generate(ULID.MIN_TIME - 1, FILLED_ENTROPY);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      String value = ULID.generate(ULID.MIN_TIME - 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME(" + ULID.MIN_TIME
+        + ")");
     assertThrows(
-        "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            String value = ULID.generate(ULID.MAX_TIME + 1, FILLED_ENTROPY);
-          }
-        });
-    assertThrows("Valid ULID entropy must not be null", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            String value = ULID.generate(TEST_TIMESTAMP, null);
-          }
-        });
-    assertThrows("Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH("
-        + ULID.ENTROPY_LENGTH + ")", IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] entropy = new byte[9];
-            Arrays.fill(entropy, (byte) 0x77);
-            String value = ULID.generate(TEST_TIMESTAMP, entropy);
-          }
-        });
+
+        IllegalArgumentException.class, () -> {
+          String value = ULID.generate(ULID.MAX_TIME + 1, FILLED_ENTROPY);
+        }, "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME
+            + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      String value = ULID.generate(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must not be null");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0x77);
+      String value = ULID.generate(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH
+        + ")");
   }
 
   @Test
@@ -286,74 +263,56 @@ public class ULIDTest {
     Random random = new Random();
     random.nextBytes(entropy);
     byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
-    assertNotNull("Generated ULID binary must not be null", value);
-    assertEquals(
-        "Generated ULID binary length must be 16, but returned " + value.length + " instead", 16,
-        value.length);
-    assertEquals("Generated ULID binary timestamp must equal given timestamp", TEST_TIMESTAMP,
-        ULID.getTimestampBinary(value));
-    assertArrayEquals("Generated ULID binary entropy must equal given entropy", entropy,
-        ULID.getEntropyBinary(value));
+    assertNotNull(value, "Generated ULID binary must not be null");
+    assertEquals(16, value.length,
+        "Generated ULID binary length must be 16, but returned " + value.length + " instead");
+    assertEquals(TEST_TIMESTAMP, ULID.getTimestampBinary(value),
+        "Generated ULID binary timestamp must equal given timestamp");
+    assertArrayEquals(entropy, ULID.getEntropyBinary(value),
+        "Generated ULID binary entropy must equal given entropy");
   }
 
   @Test
   public void testGenerateBinaryInvalid() {
     Random random = new Random();
-    assertThrows("Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME("
-        + ULID.MIN_TIME + ")", IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] value = ULID.generateBinary(ULID.MIN_TIME - 1, FILLED_ENTROPY);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] value = ULID.generateBinary(ULID.MIN_TIME - 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME(" + ULID.MIN_TIME
+        + ")");
     assertThrows(
-        "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] value = ULID.generateBinary(ULID.MAX_TIME + 1, FILLED_ENTROPY);
-          }
-        });
-    assertThrows("Valid ULID entropy must not be null", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] value = ULID.generateBinary(TEST_TIMESTAMP, null);
-          }
-        });
-    assertThrows("Valid ULID entropy must be of ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] entropy = new byte[9];
-            Arrays.fill(entropy, (byte) 0xff);
-            byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
-          }
-        });
-    assertThrows("Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH("
-        + ULID.ENTROPY_LENGTH + ")", IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] entropy = new byte[9];
-            Arrays.fill(entropy, (byte) 0xff);
-            byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
-          }
-        });
+
+        IllegalArgumentException.class, () -> {
+          byte[] value = ULID.generateBinary(ULID.MAX_TIME + 1, FILLED_ENTROPY);
+        }, "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME
+            + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must not be null");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0xff);
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be of ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0xff);
+      byte[] value = ULID.generateBinary(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be at least of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH
+        + ")");
   }
 
   @Test
   public void testGenerateFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
       String value = ULID.generate(params.timestamp, params.entropy);
-      assertEquals("Generated ULID must be equal to \"" + params.value + "\" for "
-          + params.reproducer + " , but returned \"" + value + "\" instead", params.value, value);
-      assertNotNull("Generated ULID must not be null", value);
-      assertEquals("Generated ULID length must be 26, but returned " + value.length() + " instead",
-          26, value.length());
-      assertTrue(
+      assertEquals(params.value, value, "Generated ULID must be equal to \"" + params.value
+          + "\" for " + params.reproducer + " , but returned \"" + value + "\" instead");
+      assertNotNull(value, "Generated ULID must not be null");
+      assertEquals(26, value.length(),
+          "Generated ULID length must be 26, but returned " + value.length() + " instead");
+      assertTrue(value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"),
           "Generated ULID characters must only include [0123456789ABCDEFGHJKMNPQRSTVWXYZ], but returned "
-              + value + " instead",
-          value.matches("[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}"));
+              + value + " instead");
     }
   }
 
@@ -367,8 +326,8 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      assertArrayEquals("ULID binary is different", bytes,
-          ULID.generateBinary(params.timestamp, params.entropy));
+      assertArrayEquals(bytes, ULID.generateBinary(params.timestamp, params.entropy),
+          "ULID binary is different");
     }
   }
 
@@ -383,75 +342,48 @@ public class ULIDTest {
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
       ULID value = ULID.generateULID(params.timestamp, params.entropy);
-      assertNotNull("ULID instance must not be null", value);
-      assertEquals("ULID instance must be of type ULID", ULID.class, value.getClass());
-      assertNotNull("ULID instance string value must not be null", value.toString());
-      assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
-      assertEquals("ULID instance string value must equal given string value", params.value,
-          value.toString());
-      assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
-      assertArrayEquals("ULID instance binary value must equal given binary value", bytes,
-          value.toBinary());
-      assertEquals("ULID instance timestamp must equal given timestamp", params.timestamp,
-          value.getTimestamp());
-      assertArrayEquals("ULID instance entropy must equal given entropy", params.entropy,
-          value.getEntropy());
+      assertNotNull(value, "ULID instance must not be null");
+      assertEquals(ULID.class, value.getClass(), "ULID instance must be of type ULID");
+      assertNotNull(value.toString(), "ULID instance string value must not be null");
+      assertTrue(ULID.isValid(value.toString()), "ULID instance string value must be valid");
+      assertEquals(params.value, value.toString(),
+          "ULID instance string value must equal given string value");
+      assertTrue(ULID.isValidBinary(value.toBinary()), "ULID instance binary value must be valid");
+      assertArrayEquals(bytes, value.toBinary(),
+          "ULID instance binary value must equal given binary value");
+      assertEquals(params.timestamp, value.getTimestamp(),
+          "ULID instance timestamp must equal given timestamp");
+      assertArrayEquals(params.entropy, value.getEntropy(),
+          "ULID instance entropy must equal given entropy");
     }
   }
 
   @Test
   public void testGenerateULIDTimeEntropyNegative() {
     Random random = new Random();
-    assertThrows("Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME("
-        + ULID.MIN_TIME + ")", IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID value = ULID.generateULID(ULID.MIN_TIME - 1, FILLED_ENTROPY);
-          }
-        });
-    assertThrows(
-        "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID value = ULID.generateULID(ULID.MAX_TIME + 1, FILLED_ENTROPY);
-          }
-        });
-    assertThrows("Valid ULID entropy must not be null", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID value = ULID.generateULID(TEST_TIMESTAMP, null);
-          }
-        });
-    assertThrows(
-        "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID value = ULID.generateULID(TEST_TIMESTAMP, null);
-          }
-        });
-    assertThrows(
-        "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] entropy = new byte[9];
-            Arrays.fill(entropy, (byte) 0x77);
-            ULID value = ULID.generateULID(TEST_TIMESTAMP, entropy);
-          }
-        });
-    assertThrows(
-        "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")",
-        IllegalArgumentException.class, new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] entropy = new byte[11];
-            Arrays.fill(entropy, (byte) 0x77);
-            ULID value = ULID.generateULID(TEST_TIMESTAMP, entropy);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID value = ULID.generateULID(ULID.MIN_TIME - 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be greater than or equal to ULID.MIN_TIME(" + ULID.MIN_TIME
+        + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID value = ULID.generateULID(ULID.MAX_TIME + 1, FILLED_ENTROPY);
+    }, "Valid ULID timestamp must be lesser than or equal to ULID.MAX_TIME(" + ULID.MAX_TIME + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID value = ULID.generateULID(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must not be null");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID value = ULID.generateULID(TEST_TIMESTAMP, null);
+    }, "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[9];
+      Arrays.fill(entropy, (byte) 0x77);
+      ULID value = ULID.generateULID(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] entropy = new byte[11];
+      Arrays.fill(entropy, (byte) 0x77);
+      ULID value = ULID.generateULID(TEST_TIMESTAMP, entropy);
+    }, "Valid ULID entropy must be of length ULID.ENTROPY_LENGTH(" + ULID.ENTROPY_LENGTH + ")");
   }
 
   @Test
@@ -472,14 +404,14 @@ public class ULIDTest {
         "Z0000000000000000000000000", // timestamp overflow
     };
     for (String ulid : invalidUlids) {
-      assertFalse("ULID \"" + ulid + "\" should be invalid", ULID.isValid(ulid));
+      assertFalse(ULID.isValid(ulid), "ULID \"" + ulid + "\" should be invalid");
     }
   }
 
   @Test
   public void testIsValidFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      assertTrue("ULID string is valid", ULID.isValid(params.value));
+      assertTrue(ULID.isValid(params.value), "ULID string is valid");
     }
   }
 
@@ -487,12 +419,12 @@ public class ULIDTest {
   public void testIsValidBinary() {
     byte[] ulid = new byte[16];
     Arrays.fill(ulid, (byte) 0x00);
-    assertTrue("Any byte array of 16 bytes is a valid binary ULID", ULID.isValidBinary(ulid));
+    assertTrue(ULID.isValidBinary(ulid), "Any byte array of 16 bytes is a valid binary ULID");
     Arrays.fill(ulid, (byte) 0xff);
-    assertTrue("Any byte array of 16 bytes is a valid binary ULID", ULID.isValidBinary(ulid));
+    assertTrue(ULID.isValidBinary(ulid), "Any byte array of 16 bytes is a valid binary ULID");
     Random random = new Random();
     random.nextBytes(ulid);
-    assertTrue("Any byte array of 16 bytes is a valid binary ULID", ULID.isValidBinary(ulid));
+    assertTrue(ULID.isValidBinary(ulid), "Any byte array of 16 bytes is a valid binary ULID");
   }
 
   @Test
@@ -507,139 +439,87 @@ public class ULIDTest {
         } //
     };
     for (byte[] ulid : invalidUlids) {
-      assertFalse("Binary ULID \"" + bytesToInitializer(ulid) + "\" should be invalid",
-          ULID.isValidBinary(ulid));
+      assertFalse(ULID.isValidBinary(ulid),
+          "Binary ULID \"" + bytesToInitializer(ulid) + "\" should be invalid");
     }
   }
 
   @Test
   public void testGetTimestampFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      assertEquals("ULID timestamp is different", params.timestamp,
-          ULID.getTimestamp(params.value));
+      assertEquals(params.timestamp, ULID.getTimestamp(params.value),
+          "ULID timestamp is different");
     }
   }
 
   @Test
   public void testGetTimestampNegative() {
-    assertThrows("ULID string must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getTimestamp(null);
-          }
-        });
-    assertThrows("ULID string must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getTimestamp("7ZZZZZZZZZ000000000000000");
-          }
-        });
-    assertThrows("Timestamp overflows MAX_TIME", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getTimestamp("8ZZZZZZZZZ0000000000000000");
-          }
-        });
-    assertThrows("Timestamp overflows MAX_TIME", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getTimestamp("ZZZZZZZZZZ0000000000000000");
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp(null);
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("7ZZZZZZZZZ000000000000000");
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("8ZZZZZZZZZ0000000000000000");
+    }, "Timestamp overflows MAX_TIME");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestamp("ZZZZZZZZZZ0000000000000000");
+    }, "Timestamp overflows MAX_TIME");
   }
 
   @Test
   public void testGetTimestampBinaryNegative() {
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getTimestampBinary(null);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[9];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.getTimestampBinary(ulid);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[11];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.getTimestampBinary(ulid);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getTimestampBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getTimestampBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getTimestampBinary(ulid);
+    }, "ULID binary must be valid");
   }
 
   @Test
   public void testGetEntropyNegative() {
-    assertThrows("ULID string must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getEntropy(null);
-          }
-        });
-    assertThrows("ULID string must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZ");
-          }
-        });
-    assertThrows("ULID string must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy(null);
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZ");
+    }, "ULID string must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropy("7ZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+    }, "ULID string must be valid");
   }
 
   @Test
   public void testGetEntropyFixedValues() {
     for (TestParam params : TEST_PARAMETERS) {
-      assertArrayEquals("ULID entropy is different", params.entropy, ULID.getEntropy(params.value));
+      assertArrayEquals(params.entropy, ULID.getEntropy(params.value), "ULID entropy is different");
     }
   }
 
   @Test
   public void testGetEntropyBinaryNegative() {
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.getEntropyBinary(null);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[9];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.getEntropyBinary(ulid);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[11];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.getEntropyBinary(ulid);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.getEntropyBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getEntropyBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.getEntropyBinary(ulid);
+    }, "ULID binary must be valid");
   }
 
   @Test
@@ -652,7 +532,7 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      assertArrayEquals("ULID binary is different", bytes, ULID.toBinary(params.value));
+      assertArrayEquals(bytes, ULID.toBinary(params.value), "ULID binary is different");
     }
   }
 
@@ -666,37 +546,25 @@ public class ULIDTest {
         ts = ts >>> 8;
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
-      assertEquals("ULID string is different", params.value, ULID.fromBinary(bytes));
+      assertEquals(params.value, ULID.fromBinary(bytes), "ULID string is different");
     }
   }
 
   @Test
   public void testFromBinaryNegative() {
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            ULID.fromBinary(null);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[9];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.fromBinary(ulid);
-          }
-        });
-    assertThrows("ULID binary must be valid", IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() {
-            byte[] ulid = new byte[11];
-            Arrays.fill(ulid, (byte) 0xff);
-            ULID.fromBinary(ulid);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> {
+      ULID.fromBinary(null);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[9];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.fromBinary(ulid);
+    }, "ULID binary must be valid");
+    assertThrows(IllegalArgumentException.class, () -> {
+      byte[] ulid = new byte[11];
+      Arrays.fill(ulid, (byte) 0xff);
+      ULID.fromBinary(ulid);
+    }, "ULID binary must be valid");
   }
 
   @Test
@@ -710,19 +578,19 @@ public class ULIDTest {
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
       ULID value = ULID.parseULID(params.value);
-      assertNotNull("ULID instance must not be null", value);
-      assertEquals("ULID instance must be of type ULID", ULID.class, value.getClass());
-      assertNotNull("ULID instance string value must not be null", value.toString());
-      assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
-      assertEquals("ULID instance string value must equal given string value", params.value,
-          value.toString());
-      assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
-      assertArrayEquals("ULID instance binary value must equal given binary value", bytes,
-          value.toBinary());
-      assertEquals("ULID instance timestamp must equal given timestamp", params.timestamp,
-          value.getTimestamp());
-      assertArrayEquals("ULID instance entropy must equal given entropy", params.entropy,
-          value.getEntropy());
+      assertNotNull(value, "ULID instance must not be null");
+      assertEquals(ULID.class, value.getClass(), "ULID instance must be of type ULID");
+      assertNotNull(value.toString(), "ULID instance string value must not be null");
+      assertTrue(ULID.isValid(value.toString()), "ULID instance string value must be valid");
+      assertEquals(params.value, value.toString(),
+          "ULID instance string value must equal given string value");
+      assertTrue(ULID.isValidBinary(value.toBinary()), "ULID instance binary value must be valid");
+      assertArrayEquals(bytes, value.toBinary(),
+          "ULID instance binary value must equal given binary value");
+      assertEquals(params.timestamp, value.getTimestamp(),
+          "ULID instance timestamp must equal given timestamp");
+      assertArrayEquals(params.entropy, value.getEntropy(),
+          "ULID instance entropy must equal given entropy");
     }
   }
 
@@ -737,19 +605,19 @@ public class ULIDTest {
       }
       System.arraycopy(params.entropy, 0, bytes, 6, 10);
       ULID value = ULID.parseULID(bytes);
-      assertNotNull("ULID instance must not be null", value);
-      assertEquals("ULID instance must be of type ULID", ULID.class, value.getClass());
-      assertNotNull("ULID instance string value must not be null", value.toString());
-      assertTrue("ULID instance string value must be valid", ULID.isValid(value.toString()));
-      assertEquals("ULID instance string value must equal given string value", params.value,
-          value.toString());
-      assertTrue("ULID instance binary value must be valid", ULID.isValidBinary(value.toBinary()));
-      assertArrayEquals("ULID instance binary value must equal given binary value", bytes,
-          value.toBinary());
-      assertEquals("ULID instance timestamp must equal given timestamp", params.timestamp,
-          value.getTimestamp());
-      assertArrayEquals("ULID instance entropy must equal given entropy", params.entropy,
-          value.getEntropy());
+      assertNotNull(value, "ULID instance must not be null");
+      assertEquals(ULID.class, value.getClass(), "ULID instance must be of type ULID");
+      assertNotNull(value.toString(), "ULID instance string value must not be null");
+      assertTrue(ULID.isValid(value.toString()), "ULID instance string value must be valid");
+      assertEquals(params.value, value.toString(),
+          "ULID instance string value must equal given string value");
+      assertTrue(ULID.isValidBinary(value.toBinary()), "ULID instance binary value must be valid");
+      assertArrayEquals(bytes, value.toBinary(),
+          "ULID instance binary value must equal given binary value");
+      assertEquals(params.timestamp, value.getTimestamp(),
+          "ULID instance timestamp must equal given timestamp");
+      assertArrayEquals(params.entropy, value.getEntropy(),
+          "ULID instance entropy must equal given entropy");
     }
   }
 
@@ -771,13 +639,9 @@ public class ULIDTest {
         "Z0000000000000000000000000", // timestamp overflow
     };
     for (final String ulid : invalidUlids) {
-      assertThrows("Invalid ULID string should throw IllegalArgumentException",
-          IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() {
-              ULID ulidObj = ULID.parseULID(ulid);
-            }
-          });
+      assertThrows(IllegalArgumentException.class, () -> {
+        ULID ulidObj = ULID.parseULID(ulid);
+      }, "Invalid ULID string should throw IllegalArgumentException");
     }
   }
 
@@ -793,13 +657,9 @@ public class ULIDTest {
         } //
     };
     for (final byte[] ulid : invalidUlids) {
-      assertThrows("Invalid ULID binary should throw IllegalArgumentException",
-          IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() {
-              ULID ulidObj = ULID.parseULID(ulid);
-            }
-          });
+      assertThrows(IllegalArgumentException.class, () -> {
+        ULID ulidObj = ULID.parseULID(ulid);
+      }, "Invalid ULID binary should throw IllegalArgumentException");
     }
   }
 
@@ -867,10 +727,10 @@ public class ULIDTest {
         {ULID.generateULID(ULID.MAX_TIME, ZERO_ENTROPY),
             ULID.generateULID(ULID.MIN_TIME, FILLED_ENTROPY)},};
     for (ULID[] testValue : testValues) {
-      assertTrue("ULID " + testValue[0] + " should be greater than " + testValue[1],
-          ULID.compare(testValue[0], testValue[1]) > 0);
-      assertTrue("ULID " + testValue[1] + " should be lesser than " + testValue[0],
-          ULID.compare(testValue[1], testValue[0]) < 0);
+      assertTrue(ULID.compare(testValue[0], testValue[1]) > 0,
+          "ULID " + testValue[0] + " should be greater than " + testValue[1]);
+      assertTrue(ULID.compare(testValue[1], testValue[0]) < 0,
+          "ULID " + testValue[1] + " should be lesser than " + testValue[0]);
     }
   }
 
@@ -936,10 +796,10 @@ public class ULIDTest {
         {ULID.generateULID(ULID.MAX_TIME, ZERO_ENTROPY),
             ULID.generateULID(ULID.MIN_TIME, FILLED_ENTROPY)},};
     for (ULID[] testValue : testValues) {
-      assertTrue("ULID " + testValue[0] + " should be greater than " + testValue[1],
-          testValue[0].compareTo(testValue[1]) > 0);
-      assertTrue("ULID " + testValue[1] + " should be lesser than " + testValue[0],
-          testValue[1].compareTo(testValue[0]) < 0);
+      assertTrue(testValue[0].compareTo(testValue[1]) > 0,
+          "ULID " + testValue[0] + " should be greater than " + testValue[1]);
+      assertTrue(testValue[1].compareTo(testValue[0]) < 0,
+          "ULID " + testValue[1] + " should be lesser than " + testValue[0]);
     }
   }
 
@@ -952,11 +812,11 @@ public class ULIDTest {
     Arrays.sort(ulids);
     for (int i = 1; i < ulids.length; i++) {
       if (ulids[i - 1].equals(ulids[i])) {
-        assertEquals("ULID " + ulids[i - 1] + " should be equal to " + ulids[i], 0,
-            ulids[i - 1].compareTo(ulids[i]));
+        assertEquals(0, ulids[i - 1].compareTo(ulids[i]),
+            "ULID " + ulids[i - 1] + " should be equal to " + ulids[i]);
       } else {
-        assertTrue("ULID " + ulids[i - 1] + " should be lesser than " + ulids[i],
-            ulids[i - 1].compareTo(ulids[i]) < 0);
+        assertTrue(ulids[i - 1].compareTo(ulids[i]) < 0,
+            "ULID " + ulids[i - 1] + " should be lesser than " + ulids[i]);
       }
     }
   }
@@ -971,50 +831,50 @@ public class ULIDTest {
         break;
       }
     }
-    assertNull("ULID class should not have a no-args constructor", noArgsCtor);
+    assertNull(noArgsCtor, "ULID class should not have a no-args constructor");
   }
 
   @Test
   public void testULIDEquals() {
-    assertTrue("ULID instances should be equal", ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)
-        .equals(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)));
+    assertTrue(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)
+        .equals(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY)), "ULID instances should be equal");
     byte[] bytes1 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes1, (byte) 0x00);
     ULID value1 = ULID.parseULID(bytes1);
     byte[] bytes2 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes2, (byte) 0x00);
-    assertTrue("ULID instances should be equal", value1.equals(ULID.parseULID(bytes2)));
+    assertTrue(value1.equals(ULID.parseULID(bytes2)), "ULID instances should be equal");
     byte[] bytes3 = value1.toBinary();
-    assertTrue("ULID instances should be equal", value1.equals(ULID.parseULID(bytes3)));
+    assertTrue(value1.equals(ULID.parseULID(bytes3)), "ULID instances should be equal");
     byte[] bytes4 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes4, (byte) 0x00);
     bytes4[0] = (byte) 0x01;
-    assertFalse("ULID instances should not be equal", value1.equals(ULID.parseULID(bytes4)));
-    assertFalse("ULID instances should not be equal to null", value1.equals(null));
-    assertFalse("ULID instances should not be equal to non-ULID instance",
-        value1.equals((Object) value1.toString()));
+    assertFalse(value1.equals(ULID.parseULID(bytes4)), "ULID instances should not be equal");
+    assertFalse(value1.equals(null), "ULID instances should not be equal to null");
+    assertFalse(value1.equals((Object) value1.toString()),
+        "ULID instances should not be equal to non-ULID instance");
   }
 
   @Test
   public void testULIDHashCode() {
-    assertEquals("ULID instances should have same hash code",
+    assertEquals(ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode(),
         ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode(),
-        ULID.generateULID(TEST_TIMESTAMP, ZERO_ENTROPY).hashCode());
+        "ULID instances should have same hash code");
     byte[] bytes1 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes1, (byte) 0x00);
     ULID value1 = ULID.parseULID(bytes1);
     byte[] bytes2 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes2, (byte) 0x00);
-    assertEquals("ULID instances should have same hash code", value1.hashCode(),
-        ULID.parseULID(bytes2).hashCode());
+    assertEquals(value1.hashCode(), ULID.parseULID(bytes2).hashCode(),
+        "ULID instances should have same hash code");
     byte[] bytes3 = value1.toBinary();
-    assertEquals("ULID instances should have same hash code", value1.hashCode(),
-        ULID.parseULID(bytes3).hashCode());
+    assertEquals(value1.hashCode(), ULID.parseULID(bytes3).hashCode(),
+        "ULID instances should have same hash code");
     byte[] bytes4 = new byte[ULID.ULID_BINARY_LENGTH];
     Arrays.fill(bytes4, (byte) 0x00);
     bytes4[0] = (byte) 0x01;
-    assertNotEquals("ULID instances should not have same hash code", value1.hashCode(),
-        ULID.parseULID(bytes4).hashCode());
+    assertNotEquals(value1.hashCode(), ULID.parseULID(bytes4).hashCode(),
+        "ULID instances should not have same hash code");
   }
 
   /**
@@ -1042,10 +902,10 @@ public class ULIDTest {
       if (entropy[7] == 0x0 && entropy[8] == 0x0 && entropy[9] == 0x0) {
         System.out.println(value);
       }
-      assertArrayEquals("ULID entropy is different for " + param.reproducer, entropy,
-          ULID.getEntropy(value));
-      assertEquals("ULID timestamp is different for " + param.reproducer, ULID.MIN_TIME,
-          ULID.getTimestamp(value));
+      assertArrayEquals(entropy, ULID.getEntropy(value),
+          "ULID entropy is different for " + param.reproducer);
+      assertEquals(ULID.MIN_TIME, ULID.getTimestamp(value),
+          "ULID timestamp is different for " + param.reproducer);
       previousValue = value;
     }
     long end = System.currentTimeMillis();

@@ -20,11 +20,11 @@
  */
 package io.azam.ulidj;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestUtils {
   @Test
@@ -117,9 +117,9 @@ public class TestUtils {
         // We assume only ASCII characters, so charAt is good enough here.
         int nextCharIndex = indexOfElement(C, next.charAt(i));
         int prevCharIndex = indexOfElement(C, prev.charAt(i));
-        assertTrue("Next ULID value contains invalid character", nextCharIndex >= 0);
-        assertEquals("Next base64 char is wrong", ((nextCharIndex + C.length - 1) % C.length),
-            prevCharIndex);
+        assertTrue(nextCharIndex >= 0, "Next ULID value contains invalid character");
+        assertEquals(((nextCharIndex + C.length - 1) % C.length), prevCharIndex,
+            "Next base64 char is wrong");
         charMustBeSame = nextCharIndex < C.length && nextCharIndex > 0;
       } else {
         assertEquals(next.charAt(i), prev.charAt(i));
