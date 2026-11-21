@@ -728,12 +728,12 @@ public final class ULID implements Serializable, Comparable<ULID> {
     // Maximum encodable timestamp is 50-bit, but ULID limits to 48-bit.
     // {@link ULID.MAX_TIME}
     char char0 = ulid.charAt(0);
-    if (char0 > V.length || V[char0] == (byte) 0xff || V[char0] > 0x07)
+    if (char0 >= V.length || V[char0] == (byte) 0xff || V[char0] > 0x07)
       return false;
     for (int i = 1; i < ULID_LENGTH; i++) {
       // We only care for chars between 0x00 and 0xff.
       char c = ulid.charAt(i);
-      if (c > V.length || V[c] == (byte) 0xff) {
+      if (c >= V.length || V[c] == (byte) 0xff) {
         return false;
       }
     }
