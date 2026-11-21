@@ -550,6 +550,8 @@ public class ULIDTest {
         "000000000000000000000000\u30420", //
         "\u30420000000000000000000000000", //
         "0000000000000000000000000#", //
+        "\u01000000000000000000000000", // first char just past the lookup table
+        "0000000000000000000000000\u0100", // last char just past the lookup table
         "80000000000000000000000000", // timestamp overflow
         "Z0000000000000000000000000", // timestamp overflow
     };
@@ -785,6 +787,8 @@ public class ULIDTest {
         "000000000000000000000000\u30420", //
         "\u30420000000000000000000000000", //
         "0000000000000000000000000#", //
+        "\u01000000000000000000000000", // first char just past the lookup table
+        "0000000000000000000000000\u0100", // last char just past the lookup table
         "80000000000000000000000000", // timestamp overflow
         "Z0000000000000000000000000", // timestamp overflow
     };
